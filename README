@@ -17,9 +17,7 @@
 - use a recent debian based linux distribution (debian, ubuntu, mint, ...)
 
 - install dependencies 
-    > sudo apt-get install make g++ libgsl0-dev libtinyxml-dev
-      libboost-program-options-dev libbullet-dev premake4 chipmunk-dev
-      libopenscenegraph-dev
+    > sudo apt-get install make g++ libgsl0-dev libtinyxml-dev libboost-program-options-dev libbullet-dev premake4 chipmunk-dev libopenscenegraph-dev freeglut3-dev
     
 - compile with
     > premake4 gmake && make && premake4 debpackage
@@ -30,7 +28,7 @@
 - you're done, test demos from
   https://github.com/AlexandreCampo/famous3Simulation
   
-  don't forget : press space to toggle pause and run the simulator
+- don't forget : press space to toggle pause and run the simulator
                  keyboard shortcuts are displayed on the terminal
 
 
@@ -82,7 +80,6 @@ To clean and/or generate makefiles :
 
 > premake4 clean
 > premake4 gmake
-
 
 To clean and/or build the simulator library:
 
