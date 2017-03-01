@@ -1,0 +1,116 @@
+88888888888          88b           d88                             ad88888ba   
+88                   888b         d888                            d8"     "8b  
+88                   88`8b       d8'88                            Y8,          
+88aaaaa  ,adPPYYba,  88 `8b     d8' 88   ,adPPYba,   88       88  `Y8aaaaa,    
+88"""""  ""     `Y8  88  `8b   d8'  88  a8"     "8a  88       88    `"""""8b,  
+88       ,adPPPPP88  88   `8b d8'   88  8b       d8  88       88          `8b  
+88       88,    ,88  88    `888'    88  "8a,   ,a8"  "8a,   ,a88  Y8a     a8P  
+88       `"8bbdP"Y8  88     `8'     88   `"YbbdP"'    `"YbbdP'Y8   "Y88888P"   
+                                                                               
+                                        A Fast, Modular, and Simple simulator                                                 
+
+
+===============================================================================
+ For the impatients
+===============================================================================
+
+- use a recent debian based linux distribution (debian, ubuntu, mint, ...)
+
+- install dependencies 
+    > sudo apt-get install make g++ libgsl0-dev libtinyxml-dev
+      libboost-program-options-dev libbullet-dev premake4 chipmunk-dev
+      libopenscenegraph-dev
+    
+- compile with
+    > premake4 gmake && make && premake4 debpackage
+    
+- install with
+    > sudo dpkg -i libfamous-3.0.deb
+    
+- you're done, test demos from
+  https://github.com/AlexandreCampo/famous3Simulation
+  
+  don't forget : press space to toggle pause and run the simulator
+                 keyboard shortcuts are displayed on the terminal
+
+
+===============================================================================
+ What is it ?
+===============================================================================
+
+FaMouS is a simulator initially designed to study swarm robotics.  It aims at
+speed, simplicity and modularity to allow fast development and quick results in
+complex scenarios with many entities.
+
+Main concepts are the services and the objects.
+
+Example of services include an OpenGL render and a 3d physics engine based on
+bullet. There are objects such as a floor, a robot, an arena. Objects must be
+designed to interact with services. To do so, they inherit from an interface
+that comes with the service. If an object implements that interface, it becomes
+de facto compatible with the service and it can register to it.
+
+In addition, objects can have devices (such as sensors and actuators : motors,
+infrared sensors etc...)  and any object can be assigned a controller.
+
+A fundamental idea of FaMouS is modularity. Any object/service/device/controller
+can be easily copy/pasted, modified and reused with no consequence on other
+parts of the simulator (exception is changes to service interface which also
+imply changes to objects implementing that interface).
+
+The simulator itself comes as a library that you can link to your code.
+
+We expect users to just create directories in which they throw new services /
+objects / devices / controllers adapted from existing sources. If some material
+is frequently reused, we will promote it and integrate it in the core of the
+simulator.
+
+
+===============================================================================
+ Requirements
+===============================================================================
+
+todo
+
+===============================================================================
+ Building and installing FaMouS
+===============================================================================
+
+We use premake4 to generate Makefiles, based on a premake4.lua script.
+
+To clean and/or generate makefiles :
+
+> premake4 clean
+> premake4 gmake
+
+
+To clean and/or build the simulator library:
+
+> make [clean]
+
+For a release (runs faster), or profiling, use
+> make config=release [clean]
+> make config=profile [clean]
+
+To install the simulator :
+
+> premake4 debpackage
+> sudo dpkg -i libfamous-3.0.deb
+
+
+===============================================================================
+ Getting started
+===============================================================================
+
+To work with FaMouS, you can heavily rely on copy/paste, duplication and
+modification of other material.
+
+At https://github.com/AlexandreCampo/famous3Simulation, you will find a variety
+of simulations using FaMouS that you can test, study, and hack.
+
+
+===============================================================================
+ Contact
+===============================================================================
+Questions, problems : alexandre.campo@ulb.ac.be, alexandre.campo@gmail.com
+

@@ -1,0 +1,10 @@
+Package: libfamous
+Version: 3.0
+Section: misc
+Priority: optional
+Architecture: all
+Depends: make (>= 3.8),  g++ (>=4.6), libglu1-mesa-dev (>=8.0), libgl1-mesa-dev (>=8.0), freeglut3-dev (>=2.6), libgsl-dev (>=1.15), libtinyxml-dev (>=2.6.2), libboost-program-options-dev (>=1.46), libopenscenegraph-dev (>=3.2), libbullet-dev (>=2.81), premake4 (>=4.3) 
+Maintainer: Alexandre Campo <acampo@ulb.ac.be>
+Description: Famous development library for scientific simulation
+Homepage: https://github.com/AlexandreCampo
+
