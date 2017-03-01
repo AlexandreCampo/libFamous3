@@ -91,14 +91,13 @@ public:
     // ================ Custom Physics ==============================
     //
     // extended calculations for modelling underwater dynamics
-//    btVector3 m_gravity;
     
     btVector3 m_linearDrag;
     btVector3 m_angularDrag;
     btVector3 m_linearQuadraticDrag;
     btVector3 m_angularQuadraticDrag;
 
-    btVector3 m_centerOfVolume;
+    btVector3 centerOfVolume;
 
     btVector3 m_linearAddedMass;
     btVector3 m_angularAddedMass;
@@ -109,46 +108,6 @@ public:
     void setDragCoefficients (const btVector3& linear, const btVector3& angular);
     void setDragQuadraticCoefficients (const btVector3& qlinear, const btVector3& qangular, float fluidDensity);
     void updateInertiaTensor ();
-
-
-    
-    /* float height; */
-    /* float radius; */
-
-    /* btRigidBody* body; */
-    /* std::string meshFilename; */
-    
-    /* float colr, colg, colb, cola; */
-    /* bool drawEmissionRange;     */
-
-    /* int acousticCF; */
-    /* int acousticCT; */
-    /* DeviceAcousticTransceiver* acoustic; */
-
-    /* aPad (); */
-    /* ~aPad (); */
-
-    /* void AddDevices (); */
-
-    /* void Draw (RenderOpenGL* r); */
-    /* void Draw (RenderOSG* r); */
-    /* void SetColor (float r, float g, float b, float a); */
-
-    /* void Register (PhysicsBullet* p); */
-    /* void Unregister (PhysicsBullet* p); */
-
-    /* void Register (RenderOpenGL* r); */
-    /* void Unregister (RenderOpenGL* r); */
-
-    /* void SetMeshFilename (std::string filename); */
-    /* void Register (RenderOSG* r); */
-    /* void Unregister (RenderOSG* r); */
-
-    /* void SetPosition (float x, float y, float z); */
-    /* void GetPosition (float& x, float& y, float& z); */
-
-    /* float GetEmissionRange(); */
-    /* void SetEmissionRange(float r); */
 };
 
 #endif

@@ -90,7 +90,7 @@ bool DevicePropeller::IsDrawable()
 void DevicePropeller::ActionStep()
 {
     const btMatrix3x3& bodyRotation = body->getCenterOfMassTransform().getBasis();
-
+    
     btVector3 f = bodyRotation * transform.getBasis() * btVector3(force, 0, 0);
     btVector3 relpos = bodyRotation * transform.getOrigin();
     btVector3 t = relpos.cross(f * body->getLinearFactor());
@@ -146,13 +146,16 @@ void DevicePropeller::Unregister (RenderOSG* r)
 
 void DevicePropeller::Draw (RenderOSG* r)
 {
-    btScalar ogl[16];
-    btTransform t = body->getCenterOfMassTransform();
-    t.getOpenGLMatrix( ogl );
-    osg::Matrix m(ogl);
-    RenderOSGInterface::transform->setMatrix (m);
-
-    osg::ref_ptr<osg::Material> mat = new osg::Material;
-    mat->setDiffuse (osg::Material::FRONT_AND_BACK, osg::Vec4(1, 0, 0, 0.5));
-    devicePropellerNode->getOrCreateStateSet()->setAttributeAndModes(mat, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);    
+    if (drawable)
+    {
+	btScalar ogl[16];
+	btTransform t = body->getCenterOfMassTransform();
+	t.getOpenGLMatrix( ogl );
+	osg::Matrix m(ogl);
+	RenderOSGInterface::transform->setMatrix (m);
+	
+	osg::ref_ptr<osg::Material> mat = new osg::Material;
+	mat->setDiffuse (osg::Material::FRONT_AND_BACK, osg::Vec4(1, 0, 0, 0.5));
+	devicePropellerNode->getOrCreateStateSet()->setAttributeAndModes(mat, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
+    }
 }

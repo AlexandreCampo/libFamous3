@@ -55,25 +55,23 @@ aPad::~aPad()
 void aPad::AddDevices () 
 {
     // simplified actuator
-    propellerLeft = new DevicePropeller (physicsBullet, body, 0.1);
-    propellerLeft->SetPosition(m_centerOfVolume + btVector3( 0, -dimensions[1] / 2.0, 0 ));
+    propellerLeft = new DevicePropeller (physicsBullet, body, 7);
+    propellerLeft->SetPosition(centerOfVolume + btVector3( 0, -dimensions[1] / 2.0, 0 ));
     propellerLeft->SetOrientation(btQuaternion( 0, 0, 0 ));
-    propellerLeft->Register(renderOSG);
+    if (renderOSG) propellerLeft->Register(renderOSG);
     propellerLeft->SetDrawable(false);
     Add(propellerLeft);
     
-    propellerRight = new DevicePropeller (physicsBullet, body, 0.1);
-    propellerRight->SetPosition(m_centerOfVolume + btVector3( 0, dimensions[1] / 2.0, 0 ));
+    propellerRight = new DevicePropeller (physicsBullet, body, 7);
+    propellerRight->SetPosition(centerOfVolume + btVector3( 0, dimensions[1] / 2.0, 0 ));
     propellerRight->SetOrientation(btQuaternion( 0, 0, 0 ));
-    propellerRight->Register(renderOSG);
+    if (renderOSG) propellerRight->Register(renderOSG);
     propellerRight->SetDrawable(false);
     Add(propellerRight);
 
-    // but we have 4 ballasts
-    // together they will push 4 times more than necessary to counteract gravity
-   for (int i = 0; i < 4; i++)
+    // 4 ballasts
+    for (int i = 0; i < 4; i++)
     {
-//    	int i = 0;
     	float neutralVolume = (1.0 / body->getInvMass()) / waterVolume->density;
     	neutralVolume /= 2.0;
     	float ballastVolume = (0.1 * 0.1 * 0.1);
@@ -81,7 +79,7 @@ void aPad::AddDevices ()
     	btVector3 relpos = btVector3(dimensions[0], dimensions[1], 0) / 2.0;
     	btQuaternion rotation (btVector3(0,0,1), M_PI / 2.0 * i);
 
-    	DeviceBallast* ballast = new DeviceBallast (m_centerOfVolume + quatRotate (rotation, relpos), physicsBullet, waterVolume, body, neutralVolume - ballastVolume / 2.0, neutralVolume + ballastVolume / 2.0, 2.0);
+    	DeviceBallast* ballast = new DeviceBallast (centerOfVolume + quatRotate (rotation, relpos), physicsBullet, waterVolume, body, neutralVolume - ballastVolume / 2.0, neutralVolume + ballastVolume / 2.0, 2.0);
 
     	ballasts.push_back(ballast);
     	Add (ballast);
@@ -175,7 +173,7 @@ void aPad::Register (PhysicsBullet* p)
     
     dimensions[0] = 0.7;
     dimensions[1] = 0.7;
-    dimensions[3] = 0.35;
+    dimensions[2] = 0.35;
     mass = 35.0;
 
     btCompoundShape* cshape = new btCompoundShape(false);
@@ -188,11 +186,11 @@ void aPad::Register (PhysicsBullet* p)
     shape = cshape;
 
     shape->calculateLocalInertia(mass,m_inertia);    
+    centerOfVolume = principalTransform.inverse().getOrigin();
     
     btDefaultMotionState* myMotionState = new btDefaultMotionState(principalTransform);
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,shape,m_inertia);
-    rbInfo.m_friction = 0.9;    
-//    rbInfo.m_friction = 0.2;    
+    rbInfo.m_friction = 0.5;    
     rbInfo.m_linearDamping = 0.05; 
     rbInfo.m_angularDamping = 0.05;
 
@@ -200,7 +198,7 @@ void aPad::Register (PhysicsBullet* p)
     body->setUserPointer((void*) static_cast<Object*>(this));
     body->setMassProps (mass, m_inertia);
 
-    setDragCoefficients(btVector3(0,0,0), btVector3(0,0,0));
+    setDragCoefficients(mass * btVector3( 0.1, 0.1, 0.5), mass * btVector3( 0.3, 0.3, 0.3));
     setDragQuadraticCoefficients(btVector3(0,0,0), btVector3(0,0,0), 1.0);
     setAddedMass (btVector3 (0,0,0), btVector3 (0,0,0));
     body->setActivationState(DISABLE_DEACTIVATION);

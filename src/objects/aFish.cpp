@@ -59,14 +59,14 @@ void aFish::AddDevices()
     propellerLeft = new DevicePropeller (physicsBullet, body, 1);
     propellerLeft->SetPosition(m_centerOfVolume + btVector3( 0, -dimensions[1] / 2.0, 0 ));
     propellerLeft->SetOrientation(btQuaternion( 0, 0, 0 ));
-    propellerLeft->Register(renderOSG);
+    if (renderOSG) propellerLeft->Register(renderOSG);
     propellerLeft->SetDrawable(false);
     Add(propellerLeft);
     
     propellerRight = new DevicePropeller (physicsBullet, body, 1);
     propellerRight->SetPosition(m_centerOfVolume + btVector3( 0, dimensions[1] / 2.0, 0 ));
     propellerRight->SetOrientation(btQuaternion( 0, 0, 0 ));
-    propellerRight->Register(renderOSG);
+    if (renderOSG) propellerRight->Register(renderOSG);
     propellerRight->SetDrawable(false);
     Add(propellerRight);
     

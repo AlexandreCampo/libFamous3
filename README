@@ -16,14 +16,7 @@
 
 - use a recent debian based linux distribution (debian, ubuntu, mint, ...)
 
-- install dependencies 
-    > sudo apt-get install make g++ libgsl0-dev libtinyxml-dev libboost-program-options-dev libbullet-dev premake4 chipmunk-dev libopenscenegraph-dev freeglut3-dev
-    
-- compile with
-    > premake4 gmake && make && premake4 debpackage
-    
-- install with
-    > sudo dpkg -i libfamous-3.0.deb
+- run the script install.sh
     
 - you're done, test demos from
   https://github.com/AlexandreCampo/famous3Simulation

@@ -377,6 +377,8 @@ RenderOSG::RenderOSG(Simulator* simulator, int argc, char** argv)
   /* Initialize our window. */
 //  InitGL(800, 600);
 
+  osg::setNotifyLevel( osg::FATAL );
+  
   // create the view of the scene.
   viewer = new osgViewer::Viewer;
   window = viewer->setUpViewerAsEmbeddedInWindow(100,100,800,600);

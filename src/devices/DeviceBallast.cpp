@@ -65,7 +65,7 @@ void DeviceBallast::PerceptionStep()
 
 void DeviceBallast::ActionStep()
 {
-    btVector3 worldpos = body->getCenterOfMassTransform() * position;
+    btVector3 worldpos = body->getCenterOfMassTransform() * position;        
     
     // request water height at ballast position
     float height = waterVolume->calculateHeight(worldpos, object->simulator->time);
@@ -101,9 +101,6 @@ void DeviceBallast::ActionStep()
     {
 	immersedVolume = volume;
     }
-
-
-//    cout << "Ballast " << immersedVolume << " " << waterVolume->density << " " << buoyancyForce.getX() << " " << buoyancyForce.getY() << " " << buoyancyForce.getZ() << " " << object->simulator->time << endl;
 
     buoyancyForce = -body->getGravity() * immersedVolume * waterVolume->density;
 
