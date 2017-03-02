@@ -64,7 +64,7 @@ public:
     /* DeviceRayCast* rayBack; */
     DeviceAcousticTransceiver* acoustic;
     DeviceOpticalTransceiver* optical;
-    DeviceNetworker* networker;
+    /* DeviceNetworker* networker; */
 
     float colr, colg, colb, cola;
 

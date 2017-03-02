@@ -116,8 +116,8 @@ void aMussel::AddDevices()
     rayBottom = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);  
     Add (rayBottom);   
 
-    networker = new DeviceNetworker ();    
-    Add (networker);
+    // networker = new DeviceNetworker ();    
+    // Add (networker);
     
 }
 
