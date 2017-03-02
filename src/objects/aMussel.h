@@ -26,13 +26,10 @@
 #include "EnergyManagerInterface.h"
 #include "WaterVolumeInterface.h"
 
-#include "DeviceMagicForce.h"
-#include "DevicePropellers.h"
 #include "DeviceBallast.h"
 #include "DeviceAcousticTransceiver.h"
 #include "DeviceOpticalTransceiver.h"
 #include "DeviceRayCast.h"
-#include "DeviceNetworker.h"
 
 // store only one and same geometry  for all robots
 static osg::ref_ptr<osg::Node> aMusselNode = NULL;
