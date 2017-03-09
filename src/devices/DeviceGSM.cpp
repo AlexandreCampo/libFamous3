@@ -52,7 +52,7 @@ void DeviceGSM::Send (int dst, std::vector<char> content)
 {
     GSMNetworkInterface* o = (GSMNetworkInterface*) object;
 
-    gsmNetwork->messagesInTransit.push_back(GSMNetwork::Message(o->id, dst, o->simulator->time, content));
+    gsmNetwork->messagesInTransit.push_back(GSMNetwork::Message(o->id, dst, object->simulator->time, content));
 }
 
 bool DeviceGSM::Receive (GSMNetwork::Message& msg)
