@@ -30,7 +30,7 @@ Object::~Object ()
 void Object::Add (Device* d)
 {
     devices.push_back(d);
-    d->object = this;
+    d->SetObject(this);
 }
 
 void Object::Remove (Device* d)

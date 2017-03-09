@@ -178,8 +178,6 @@ bool DeviceAcousticTransceiver::process (const btBroadphaseProxy *proxy)
 		// transmit message and exit
 		DeviceAcousticTransceiver* at = (DeviceAcousticTransceiver*) o->devices[i];
 		
-		// btTransform l = sphereTransform.inverseTimes(cylinderTransform);	
-		// btVector3 localPosition = l.getOrigin();
 		std::list<Message>::iterator it2 = messagesSent.begin();
 		for (; it2 != messagesSent.end(); ++it2)
 		{

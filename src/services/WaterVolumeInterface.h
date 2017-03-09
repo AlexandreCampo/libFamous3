@@ -27,7 +27,7 @@
 class WaterVolumeInterface 
 {
 public : 
-    WaterVolume* waterVolume;
+    WaterVolume* waterVolume = NULL;
 
     WaterVolumeInterface ();
 

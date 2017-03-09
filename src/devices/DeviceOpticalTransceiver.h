@@ -24,20 +24,21 @@
 #include "Device.h"
 
 #include "PhysicsBullet.h"
-#include "RenderOpenGLInterface.h"
+#include "RenderOSGInterface.h"
 
 #include <list>
 #include <vector>
 
-#define DEVICE_OPTICAL_TRANSCEIVER_MAX_TRANSMITTERS 20
+// store only one and same geometry for all such devices
+static osg::ref_ptr<osg::Node> deviceOpticalTransceiverNode = NULL;
 
-class DeviceOpticalTransceiver : public Device, public btBroadphaseAabbCallback, public RenderOpenGLInterface
+class DeviceOpticalTransceiver : public Device, public btBroadphaseAabbCallback, public RenderOSGInterface
 {
 public :
     PhysicsBullet* physics;
-    btRigidBody* parentBody;
+    btRigidBody* body;
 
-    btTransform localTransform;
+    btTransform transform;
     btRigidBody* collisionBody; 
     btCollisionShape* collisionShape;
 
@@ -46,41 +47,60 @@ public :
 
     float maxRange;
     float value;
+    bool receiveOmnidirectional;
+
+    bool drawable;
 
     struct Transmitter
     {
-	btVector3 rayFromLocal;
-	btVector3 rayToLocal;
 	float apertureAngle;
 	float cosApertureAngle;
+	btVector3 position;
 	btVector3 direction;
-
+	
 	Transmitter (btVector3 position, btVector3 direction, btScalar range, btScalar angle)
 	    {
-		rayFromLocal = position;
-		rayToLocal = position + direction * range;
-		this->direction = direction;
+		this->position = position;
+		this->direction = direction.normalize();
+
 		apertureAngle = angle;
 		cosApertureAngle = cos (apertureAngle);
 	    }
     };
     std::vector<Transmitter> transmitters;
 
+    struct Receiver
+    {
+	float apertureAngle;
+	float cosApertureAngle;
+	btVector3 position;
+	btVector3 direction;
+
+	Receiver (btVector3 position, btVector3 direction, btScalar range, btScalar angle)
+	    {
+		this->position = position;
+		this->direction = direction.normalize();
+		apertureAngle = angle;
+		cosApertureAngle = cos (apertureAngle);
+	    }
+    };
+    std::vector<Receiver> receivers;
+
+
     struct Message
     {
-	Message (float d, int c, float t, int tr) 
+	Message (float d, int c, int tr) 
 	    {
-		time = t;
 		distance = d;
 		content = c;
-		transmitter = tr;		
+		transmitter = tr;
+		receiver = -1;
 	    }
 	
-	float time;
 	float distance;
 	int content;
 	int transmitter;
-	Object* emitter;
+	int receiver;
     };
 
     std::list<Message> messagesReceived;
@@ -91,19 +111,29 @@ public :
     ~DeviceOpticalTransceiver();
 
     void AddTransmitter (btVector3 position, btVector3 direction, btScalar range, btScalar angle);
-
-    void Send (int content, float time, int transmitter);
-    void SendOmnidirectional (int content, float time);
-    bool Receive (int& c);
+    void AddReceiver (btVector3 position, btVector3 direction, btScalar range, btScalar angle);
+    void SetReceiveOmnidirectional(bool omni);
+    
+    void Send (int content, int transmitter = -1);
+    bool Receive (int& c, int& r);
 
     void ActionStep ();
     bool process (const btBroadphaseProxy *proxy);
+    bool processOmniToOmni(Message& m, btCollisionObject* dobj, DeviceOpticalTransceiver* od);
+    bool processTransmitterToOmni(Message& m, const Transmitter& tra, btCollisionObject* dobj, DeviceOpticalTransceiver* od);
+    bool processOmniToReceivers(Message& m, btCollisionObject* dobj, DeviceOpticalTransceiver* od);
+    bool processTransmitterToReceivers(Message& m, const Transmitter& tra, btCollisionObject* dobj, DeviceOpticalTransceiver* od);
+
     void PerceptionStep ();
     void Reset();
 
-    void Draw (RenderOpenGL* r);
-
     void SetRange(float range);
+
+    void SetDrawable(bool d);
+    bool IsDrawable();
+    void Register (RenderOSG* r);
+    void Draw (RenderOSG* r);
+
 };
 
 

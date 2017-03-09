@@ -28,7 +28,7 @@
 class EnergyManagerInterface 
 {
 public : 
-    EnergyManager* energyManager;
+    EnergyManager* energyManager = NULL;
 
     float energyCapacity;
     float energyLevel;

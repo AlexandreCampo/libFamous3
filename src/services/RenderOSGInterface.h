@@ -29,7 +29,7 @@
 class RenderOSGInterface 
 {
 public :
-    RenderOSG* renderOSG;
+    RenderOSG* renderOSG = NULL;
     osg::ref_ptr<osg::Node> node;
     osg::ref_ptr<osg::MatrixTransform> transform;
 

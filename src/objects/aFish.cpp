@@ -89,54 +89,72 @@ void aFish::AddDevices()
     t2.setIdentity();    
     int cf4 = this->collisionType;
     int ct4 = (1 << 4);
-    float range = 0.2 * physicsBullet->scalingFactor;    
-    optical = new DeviceOpticalTransceiver (physicsBullet, body, t2, cf4, ct4, range);    
+    float range = 0.4;    
+    optical = new DeviceOpticalTransceiver (physicsBullet, body, t2, cf4, ct4, range);
+    if (renderOSG) optical->Register(renderOSG);
     Add (optical);
 
     // add directional optical transceivers
 //    float addedrange = 0.005 * physicsBullet->scalingFactor;
     float a = 30.0 * M_PI / 180.0;
 
+    // btVector3 pos (0.0, 0.0, 0.0);
+    // btVector3 dir (0, 1, 0);   
+    // optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+
+    // pos = btVector3 (0.0, 0.0, 0.0);
+    // dir = btVector3 (1, 0, 0);   
+    // optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    
     // front left
     btVector3 pos (0.0, 0.0, 0.0);
     btVector3 dir (1, -sin(a), 0);   
     optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->AddReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
 
     // front right
     pos = btVector3 (0.0, 0.0, 0.0);
     dir = btVector3 (1, sin(a), 0);   
     optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->AddReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
 
     // left
     pos = btVector3 (0.0, 0.0, 0.0);
-    dir = btVector3 (0, -1, 0);   
+    dir = btVector3 (0, 1, 0);   
     optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->AddReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
 
     // right
     pos = btVector3 (0.0, 0.0, 0.0);
-    dir = btVector3 (0, 1, 0);   
+    dir = btVector3 (0, -1, 0);   
     optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->AddReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
 
     // front
     pos = btVector3 (0.0, 0.0, 0.0);
     dir = btVector3 (1, 0, 0);   
     optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->AddReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
 
     // back
     pos = btVector3 (0.0, 0.0, 0.0);
     dir = btVector3 (-1, 0, 0);   
     optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->AddReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
 
     // top
     pos = btVector3 (0.0, 0.0, 0.0);
     dir = btVector3 (0, 0, 1);   
     optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->AddReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
 
     // bottom
     pos = btVector3 (0.0, 0.0, 0.0);
     dir = btVector3 (0, 0, -1);   
     optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->AddReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
 
+    optical->SetReceiveOmnidirectional(true);
 
     // adding ray sensors for proximity
     int cf3 = 0x7FFFFFFF; 

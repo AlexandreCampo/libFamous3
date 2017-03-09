@@ -42,7 +42,16 @@ static osg::ref_ptr<osg::Node> aFishNode = NULL;
 class aFish : public virtual Object, public RenderOpenGLInterface, public PhysicsBulletInterface, public EnergyManagerInterface, public RenderOSGInterface, public WaterVolumeInterface
 {
 public:
-
+    
+    static const int FRONT_LEFT = 0;
+    static const int FRONT_RIGHT = 1;
+    static const int LEFT = 2;
+    static const int RIGHT = 3;
+    static const int FRONT = 4;
+    static const int BACK = 5;
+    static const int TOP = 6;
+    static const int BOTTOM = 7;
+    
     float dimensions[3];
     float mass;
 
@@ -62,7 +71,6 @@ public:
     
     std::string meshFilename;
 
-//    DeviceMagicForce* magicForce;
     DevicePropeller* propellerLeft;
     DevicePropeller* propellerRight;
     DeviceBallast* ballast;
@@ -119,7 +127,6 @@ public:
     // ================ Custom Physics ==============================
     //
     // extended calculations for modelling underwater dynamics
-//    btVector3 m_gravity;
     
     btVector3 m_linearDrag;
     btVector3 m_angularDrag;
@@ -136,8 +143,6 @@ public:
     void setAddedMass (const btVector3& linear, const btVector3& angular);
     void setDragCoefficients (const btVector3& linear, const btVector3& angular);
     void setDragQuadraticCoefficients (const btVector3& qlinear, const btVector3& qangular, float fluidDensity);
-//todo
-//    void setVolume (float v);
     void updateInertiaTensor ();
 };
 

@@ -21,9 +21,6 @@
 #include "Simulator.h"
 #include <iostream>
 
-// TODO DEBUG
-#include "aMussel.h"
-
 DeviceBallast::DeviceBallast(btVector3 position, PhysicsBullet* p, WaterVolume* w, btRigidBody* b, float minVolume, float maxVolume, float actionCoefficient) :
     Device()
 {

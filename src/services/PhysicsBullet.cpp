@@ -39,7 +39,7 @@ PhysicsBullet::PhysicsBullet (float scalingFactor)
     btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
     m_solver = sol;
   
-    // not sure which is faster ....
+    // not sure which is best ....
     m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);   
 //    m_dynamicsWorld = new btContinuousDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);   
 //    m_dynamicsWorld = new btSimpleDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);   
@@ -87,28 +87,5 @@ void PhysicsBullet::Initialize ()
 
 void PhysicsBullet::Step ()
 {
-//     if (customPhysics)
-//     {
-// 	// fetch the rigid bodies, and cast the user pointer
-// 	btCollisionObjectArray& array = m_dynamicsWorld->getCollisionObjectArray();
-// 	int n = m_dynamicsWorld->getNumCollisionObjects();
-// 	for (int i = 0; i < n; i++)
-// 	{
-// //	    btCollisionObject* obj = array[i];
-// 	    PhysicsBulletInterface* pbi = dynamic_cast<PhysicsBulletInterface*> ((Object*)array[i]->getUserPointer());
-// 	    pbi->CustomPhysics();
-// 	}
-//     }
-
     m_dynamicsWorld->stepSimulation(simulator->timestep, 0, simulator->timestep);
 }
-
-// void PhysicsBullet::SetCustomPhysics (bool flag)
-// {
-//     customPhysics = flag;
-// }
-
-// bool PhysicsBullet::GetCustomPhysics ()
-// {
-//     return customPhysics;
-// }

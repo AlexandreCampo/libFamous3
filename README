@@ -61,7 +61,15 @@ simulator.
  Requirements
 ===============================================================================
 
-todo
+make
+g++
+libgsl0-dev
+libtinyxml-dev
+libboost-program-options-dev
+libbullet-dev premake4
+chipmunk-dev
+libopenscenegraph-dev
+freeglut3-dev
 
 ===============================================================================
  Building and installing FaMouS

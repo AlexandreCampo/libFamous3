@@ -43,7 +43,6 @@ Simulator::Simulator(bool silent)
 	std::cout << "                                                                               " << std::endl;
 	std::cout << "                                        A Fast, Modular, and Simple simulator  " << std::endl;         
 	std::cout << "                                                                               " << std::endl;
-//    std::cout << "                                                                               " << std::endl;
     }
 
     time = 0.0;

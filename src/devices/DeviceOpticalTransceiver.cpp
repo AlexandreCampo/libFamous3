@@ -31,18 +31,20 @@
 #include <iostream>
 #include <typeinfo>
 
-
+using namespace std;
 
 DeviceOpticalTransceiver::DeviceOpticalTransceiver(PhysicsBullet* p, btRigidBody* b, btTransform t, int collisionFilter, int collisionType, float maxRange) : 
     Device (),
-    btBroadphaseAabbCallback (),
-    RenderOpenGLInterface()
+    btBroadphaseAabbCallback ()
 {
     this->physics = p;
-    this->parentBody = b;
-    this->localTransform = t;
+    this->body = b;
+    this->transform = t;
 
-    // inherited from ContactResultCallback
+    receiveOmnidirectional = false;
+    drawable = false;
+    
+    // inherited from callback
     this->collisionFilter = collisionFilter;
     this->collisionType = collisionType;
 
@@ -62,9 +64,9 @@ DeviceOpticalTransceiver::DeviceOpticalTransceiver(PhysicsBullet* p, btRigidBody
     // make sure parent body has a user pointer correctly set... 
     // I expect this convention to cause troubles...
     // the user pointer should be set to the corresponding Object* pointer (see objects implemenations such as Floor.cpp)
-    if (parentBody->getUserPointer() == NULL)
+    if (body->getUserPointer() == NULL)
     {
-	std::cerr << "The body " << parentBody << " misses a proper user pointer in its collision shape !" << std::endl;
+	std::cerr << "The body " << body << " misses a proper user pointer in its collision shape !" << std::endl;
     }
 
     Reset();
@@ -72,14 +74,45 @@ DeviceOpticalTransceiver::DeviceOpticalTransceiver(PhysicsBullet* p, btRigidBody
 
 void DeviceOpticalTransceiver::AddTransmitter (btVector3 position, btVector3 direction, btScalar range, btScalar angle)
 {
-    // there is a maximum number of transmitters...
-    if (transmitters.size() >= DEVICE_OPTICAL_TRANSCEIVER_MAX_TRANSMITTERS)
-    { 
-	std::cerr << "The object " << parentBody->getUserPointer() << " is trying to add more optical transmitters than allowed !" << std::endl;
-	return;
+    transmitters.push_back (Transmitter (position, direction, range, angle));
+
+    if (renderOSG)
+    {
+	direction.normalize();
+	
+	// rotate, translate, scale to device location
+	osg::ref_ptr<osg::PositionAttitudeTransform> t = new osg::PositionAttitudeTransform();
+	btVector3 p = transform.getOrigin() + position;
+	t->setPosition(osg::Vec3d(p.x(), p.y(), p.z()));
+	const btMatrix3x3& rot = transform.getBasis();
+	btVector3 rdir = rot.getColumn(0);
+	btVector3 raxis = rdir.cross(direction);
+
+	// direction parallel to x axis, can only be a rotation around y
+	if (raxis.fuzzyZero())
+	    raxis = btVector3(0,1,0);
+	
+	float cosAngle = rdir.dot(direction);
+	osg::Quat q1 = osg::Quat( -M_PI/2.0, osg::Vec3(0,1,0) );
+	osg::Quat q2 = osg::Quat(acos(cosAngle), osg::Vec3(raxis.x(), raxis.y(), raxis.z()));	
+	t->setAttitude(q1 * q2);
+	
+	t->addChild (deviceOpticalTransceiverNode);
+	RenderOSGInterface::transform->addChild (t);
+	renderOSG->root->addChild(RenderOSGInterface::transform);
+
+	// disable rendering by default
+	RenderOSGInterface::transform->setNodeMask(0);
+	
+	osg::ref_ptr<osg::Material> mat = new osg::Material;
+	mat->setDiffuse (osg::Material::FRONT_AND_BACK, osg::Vec4(0.5, 0.5, 1, 0.2));
+	deviceOpticalTransceiverNode->getOrCreateStateSet()->setAttributeAndModes(mat, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);	
     }
-    // local ray coordinates
-    transmitters.push_back (Transmitter (position, direction.normalize(), range, angle));
+}
+
+void DeviceOpticalTransceiver::AddReceiver (btVector3 position, btVector3 direction, btScalar range, btScalar angle)
+{
+    receivers.push_back (Receiver (position, direction, range, angle));
 }
 
 
@@ -93,7 +126,7 @@ void DeviceOpticalTransceiver::ActionStep ()
     if (messagesSent.size() > 0)
     {
 	// move the sensor in its place with local transform
-	btTransform t = parentBody->getWorldTransform() * localTransform;
+	btTransform t = body->getWorldTransform() * transform;
 	collisionBody->setWorldTransform(t);
 	
 	// use the engine to make half work
@@ -105,15 +138,7 @@ void DeviceOpticalTransceiver::ActionStep ()
 	broadphase->aabbTest(aabbMin,aabbMax, (*this));
 	
 	// remove all messages that have been sent
-	std::list<Message>::iterator it = messagesSent.begin();
-
-	for (auto i = messagesSent.begin(); i != messagesSent.end();)
-	{
-	    if (i->time < object->simulator->time)
-		i = messagesSent.erase(i);
-	    else
-		++i;
-	}
+	messagesSent.clear();
     }
 }
 
@@ -128,58 +153,124 @@ void DeviceOpticalTransceiver::Reset ()
     messagesSent.clear();
 }
 
-void DeviceOpticalTransceiver::Draw (RenderOpenGL* r)
-{   
-    btTransform transform;
-    btScalar m[16];
-    btMatrix3x3 rot;
-    rot.setIdentity();
-
-    transform = parentBody->getWorldTransform();
+bool DeviceOpticalTransceiver::processOmniToOmni(Message& m, btCollisionObject* detectedObject, DeviceOpticalTransceiver* od)
+{
+    // check that both devices are in range
+    btVector3 otherPos = detectedObject->getWorldTransform() * od->transform.getOrigin();
+    btVector3 selfPos = collisionBody->getWorldTransform().getOrigin();	
     
-    transform *= localTransform;
-    transform.getOpenGLMatrix(m);
+    btVector3 diff = otherPos - selfPos;
+    btScalar dist = diff.length();
+    
+    // not in range
+    if ( dist > maxRange) return true;
+    
+    od->messagesReceived.push_back(m);
 
-    glPushMatrix();     
-    glMultMatrixf(m);
+    return true;
+}
 
+bool DeviceOpticalTransceiver::processTransmitterToOmni(Message& m, const Transmitter& transmitter, btCollisionObject* detectedObject, DeviceOpticalTransceiver* od)
+{
+    // check that device is within transmitter cone
+    btVector3 otherPos = detectedObject->getWorldTransform() * od->transform.getOrigin();
+    btVector3 selfPos = collisionBody->getWorldTransform() * transmitter.position;	
+    
+    btVector3 diff = otherPos - selfPos;
+    btScalar dist = diff.length();
+    
+    if ( dist > maxRange) return true;
 
-    dsRotationMatrix rotmat;
-    float pos[3]; pos[0] = 0; pos[1] = 0; pos[2] = 0;       
-    dRotation2dsRotationMatrix(0, rotmat);
-
-    // also draw transmitters
-    std::vector<Transmitter>::iterator it = transmitters.begin();
-    for (; it != transmitters.end(); ++it)
+    btVector3 diffnorm = diff / dist;
+    btVector3 wdir = collisionBody->getWorldTransform().getBasis() * transmitter.direction;
+    
+    float cosAngle = wdir.dot (diffnorm);
+    
+    // the device falls inside transmission cone
+    if (cosAngle >= transmitter.cosApertureAngle)
     {
-	// draw the ray
-	float pos1[3] = {0,0,0};	
-	float pos2[3] = {0,0,0};	
-	
-	pos1[0] = it->rayFromLocal.x(); pos1[1] = it->rayFromLocal.y(); pos1[2] = it->rayFromLocal.z(); 
-	btVector3 colpos = it->rayToLocal;
-	pos2[0] = colpos.x(); pos2[1] = colpos.y(); pos2[2] = colpos.z(); 
-	
-	glLineWidth (1.0);
-	r->dsDrawLine (pos1, pos2);
-    }
+	od->messagesReceived.push_back(m);
+    }    
+    return true;
+}
 
-    // r->dsSetColorAlpha (0.9, 0.9, 0.9, 0.3);
-    // // r->dsDrawCylinder((float*) &pos, (float*) &rotmat, 0.1, maxRange);
-
-    // glEnable(GL_COLOR_MATERIAL);
-    // glEnable (GL_BLEND);
-    // glBlendFunc (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    // glColor4f(1, 1, 1, 1);
+bool DeviceOpticalTransceiver::processOmniToReceivers(Message& m, btCollisionObject* detectedObject, DeviceOpticalTransceiver* od)
+{
+    const btTransform& otherTr = detectedObject->getWorldTransform() * od->transform;
     
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    // glLineWidth(0.5);
-    // glutWireSphere(maxRange, 8, 8);
+    // loop over all receivers
+    int r = 0;
+    for (auto receiver : od->receivers)
+    {
+	// check that receiver is in range
+	btVector3 otherPos = otherTr * receiver.position;
+	const btVector3& selfPos = collisionBody->getWorldTransform().getOrigin();	
+	
+	btVector3 diff = selfPos - otherPos;
+	btScalar dist = diff.length();
+	
+	// not in range, skip this receiver
+	if ( dist > maxRange) continue;
+	
+	// check that self device is in receiver cone
+	btVector3 wodir = otherTr.getBasis() * receiver.direction;
+	btVector3 diffnorm = diff / dist;
+	
+	float cosAngleReceiver = wodir.dot (diffnorm);
+	
+	// transmitter is inside receiver cone
+	if (cosAngleReceiver >= receiver.cosApertureAngle)
+	{
+	    m.receiver = r;
+	    od->messagesReceived.push_back(m);
+	}
+	r++;
+    }		    
 
-    // glPolygonMode(GL_FRONT, GL_FILL);
-    // glDisable(GL_COLOR_MATERIAL);
+    return true;
+}
 
-    glPopMatrix();
+bool DeviceOpticalTransceiver::processTransmitterToReceivers(Message& m, const Transmitter& transmitter, btCollisionObject* detectedObject, DeviceOpticalTransceiver* od)
+{
+    const btTransform& otherTr = detectedObject->getWorldTransform() * od->transform;
+    const btTransform& selfTr = collisionBody->getWorldTransform();
+
+    // loop over all receivers
+    int r = 0;
+    for (auto receiver : od->receivers)
+    {
+	// check that receiver is in transmitter cone
+	btVector3 otherPos = otherTr * receiver.position;
+	btVector3 selfPos = selfTr * transmitter.position;	
+	
+	btVector3 diff = otherPos - selfPos;
+	btScalar dist = diff.length();
+	
+	// not in range, skip this receiver
+	if ( dist > maxRange) continue;
+	
+	btVector3 diffnorm = diff / dist;
+
+	btVector3 wdir = selfTr.getBasis() * transmitter.direction;
+	float cosAngleTransmitter = wdir.dot (diffnorm);
+	
+	// the receiver falls inside transmission cone
+	if (cosAngleTransmitter >= transmitter.cosApertureAngle)
+	{			    
+	    // check that transmitter is in receiver cone
+	    btVector3 wodir = otherTr.getBasis() * receiver.direction;
+	    float cosAngleReceiver = wodir.dot (-diffnorm);
+	    
+	    // transmitter is inside receiver cone
+	    if (cosAngleReceiver >= receiver.cosApertureAngle)
+	    {
+		m.receiver = r;
+		od->messagesReceived.push_back(m);
+	    }
+	}
+	r++;
+    }		    
+    return true;
 }
 
 
@@ -188,106 +279,63 @@ bool DeviceOpticalTransceiver::process (const btBroadphaseProxy *proxy)
     // do not take into account oneself, or parent
     btCollisionObject* detectedObject = (btCollisionObject*)proxy->m_clientObject;
     if (detectedObject == collisionBody) return true;
-    if (detectedObject == parentBody) return true;
+    if (detectedObject == body) return true;
 	
-    //only perform raycast if filterMask matches
+    //only manage messages if filterMask matches
     btBroadphaseProxy* bph = detectedObject->getBroadphaseHandle();
     bool collides = (bph->m_collisionFilterGroup & collisionFilter) != 0;
     collides = collides && (collisionType & bph->m_collisionFilterMask);
 
+    // found one object within communication range
     if (collides) 
     {
-	// We say the optical signal is perceived iff the object COM falls within the emission radius...		
-	btTransform other = detectedObject->getWorldTransform();
-	btTransform self = collisionBody->getWorldTransform();	
-
-        btVector3 diff = other.getOrigin() - self.getOrigin();
-        btScalar dist = diff.length();
-
-        if ( dist > maxRange)
-        {
-	    return true;
-        }
-
-	// a buffer to avoid redundant calculation of in cone message passing
-	int insideTransmitterCone [DEVICE_OPTICAL_TRANSCEIVER_MAX_TRANSMITTERS];
-	for (int i = 0; i < DEVICE_OPTICAL_TRANSCEIVER_MAX_TRANSMITTERS; i++) insideTransmitterCone[i] = -1;
-
-	// memorize device pointer (speed up if more than one message transmitted)
-	DeviceOpticalTransceiver* ot = NULL;
-	bool transceiverExists = true;
-
-	// now loop over all messages and see which ones are received (no occlusion in this case ...)
-	std::list<Message>::iterator it = messagesSent.begin();
-	for (; it != messagesSent.end(); ++it)
+	// check if colliding object has an optical device
+	Object* o = (Object*) detectedObject->getUserPointer();
+	DeviceOpticalTransceiver* od = NULL;
+	for (auto d : o->devices)
 	{
-	    // check if message must be delivered later
-	    if (it->time < object->simulator->time) continue;
-	    
-	    bool messageTransmitted = true;
-
-	    // a specific transmitter was selected 
-	    if (it->transmitter >= 0)
+	    if (typeid (*d) == typeid (*this))
 	    {
-		// first check if the presence in cone was already tested for this object
-		if (insideTransmitterCone[it->transmitter] == -1)
-		{
-		    btVector3 diffnorm = diff / dist;
-		    btMatrix3x3 selfbasis = self.getBasis();
-		    btVector3 tr (selfbasis[0].dot(transmitters[it->transmitter].direction), selfbasis[1].dot(transmitters[it->transmitter].direction), selfbasis[2].dot(transmitters[it->transmitter].direction));
-		    float cosAngle = (tr).dot(diffnorm);
-		    
-		    // the object CoM falls inside transmission cone
-		    if (cosAngle > transmitters[it->transmitter].cosApertureAngle)
-		    {
-			insideTransmitterCone[it->transmitter] = 1;
-		    }
-		    else
-		    {
-			messageTransmitted = false;
-			insideTransmitterCone[it->transmitter] = 0;
-		    }
-		} 
-		else if (insideTransmitterCone[it->transmitter] == 0)
-		{
-		    messageTransmitted = false;
-		}		    
+		od = (DeviceOpticalTransceiver*) d;
+		break;
 	    }
+	}
 
-	    if (messageTransmitted)
+	// no optical device, no transmission
+	if (od == NULL) return true;
+
+	for (auto message : messagesSent)
+	{
+	    // a specific transmitter was selected 
+	    if (message.transmitter >= 0)
 	    {
-		// set the emitter
-		it->emitter = (Object*) parentBody->getUserPointer();
-
-		if (ot == NULL)
+		const Transmitter& transmitter = transmitters[message.transmitter];
+		
+		// other device receives from any direction
+		if (od->receiveOmnidirectional)
 		{
-		    if (transceiverExists)
-		    {
-			transceiverExists = false; 
-
-			// ok if the object has optical sensors, they detect the signal
-			Object* o = (Object*) detectedObject->getUserPointer();
-			
-			for (unsigned int i = 0; i < o->devices.size(); i++)
-			{
-			    // found the device	
-			    if (typeid (*(o->devices[i])) == typeid(*this))
-			    {
-				// transmit message and exit
-				ot = (DeviceOpticalTransceiver*) o->devices[i];
-				// Message m (dist, it->content, it->time, -1);
-				
-				ot->messagesReceived.push_back(*it);
-				transceiverExists = true;
-				break;
-			    }
-			}
-		    }
-		}
+		    return processTransmitterToOmni(message, transmitter, detectedObject, od);
+		}		
+		// other device uses receivers
 		else
 		{
-		    ot->messagesReceived.push_back(*it);
-		}
+		    return processTransmitterToReceivers(message, transmitter, detectedObject, od);
+		}		
+	    }
+	    // send in all directions
+	    else
+	    {		
+		// other device receives from any direction
+		if (od->receiveOmnidirectional)
+		{
+		    return processOmniToOmni(message, detectedObject, od);
+		    
+		}		
+		// other device uses receivers
+		else
+		{
+		    return processOmniToReceivers(message, detectedObject, od);
+		}			    		
 	    }
 	}
     }
@@ -295,19 +343,13 @@ bool DeviceOpticalTransceiver::process (const btBroadphaseProxy *proxy)
 }
 
 
-void DeviceOpticalTransceiver::Send (int content, float time, int transmitter)
+void DeviceOpticalTransceiver::Send (int content, int transmitter)
 {
-    Message m (maxRange, content, time, transmitter);
+    Message m (maxRange, content, transmitter);
     messagesSent.push_back(m);
 }
 
-void DeviceOpticalTransceiver::SendOmnidirectional (int content, float time)
-{
-    Message m (maxRange, content, time, -1);
-    messagesSent.push_back(m);
-}
-
-bool DeviceOpticalTransceiver::Receive (int& content)
+bool DeviceOpticalTransceiver::Receive (int& content, int& receiver)
 {
     if (messagesReceived.empty())
     {	
@@ -316,6 +358,7 @@ bool DeviceOpticalTransceiver::Receive (int& content)
     else
     {
 	content = messagesReceived.front().content;
+	receiver = messagesReceived.front().receiver;
 	messagesReceived.pop_front();
     }
 }
@@ -326,11 +369,57 @@ void DeviceOpticalTransceiver::SetRange (float range)
     maxRange = range;
     btSphereShape* s = static_cast<btSphereShape*> (collisionShape);
     s->setUnscaledRadius (range);
-
-    // go through all transmitters and adjust range
-    std::vector<Transmitter>::iterator it = transmitters.begin();
-    for (; it != transmitters.end(); ++it)
-    {
-	it->rayToLocal = it->rayFromLocal + it->direction * range;
-    }    
 }
+
+void DeviceOpticalTransceiver::SetReceiveOmnidirectional(bool omni)
+{
+    receiveOmnidirectional = omni;
+}
+
+void DeviceOpticalTransceiver::SetDrawable(bool d)
+{
+    drawable = d;
+    RenderOSGInterface::transform->setNodeMask(d);
+}
+
+bool DeviceOpticalTransceiver::IsDrawable()
+{
+    return drawable;
+}
+
+void DeviceOpticalTransceiver::Register (RenderOSG* r)
+{
+    RenderOSGInterface::Register (r);
+
+    if (!deviceOpticalTransceiverNode)
+    {
+    	osg::ref_ptr<osg::Geode> geode; 
+    	osg::ref_ptr<osg::Cone> cone; 
+    	osg::ref_ptr<osg::ShapeDrawable> coneDrawable;
+
+	// arbitrary aperture angle... not yet known
+	float angle = 20.0 * M_PI / 180.0;
+	float radius = tan(angle) * maxRange;
+    	cone = new osg::Cone(osg::Vec3(0,0,-maxRange*3.0/4.0),radius,maxRange); 
+    	coneDrawable = new osg::ShapeDrawable(cone); 
+    	geode = new osg::Geode; 
+    	geode->addDrawable(coneDrawable); 
+    	deviceOpticalTransceiverNode = geode;
+    }
+    
+    // one transform for spatial position, will be adjusted to data from physics engine
+    RenderOSGInterface::transform = new osg::MatrixTransform();
+}
+
+void DeviceOpticalTransceiver::Draw (RenderOSG* r)
+{
+    if (drawable)
+    {
+	btScalar ogl[16];
+	btTransform t = body->getCenterOfMassTransform();
+	t.getOpenGLMatrix( ogl );
+	osg::Matrix m(ogl);
+	RenderOSGInterface::transform->setMatrix (m);
+    }
+}
+

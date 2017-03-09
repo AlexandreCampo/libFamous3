@@ -48,33 +48,6 @@ void EnergyManager::Step ()
 
     for (unsigned int i = 0; i < transactions.size(); i++)
     {
-
-	// // transfer energy
-	// float src = transactions[i].src->energyLevel - transactions[i].energy;
-	// float dst = transactions[i].dst->energyLevel + transactions[i].energy;
-
-	// if (src < 0.0) {dst += src; src = 0.0;}
-	// if (dst < 0.0) {src += dst; dst = 0.0;}
-
-	// float diffsrc = src - transactions[i].src->energyCapacity;
-	// if (diffsrc > 0.0) 
-	// {
-	//     dst += diffsrc;
-	//     src = transactions[i].src->energyCapacity;
-	// }
-
-	// float diffdst = dst - transactions[i].dst->energyCapacity;
-	// if (diffdst > 0.0) 
-	// {
-	//     src += diffdst;
-	//     dst = transactions[i].dst->energyCapacity;
-	// }
-
-	// transactions[i].dst->energyLevel = dst;
-	// transactions[i].src->energyLevel = src;
-
-	// todo test : reject transaction if not implementable as is
-
 	bool reject = false;
 	float e = transactions[i].energy;
 
@@ -93,39 +66,12 @@ void EnergyManager::Step ()
 	
 	if (!reject)
 	{
-//	    std::cout << "accept : " << e << "\t" << transactions[i].src->energyLevel << "\t" << transactions[i].dst->energyLevel << "\t\t" << transactions[i].src->energyLevel-e << "\t" << transactions[i].dst->energyLevel+e <<std::endl;
-
 	    transactions[i].dst->energyLevel += e;
 	    transactions[i].src->energyLevel -= e;
 	    
 	    transactions[i].dst->processed = true;
 	    transactions[i].src->processed = true;	    
 	}
-	else
-	{
-//	    std::cout << "reject : " << e << "\t" << transactions[i].src->energyLevel << "\t" << transactions[i].dst->energyLevel << std::endl;
-	}
-
-	// if (transactions[i].dst->energyLevel < 0.96 && transactions[i].dst->energyLevel > 0.94)
-	// {
-	//     std::cout << "Weird stuff on : " << e << " " << transactions[i].src->energyLevel << " " << transactions[i].dst->energyLevel << std::endl;
-	// }
-	// if (transactions[i].src->energyLevel < 0.96 && transactions[i].src->energyLevel > 0.94)
-	// {
-	//     std::cout << "Weird stuff on : " << e << " " << transactions[i].src->energyLevel << " " << transactions[i].dst->energyLevel << std::endl;
-	// }
-
-	// float e;
-	// if (transactions[i].energy <= transactions[i].src->energyLevel) 
-	//     e = transactions[i].energy;
-	// else
-	//     e = transactions[i].src->energyLevel;
-
-	// if (e > transactions[i].dst->energyCapacity - transactions[i].dst->energyLevel)
-	//     e = transactions[i].dst->energyCapacity - transactions[i].dst->energyLevel;
-	
-	// transactions[i].dst->energyLevel += e;
-	// transactions[i].src->energyLevel -= e;
     }
     
     transactions.clear();

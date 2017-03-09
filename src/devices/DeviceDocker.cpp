@@ -218,9 +218,13 @@ bool DeviceDocker::process (const btBroadphaseProxy *proxy)
 	for (auto* device : o->devices)
 	{
 	    // found the device
-	    DeviceDocker* d = dynamic_cast<DeviceDocker*> (device);
-	    if (d)
+	    if (typeid (*device) == typeid (*this))
 	    {
+		DeviceDocker* d = (DeviceDocker*) d;
+
+	    // DeviceDocker* d = dynamic_cast<DeviceDocker*> (device);
+	    // if (d)
+	    // {
 		if (!d->dockable)
 		{
 		    return true;

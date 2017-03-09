@@ -38,6 +38,9 @@ public :
     virtual void ActionStep () = 0;
     virtual void Reset () = 0;
 
+    virtual void SetObject(Object* o);
+    Object* GetObject();
+    
     void SetPerceptionTimeStep(float t);
     void SetActionTimeStep(float t);
     float GetPerceptionTimeStep();    

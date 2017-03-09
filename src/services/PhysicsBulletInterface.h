@@ -37,7 +37,7 @@ class PhysicsBulletInterface
 {
 public:
 
-    PhysicsBullet* physicsBullet;
+    PhysicsBullet* physicsBullet = NULL;
     
     btScalar scalingFactor;
     int collisionType;

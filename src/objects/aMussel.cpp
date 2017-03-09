@@ -53,14 +53,8 @@ aMussel::~aMussel()
 
 void aMussel::AddDevices()
 {
-    // btVector3 leftPos(0, -dimensions[1] * 1.0, 0);
-    // btVector3 rightPos(0, +dimensions[1] * 1.0, 0);
-    // propellers = new DevicePropellers(body, leftPos, rightPos, 0.1 * scalingFactor);
-    // Add (propellers);
-
     float neutralVolume = (1.0 / body->getInvMass()) / waterVolume->density;
     float ballastVolume = (3.141592564 * 0.07 * 0.07 * 0.2 * physicsBullet->scalingFactor * physicsBullet->scalingFactor * physicsBullet->scalingFactor);
-//    btVector3 centerOfVolume = principalTransform.inverse().getOrigin();
 
     ballast = new DeviceBallast (centerOfVolume, physicsBullet, waterVolume, body, neutralVolume - ballastVolume / 2.0, neutralVolume + ballastVolume / 2.0, 2.0);
     Add (ballast);
@@ -75,7 +69,7 @@ void aMussel::AddDevices()
     t2.setIdentity();    
     int cf4 = this->collisionType;
     int ct4 = (1 << 4);
-    float range = 0.2 * physicsBullet->scalingFactor;    
+    float range = 0.2;    
     optical = new DeviceOpticalTransceiver (physicsBullet, body, t2, cf4, ct4, range);    
     Add (optical);
 
@@ -149,10 +143,8 @@ void aMussel::Register (PhysicsBullet* p)
     dimensions[2] = 0.75 * physicsBullet->scalingFactor; // height (z)
 
     mass = 5;
-//    btScalar waterDensity (1000.0 / (physicsBullet->scalingFactor * physicsBullet->scalingFactor * physicsBullet->scalingFactor));
     btScalar volume = M_PI * dimensions[0] * dimensions[0] * dimensions[1];
     btVector3 localInertia(0.0, 0.0, 0.0);
-//    btVector3 linearDrag (0.25, 0.3, 0.9);
 
     btScalar linearDamping = 0.0;
     btScalar angularDamping = 0.0;
@@ -185,7 +177,6 @@ void aMussel::Register (PhysicsBullet* p)
     delete cylinderShapeA;
     delete cylinderShapeB;
     delete [] masses;
-
     
     // now the real shape used, a simplified compound shape that will be used for collisions
     // create a new compound with world transform/center of mass properly aligned with the principal axis   
@@ -354,13 +345,6 @@ void aMussel::setAddedMass (const btVector3& linear, const btVector3& angular)
     updateInertiaTensor ();
 }
 
-// // compund shape is the other way, but I want to make faster calculations
-// void aMussel::setCenterOfVolume(const btVector3& position) 
-// {
-//     m_centerOfVolume = position;
-//     updateInertiaTensor ();
-// }
-
 // drag coefficients must be set as 
 // linear part : area exposed * coefficient
 // angular part : coefficient only
@@ -375,20 +359,6 @@ void aMussel::setDragQuadraticCoefficients (const btVector3& qlinear, const btVe
     m_linearQuadraticDrag = -qlinear;
     m_angularQuadraticDrag = -qangular;
 }
-
-// void aMussel::setBuoyancyFactor (float f)
-// {
-//     ballast->SetBuoyancyFactor(f);
-//     updateBuoyancyForce (ballast->volume);
-// }
-
-// void aMussel::updateBuoyancyForce (btScalar volume)
-// {
-//     m_buoyancy = body->getGravity() * volume * m_fluidDensity * -1.0;
-//     // TODO
-// //    m_buoyancy = btVector3(0,0,0);
-//     m_volume = volume;
-// }
 
 
 void aMussel::updateInertiaTensor ()

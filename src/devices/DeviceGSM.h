@@ -41,6 +41,9 @@ public :
     void ActionStep ();
     void PerceptionStep ();
     void Reset();
+
+    void SetObject(Object* o);
+
 };
 
 

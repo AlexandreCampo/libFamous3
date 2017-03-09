@@ -48,7 +48,7 @@ DevicePropeller::~DevicePropeller()
 
 void DevicePropeller::SetPosition(btVector3 position)
 {
-    this->transform.setOrigin(position);
+    transform.setOrigin(position);
 }
 
 btVector3 DevicePropeller::GetPosition()
@@ -80,6 +80,7 @@ float DevicePropeller::GetSpeed()
 void DevicePropeller::SetDrawable(bool d)
 {
     drawable = d;
+    RenderOSGInterface::transform->setNodeMask(d);
 }
 
 bool DevicePropeller::IsDrawable()
@@ -90,8 +91,9 @@ bool DevicePropeller::IsDrawable()
 void DevicePropeller::ActionStep()
 {
     const btMatrix3x3& bodyRotation = body->getCenterOfMassTransform().getBasis();
+    const btMatrix3x3& selfBasis = transform.getBasis();
     
-    btVector3 f = bodyRotation * transform.getBasis() * btVector3(force, 0, 0);
+    btVector3 f = bodyRotation * (selfBasis[0] * force);
     btVector3 relpos = bodyRotation * transform.getOrigin();
     btVector3 t = relpos.cross(f * body->getLinearFactor());
     
@@ -137,6 +139,9 @@ void DevicePropeller::Register (RenderOSG* r)
     RenderOSGInterface::transform->addChild (t);
     t->addChild (devicePropellerNode);
     r->root->addChild(RenderOSGInterface::transform);
+
+    // disable rendering by default
+    RenderOSGInterface::transform->setNodeMask(0);
 }
 
 void DevicePropeller::Unregister (RenderOSG* r)

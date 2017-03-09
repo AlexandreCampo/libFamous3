@@ -38,3 +38,13 @@ float Device::GetActionTimeStep()
 {
     return actionTimestep;
 }
+
+void SetObject(Object* o)
+{
+    this->object = o;
+}
+
+Object* GetObject()
+{
+    return object;
+}
