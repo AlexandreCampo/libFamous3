@@ -161,7 +161,7 @@ bool DeviceOpticalTransceiver::processOmniToOmni(Message& m, btCollisionObject* 
     
     btVector3 diff = otherPos - selfPos;
     btScalar dist = diff.length();
-    
+
     // not in range
     if ( dist > maxRange) return true;
 
@@ -367,6 +367,7 @@ bool DeviceOpticalTransceiver::Receive (Message& m)
     {
 	m = messagesReceived.front();
 	messagesReceived.pop_front();
+	return true;
     }
 }
 
