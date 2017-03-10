@@ -132,3 +132,9 @@ btScalar DeviceRayCast::addSingleResult(btCollisionWorld::LocalRayResult& rayRes
     m_collisionObject = rayResult.m_collisionObject;
     return 1.f;
 }
+
+void DeviceRayCast::SetRange(float range)
+{
+    this->range = range;
+    rayToLocal = position + direction * range;    
+}

@@ -122,6 +122,7 @@ public:
 
     void SetColor (float r = 1, float g = 0, float b = 0, float a = 1);
 
+    void SetProximitySensorsRange(float range);
 
 
     // ================ Custom Physics ==============================

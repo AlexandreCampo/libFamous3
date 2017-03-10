@@ -70,11 +70,11 @@ void aFish::AddDevices()
     propellerRight->SetDrawable(false);
     Add(propellerRight);
     
-    // propellers = new DevicePropellers(physicsBullet, body, leftPos, rightPos, 0.1 * physicsBullet->scalingFactor);
+    // propellers = new DevicePropellers(physicsBullet, body, leftPos, rightPos, 0.1);
     // Add (propellers);
 
     float neutralVolume = (1.0 / body->getInvMass()) / waterVolume->density;
-    float ballastVolume = (0.03 * 0.03 * 0.2 * physicsBullet->scalingFactor * physicsBullet->scalingFactor * physicsBullet->scalingFactor);
+    float ballastVolume = (0.03 * 0.03 * 0.2);
 
     ballast = new DeviceBallast (m_centerOfVolume, physicsBullet, waterVolume, body, neutralVolume - ballastVolume / 2.0, neutralVolume + ballastVolume / 2.0);
     Add (ballast);
@@ -83,28 +83,20 @@ void aFish::AddDevices()
     t2.setIdentity();    
     int cf2 = this->collisionType;
     int ct2 = (1 << 3);
-    acoustic = new DeviceAcousticTransceiver (physicsBullet, body, t2, cf2, ct2, 0.9 * physicsBullet->scalingFactor);    
+    acoustic = new DeviceAcousticTransceiver (physicsBullet, body, t2, cf2, ct2, 0.9);    
     Add (acoustic);
 
     t2.setIdentity();    
     int cf4 = this->collisionType;
     int ct4 = (1 << 4);
-    float range = 0.4;    
+    float range = 0.5;    
     optical = new DeviceOpticalTransceiver (physicsBullet, body, t2, cf4, ct4, range);
     if (renderOSG) optical->Register(renderOSG);
     Add (optical);
 
     // add directional optical transceivers
-//    float addedrange = 0.005 * physicsBullet->scalingFactor;
+//    float addedrange = 0.005;
     float a = 30.0 * M_PI / 180.0;
-
-    // btVector3 pos (0.0, 0.0, 0.0);
-    // btVector3 dir (0, 1, 0);   
-    // optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
-
-    // pos = btVector3 (0.0, 0.0, 0.0);
-    // dir = btVector3 (1, 0, 0);   
-    // optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
     
     // front left
     btVector3 pos (0.0, 0.0, 0.0);
@@ -164,46 +156,46 @@ void aFish::AddDevices()
     float pyz = sin (a);
     
     // ray sensors may not detect objects that go inside the other object... hence I add some distance.
-    float addedrange = 0.005 * physicsBullet->scalingFactor;
+    float addedrange = 0.005;
     
-    range = 0.3 * physicsBullet->scalingFactor + addedrange;
+    range = 0.3 + addedrange;
     
-    pos = btVector3 (0.1 * physicsBullet->scalingFactor - addedrange, -0.005  * physicsBullet->scalingFactor, 0.005  * physicsBullet->scalingFactor);
+    pos = btVector3 (0.1 - addedrange, -0.005 , 0.005 );
     dir = btVector3 (px, -pyz, pyz);   
     rayFrontLU = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);
     Add (rayFrontLU);
     
-    pos = btVector3 (0.1 * physicsBullet->scalingFactor - addedrange, -0.005  * physicsBullet->scalingFactor, -0.005  * physicsBullet->scalingFactor);
+    pos = btVector3 (0.1 - addedrange, -0.005 , -0.005 );
     dir = btVector3 (px, -pyz, -pyz);   
     rayFrontLD = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);
     Add (rayFrontLD);
 
-    pos = btVector3 (0.1 * physicsBullet->scalingFactor - addedrange, 0.005  * physicsBullet->scalingFactor, 0.005  * physicsBullet->scalingFactor);
+    pos = btVector3 (0.1 - addedrange, 0.005 , 0.005 );
     dir = btVector3 (px, pyz, pyz);   
     rayFrontRU = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);
     Add (rayFrontRU);
 
-    pos = btVector3 (0.1 * physicsBullet->scalingFactor - addedrange, 0.005  * physicsBullet->scalingFactor, -0.005  * physicsBullet->scalingFactor);
+    pos = btVector3 (0.1 - addedrange, 0.005 , -0.005 );
     dir = btVector3 (px, pyz, -pyz);   
     rayFrontRD = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);
     Add (rayFrontRD);
     
-    pos = btVector3 (0.0, -0.025 * physicsBullet->scalingFactor + addedrange, 0.0);
+    pos = btVector3 (0.0, -0.025 + addedrange, 0.0);
     dir = btVector3 (0.0, -1.0, 0.0);   
     rayLeft = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);  
     Add (rayLeft);
     
-    pos = btVector3 (0.0, 0.025 * physicsBullet->scalingFactor - addedrange, 0.0);
+    pos = btVector3 (0.0, 0.025 - addedrange, 0.0);
     dir = btVector3 (0.0, 1.0, 0.0);   
     rayRight = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);  
     Add (rayRight);
     
-    pos = btVector3 (0.0, 0.0, 0.05 * physicsBullet->scalingFactor - addedrange);
+    pos = btVector3 (0.0, 0.0, 0.05 - addedrange);
     dir = btVector3 (0.0, 0.0, 1.0);   
     rayTop = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);  
     Add (rayTop);
     
-    pos = btVector3 (0.0, 0.0, -0.05 * physicsBullet->scalingFactor + addedrange);
+    pos = btVector3 (0.0, 0.0, -0.05 + addedrange);
     dir = btVector3 (0.0, 0.0, -1.0);   
     rayBottom = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);  
     Add (rayBottom);
@@ -229,7 +221,7 @@ void aFish::Draw (RenderOSG* r)
 
     osg::ref_ptr<osg::Material> mat = new osg::Material;
     mat->setDiffuse (osg::Material::FRONT_AND_BACK, osg::Vec4(colr, colg, colb, cola));
-    aFishNode->getOrCreateStateSet()->setAttributeAndModes(mat, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
+    RenderOSGInterface::transform->getOrCreateStateSet()->setAttributeAndModes(mat, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
 }
 
 void aFish::Draw (RenderOpenGL* r)
@@ -292,11 +284,10 @@ void aFish::Register (PhysicsBullet* p)
     PhysicsBulletInterface::Register(p);
     
     SetTimeStep(p->GetTimeStep());
-//    p->SetCustomPhysics(true);
 
-    dimensions[0] = 0.35 * physicsBullet->scalingFactor;
-    dimensions[1] = 0.10 * physicsBullet->scalingFactor;
-    dimensions[2] = 0.15 * physicsBullet->scalingFactor;
+    dimensions[0] = 0.35;
+    dimensions[1] = 0.10;
+    dimensions[2] = 0.15;
 
     mass = 1.0;
     btScalar volume = dimensions[0] * dimensions[1] * dimensions[2];
@@ -530,4 +521,17 @@ void aFish::updateInertiaTensor ()
 {
     body->setMassProps (mass, m_inertia);
     body->updateInertiaTensor();
+}
+
+void aFish::SetProximitySensorsRange(float range)
+{
+    if (rayFrontLU) rayFrontLU->SetRange(range);
+    if (rayFrontLD) rayFrontLD->SetRange(range);
+    if (rayFrontRU) rayFrontRU->SetRange(range);
+    if (rayFrontRD) rayFrontRD->SetRange(range);
+    if (rayTop) rayTop->SetRange(range);
+    if (rayBottom) rayBottom->SetRange(range);
+    if (rayLeft) rayLeft->SetRange(range);
+    if (rayRight) rayRight->SetRange(range);
+    if (rayBack) rayBack->SetRange(range);
 }

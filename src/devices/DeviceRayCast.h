@@ -73,6 +73,8 @@ public :
     btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult,bool normalInWorldSpace);
    
     void Draw (RenderOpenGL* r);
+
+    void SetRange(float range);
 };
 
 

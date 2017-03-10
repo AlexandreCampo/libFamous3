@@ -96,7 +96,11 @@ public :
 		transmitter = tr;
 		receiver = -1;
 	    }
-	
+	Message () 
+	    {
+	    }
+
+	btVector3 direction;
 	float distance;
 	int content;
 	int transmitter;
@@ -115,7 +119,7 @@ public :
     void SetReceiveOmnidirectional(bool omni);
     
     void Send (int content, int transmitter = -1);
-    bool Receive (int& c, int& r);
+    bool Receive (Message& m);
 
     void ActionStep ();
     bool process (const btBroadphaseProxy *proxy);

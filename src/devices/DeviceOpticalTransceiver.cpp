@@ -164,7 +164,9 @@ bool DeviceOpticalTransceiver::processOmniToOmni(Message& m, btCollisionObject* 
     
     // not in range
     if ( dist > maxRange) return true;
-    
+
+    m.direction = diff / dist;
+    m.distance = dist;
     od->messagesReceived.push_back(m);
 
     return true;
@@ -189,6 +191,8 @@ bool DeviceOpticalTransceiver::processTransmitterToOmni(Message& m, const Transm
     // the device falls inside transmission cone
     if (cosAngle >= transmitter.cosApertureAngle)
     {
+	m.direction = diffnorm;
+	m.distance = dist;
 	od->messagesReceived.push_back(m);
     }    
     return true;
@@ -222,6 +226,8 @@ bool DeviceOpticalTransceiver::processOmniToReceivers(Message& m, btCollisionObj
 	if (cosAngleReceiver >= receiver.cosApertureAngle)
 	{
 	    m.receiver = r;
+	    m.direction = receiver.direction;
+	    m.distance = dist;
 	    od->messagesReceived.push_back(m);
 	}
 	r++;
@@ -265,6 +271,8 @@ bool DeviceOpticalTransceiver::processTransmitterToReceivers(Message& m, const T
 	    if (cosAngleReceiver >= receiver.cosApertureAngle)
 	    {
 		m.receiver = r;
+		m.direction = receiver.direction;
+		m.distance = dist;
 		od->messagesReceived.push_back(m);
 	    }
 	}
@@ -349,7 +357,7 @@ void DeviceOpticalTransceiver::Send (int content, int transmitter)
     messagesSent.push_back(m);
 }
 
-bool DeviceOpticalTransceiver::Receive (int& content, int& receiver)
+bool DeviceOpticalTransceiver::Receive (Message& m)
 {
     if (messagesReceived.empty())
     {	
@@ -357,8 +365,7 @@ bool DeviceOpticalTransceiver::Receive (int& content, int& receiver)
     }
     else
     {
-	content = messagesReceived.front().content;
-	receiver = messagesReceived.front().receiver;
+	m = messagesReceived.front();
 	messagesReceived.pop_front();
     }
 }
