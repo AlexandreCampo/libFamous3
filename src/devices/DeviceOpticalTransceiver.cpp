@@ -159,13 +159,14 @@ bool DeviceOpticalTransceiver::processOmniToOmni(Message& m, btCollisionObject* 
     btVector3 otherPos = detectedObject->getWorldTransform() * od->transform.getOrigin();
     btVector3 selfPos = collisionBody->getWorldTransform().getOrigin();	
     
-    btVector3 diff = otherPos - selfPos;
+    btVector3 diff = selfPos - otherPos;
     btScalar dist = diff.length();
 
     // not in range
     if ( dist > maxRange) return true;
 
-    m.direction = diff / dist;
+    diff.normalize();
+    m.direction = od->transform.getBasis().inverse() * detectedObject->getWorldTransform().getBasis().inverse() * diff;
     m.distance = dist;
     od->messagesReceived.push_back(m);
 
@@ -191,7 +192,7 @@ bool DeviceOpticalTransceiver::processTransmitterToOmni(Message& m, const Transm
     // the device falls inside transmission cone
     if (cosAngle >= transmitter.cosApertureAngle)
     {
-	m.direction = diffnorm;
+	m.direction = detectedObject->getWorldTransform().getBasis() * od->transform.getBasis() * diffnorm;
 	m.distance = dist;
 	od->messagesReceived.push_back(m);
     }    
