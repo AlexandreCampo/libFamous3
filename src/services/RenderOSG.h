@@ -48,7 +48,9 @@ public :
     osg::ref_ptr<osgViewer::Viewer> viewer;
     osg::observer_ptr<osgViewer::GraphicsWindow> window;
     osg::Group* root;
-
+    osg::ref_ptr<osg::Camera> hudCamera;
+    osg::ref_ptr<osgText::Font> font;
+    
     int argc;
     char** argv;
 
@@ -76,8 +78,17 @@ public :
     float simulationElapsedTicks;
 
     std::list<RenderOSGInterface*> objects;
+
+    // hud
+    osgText::Text* hudTimeText;
+    osgText::Text* hudSpeedText;
+    osgText::Text* hudPausedText;
+    osgText::Text* hudHelpText;
+    osg::Geode* hudTextGeode;
+    std::string helpString;
+    bool hudInfo = false;
+    bool hudHelp = false;
     
-   
     // Methods ==================
 
     RenderOSG(Simulator* simulator, int argc = 0, char** argv = 0);
@@ -88,6 +99,10 @@ public :
     void Step ();
     void SetPaused (bool p);
     void RecalculateTimings ();
+
+    void LoadFont(std::string filename);
+    osgText::Text* CreateText(const osg::Vec3& pos, const std::string& content, float size );
+    osgText::Text* CreateHudText(const osg::Vec3& pos, const std::string& content, float size );
 
     ///callback methods by glut
     void Keyboard(unsigned char key, int x, int y);
@@ -103,13 +118,13 @@ public :
 };
 
 
-#ifndef M_PI
-#define M_PI (3.14159265358979323846)
-#endif
+/* #ifndef M_PI */
+/* #define M_PI (3.14159265358979323846) */
+/* #endif */
 
-// constants to convert degrees to radians and the reverse
-#define RAD_TO_DEG (180.0/M_PI)
-#define DEG_TO_RAD (M_PI/180.0)
+/* // constants to convert degrees to radians and the reverse */
+/* #define RAD_TO_DEG (180.0/M_PI) */
+/* #define DEG_TO_RAD (M_PI/180.0) */
 
 
 

@@ -59,6 +59,7 @@ public:
     btRigidBody* body;
 
     btTransform principalTransform;
+    btTransform principalTransformInverse;
 
     GLuint displayList;
     GLuint cube;             // storage for the display list
@@ -70,7 +71,9 @@ public:
     GLfloat yrot;            // rotates cube on the y axis.
     
     std::string meshFilename;
-
+    osgText::Text* text;
+    osg::ref_ptr<osg::Geode> textGeode;
+    
     DevicePropeller* propellerLeft;
     DevicePropeller* propellerRight;
     DeviceBallast* ballast;
@@ -121,6 +124,10 @@ public:
     btQuaternion GetRotation (btQuaternion q);
 
     void SetColor (float r = 1, float g = 0, float b = 0, float a = 1);
+
+    void SetTextDrawable(bool d);
+    void SetText(std::string s);
+    void SetTextColor(float r, float g, float b, float a = 1);
 
     void SetProximitySensorsRange(float range);
 

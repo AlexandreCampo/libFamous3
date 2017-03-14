@@ -127,19 +127,16 @@ void RenderOSG::Reshape( int w, int h )
 {
     // update the window dimensions, in case the window has been resized.
     if (window.valid()) 
-    {
-        window->resized(window->getTraits()->x, window->getTraits()->y, w, h);
-        window->getEventQueue()->windowResize(window->getTraits()->x, window->getTraits()->y, w, h );
-	
-        if (height==0)				// Prevent A Divide By Zero If The Window Is Too Small
+    {	
+        if (height==0)	// Prevent A Divide By Zero If The Window Is Too Small
             height=1;
 	
         this->width = w;
         this->height = h;
-	
-//  glViewport(0, 0, width, height);		// Reset The Current Viewport And Perspective Transformation
-	
-//  setPerspective (aperture, vnear, vfar);
+
+	window->resized(window->getTraits()->x, window->getTraits()->y, w, h);
+        window->getEventQueue()->windowResize(window->getTraits()->x, window->getTraits()->y, w, h);
+	hudCamera->setProjectionMatrix(osg::Matrix::ortho2D(0, w, 0, h));
     }
 }
 
@@ -194,14 +191,8 @@ void RenderOSG::Keyboard( unsigned char key, int /*x*/, int /*y*/ )
     {
     case ' ' :
 
-	if (paused) 
-	{
-	    paused = false;
-	}
-	else
-	{
-	    paused = true;
-	}
+	SetPaused(!paused);
+	
 	std::cout << "Pause toggled ... " << std::endl;
 	break;
 
@@ -236,9 +227,22 @@ void RenderOSG::Keyboard( unsigned char key, int /*x*/, int /*y*/ )
 	std::cout << "Reset speed and run realtime" << std::endl;
 	break;
 
-    case 't' : 
+    case 'h' : 
+	
+	hudHelp = !hudHelp;
 
-	std::cout << "Simulation time is " << simulator->time << " seconds" << std::endl;
+	if (hudHelp)
+	    hudHelpText->setText(helpString);
+	else
+	    hudHelpText->setText(std::string(""));
+	    
+	break;
+	
+    case 'i' : 
+
+	hudInfo = !hudInfo;
+	hudCamera->setNodeMask(hudInfo);
+       
 	break;
 	
     case 'r' : 
@@ -247,7 +251,7 @@ void RenderOSG::Keyboard( unsigned char key, int /*x*/, int /*y*/ )
 	simulator->Reset();
 	break;
 
-    case 'h' : 
+    case 'z' : 
 
 	std::cout << "Reset view" << std::endl;
 	initialCamMatrix.makeLookAt (
@@ -277,47 +281,6 @@ RenderOSG::RenderOSG(Simulator* simulator, int argc, char** argv)
     this->argc = argc;
     this->argv = argv;
 
-    // ground_scale = 1.0f/1.0f;	// ground texture scale (1/size)
-    // ground_ofsx = 0.5;		// offset of ground texture
-    // ground_ofsy = 0.5;
-    // sky_scale = 1.0f/4.0f;	// sky texture scale (1/size)
-    // sky_height = 1.0f;		// sky height above viewpoint
-    // color[0] = 0;
-    // color[1] = 0;
-    // color[2] = 0;
-    // color[3] = 0;
-    // sphere_quality = 1;
-    // capped_cylinder_quality = 3;
-    // current_state = 0;
-    // use_textures=0;		// 1 if textures to be drawn
-    // use_shadows=0;		// 1 if shadows to be drawn
-
-    // view_xyz[0] = 0;	// position x,y,z
-    // view_xyz[1] = 0;	// position x,y,z
-    // view_xyz[2] = 20.0;	// position x,y,z
-    // view_hpr[0] = 0;	// heading, pitch, roll (degrees)
-    // view_hpr[1] = -90.0;	// heading, pitch, roll (degrees)
-    // view_hpr[2] = 0;	// heading, pitch, roll (degrees)
-    // view_up[0] = 0;	// up vector
-    // view_up[1] = 0;	// up vector
-    // view_up[2] = 1;	// up vector
-
-    // aperture = 45.0 * M_PI / 180.0;
-    // vnear = 1.0;
-    // vfar = 1000.0;
-
-    // // look at 0,0,0
-    // view_lookat[0] = 0.0;
-    // view_lookat[1] = 0.0;
-    // view_lookat[2] = 0.0;
-    
-    // // camera is at distance, alpha, beta
-    // view_dab[0] = 10.0;
-    // view_dab[1] = 0.0;
-    // view_dab[2] = 45.0;
-
-    // view_mode = 1;
-
     mouseButton = 0;
     mouseLastX = 0;
     mouseLastY = 0;
@@ -334,94 +297,143 @@ RenderOSG::RenderOSG(Simulator* simulator, int argc, char** argv)
     paused = false;
 
     // create window, init opengl  etc...
-  /* Initialize GLUT state - glut will take any command line arguments that pertain to it or 
-     X Windows - look at its documentation at http://reality.sgi.com/mjk/spec3/spec3.html */  
-  glutInit(&argc, argv);  
+    glutInit(&argc, argv);  
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);  
 
-  /* Select type of Display mode:   
-     Double buffer 
-     RGBA color
-     Alpha components supported 
-     Depth buffered for automatic clipping */  
-  glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);  
+    width = 800;
+    height = 600;
+    glutInitWindowSize(width, height);  
 
-  /* get a 640 x 480 window */
-  glutInitWindowSize(800, 600);  
-  width = 800;
-  height = 600;
+    /* the window starts at the upper left corner of the screen */
+    glutInitWindowPosition(100, 100);  
 
-  /* the window starts at the upper left corner of the screen */
-  glutInitWindowPosition(100, 100);  
+    /* Open a window */  
+    glutCreateWindow("Simulator");  
 
-  /* Open a window */  
-  glutCreateWindow("Simulator");  
+    // callbacks
+    glutKeyboardFunc (glutKeyboardCallback);
+    glutKeyboardUpFunc (glutKeyboardUpCallback);
+    glutSpecialFunc (glutSpecialKeyboardCallback);
+    glutSpecialUpFunc (glutSpecialKeyboardUpCallback);  
+    glutReshapeFunc (glutReshapeCallback);
+    glutIdleFunc (glutIdleCallback);
+    glutMouseFunc (glutMouseCallback);
+    glutPassiveMotionFunc (glutMotionCallback);
+    glutMotionFunc (glutMotionCallback);
+    glutDisplayFunc (glutDisplayCallback );  
+    
+    glutIdleCallback();
+    
+    /* Go fullscreen.  This is as soon as possible. */
+    // glutFullScreen();
+    fullscreen = false;
 
-  // callbacks
-  glutKeyboardFunc (glutKeyboardCallback);
-  glutKeyboardUpFunc (glutKeyboardUpCallback);
-  glutSpecialFunc (glutSpecialKeyboardCallback);
-  glutSpecialUpFunc (glutSpecialKeyboardUpCallback);  
-  glutReshapeFunc (glutReshapeCallback);
-  glutIdleFunc (glutIdleCallback);
-  glutMouseFunc (glutMouseCallback);
-  glutPassiveMotionFunc (glutMotionCallback);
-  glutMotionFunc (glutMotionCallback);
-  glutDisplayFunc (glutDisplayCallback );  
-
-  glutIdleCallback();
-
-  /* Go fullscreen.  This is as soon as possible. */
-  // glutFullScreen();
-  fullscreen = false;
-
-  /* Initialize our window. */
-//  InitGL(800, 600);
-
-  osg::setNotifyLevel( osg::FATAL );
+    osg::setNotifyLevel( osg::FATAL );
   
-  // create the view of the scene.
-  viewer = new osgViewer::Viewer;
-  window = viewer->setUpViewerAsEmbeddedInWindow(100,100,800,600);
-//    viewer->setSceneData(loadedModel.get());
-  root = new osg::Group ();
-  viewer->setSceneData(root);
-//  osg::ref_ptr<osgGA::TrackballManipulator> manip = new osgGA::TrackballManipulator;
-  osg::ref_ptr<osgGA::SphericalManipulator> manip = new osgGA::SphericalManipulator;
-  manip->setAllowThrow(false);
-  viewer->setCameraManipulator(manip);
-//    viewer->addEventHandler(new osgViewer::StatsHandler);
-  viewer->getCamera()->setClearColor(osg::Vec4(0,0,0,1));
+    // create the view of the scene.
+    viewer = new osgViewer::Viewer;
+    window = viewer->setUpViewerAsEmbeddedInWindow(100,100,width,height);
+    root = new osg::Group ();
+    viewer->setSceneData(root);
+
+    // use a spehrical manipulator to move around
+    osg::ref_ptr<osgGA::SphericalManipulator> manip = new osgGA::SphericalManipulator;
+    manip->setAllowThrow(false);
+    viewer->setCameraManipulator(manip);
+    viewer->getCamera()->setClearColor(osg::Vec4(0,0,0,1));
+
+    // add one light to the scene
+    osg::ref_ptr<osg::Light> light = new osg::Light();
+    light->setPosition(osg::Vec4(1, 0.4, 1.0, 0.0));
+    light->setDiffuse(osg::Vec4(1,1,1,1));
+    light->setSpecular(osg::Vec4(1.0, 1.0, 1.0, 1.0));
+    light->setAmbient(osg::Vec4(0.5, 0.5, 0.5, 1.0));
+    
+    osg::ref_ptr<osg::LightSource> lightSource = new osg::LightSource();
+    lightSource->setLight(light); 
+    
+    lightSource->setLocalStateSetModes(osg::StateAttribute::ON);
+    osg::StateSet* lightStateSet = root->getOrCreateStateSet();
+    lightSource->setStateSetModes(*lightStateSet, osg::StateAttribute::ON);
+    root->addChild(lightSource);
 
 
-  // add one light to the scene
-  osg::ref_ptr<osg::Light> light = new osg::Light();
-  light->setPosition(osg::Vec4(1, 0.4, 1.0, 0.0));
-  light->setDiffuse(osg::Vec4(1,1,1,1));
-  light->setSpecular(osg::Vec4(1.0, 1.0, 1.0, 1.0));
-  light->setAmbient(osg::Vec4(0.5, 0.5, 0.5, 1.0));
+    // add HUD
+    hudCamera = new osg::Camera;
+    hudCamera->setReferenceFrame( osg::Transform::ABSOLUTE_RF );
+    hudCamera->setClearMask( GL_DEPTH_BUFFER_BIT );
+    hudCamera->setRenderOrder( osg::Camera::POST_RENDER );
+    hudCamera->setAllowEventFocus( false );
+    hudCamera->setProjectionMatrix( osg::Matrix::ortho2D(0, width, 0, height) );
+    hudCamera->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    root->addChild( hudCamera.get() );
+    
+    // add some text to display in hud
+    hudTimeText = CreateHudText(osg::Vec3(20.0f, 80.0f, 0.0f), "Time : ", 20.0f);
+    hudSpeedText = CreateHudText(osg::Vec3(20.0f, 50.0f, 0.0f), "Speed : ", 20.0f);
+    hudPausedText = CreateHudText(osg::Vec3(20.0f, 20.0f, 0.0f), "", 20.0f);
+    osg::Geode* hudTextGeode = new osg::Geode;
+    hudTextGeode->addDrawable( hudTimeText );
+    hudTextGeode->addDrawable( hudSpeedText );
+    hudTextGeode->addDrawable( hudPausedText );
+    hudCamera->addChild( hudTextGeode );    
+    
+    viewer->realize();
+    
+    // display some basic information for end user
+    helpString += string("The following shortcuts are available :\n");
+    helpString += string("---------------------------------------\n");
+    helpString += string("      escape : quit the program\n");
+    helpString += string("       space : toggle pause\n");
+    helpString += string("           r : reset simulation\n");
+    helpString += string("           - : slow down simulation\n");
+    helpString += string("      + or = : accelerate simulation\n");
+    helpString += string("   backspace : real time speed\n");
+    helpString += string("           i : toggle hud info\n");
+    helpString += string("           h : toggle help\n");
+    helpString += string(" \n");
 
-  osg::ref_ptr<osg::LightSource> lightSource = new osg::LightSource();
-  lightSource->setLight(light); 
+    cout << "OpenSceneGraph render is active" << std::endl << std::endl;
+    cout << helpString;
+    
+    hudHelpText = CreateHudText(osg::Vec3(20.0f, 400.0f, 0.0f), "", 20.0f);
+    hudTextGeode->addDrawable( hudHelpText );    
+    
+    // activate only after text is created...
+    hudInfo = true;
+}
 
-  lightSource->setLocalStateSetModes(osg::StateAttribute::ON);
-  osg::StateSet* lightStateSet = root->getOrCreateStateSet();
-  lightSource->setStateSetModes(*lightStateSet, osg::StateAttribute::ON);
-  root->addChild(lightSource);
+void RenderOSG::LoadFont(std::string filename)
+{
+    font = osgText::readFontFile(filename);
+    hudTimeText->setFont(font);
+    hudSpeedText->setFont(font);
+    hudPausedText->setFont(font);
+    hudHelpText->setFont(font);
+}
 
-  viewer->realize();
-  
-  // display some basic information for end user
-  std::cout << "OpenGL Render is active, the following shortcuts are available :" << std::endl;
-  std::cout << "----------------------------------------------------------------" << std::endl;
-//  std::cout << "The following shortcuts are available :" << std::endl;
-  std::cout << "      escape : quit the program" << std::endl;
-  std::cout << "       space : toggle pause" << std::endl;
-  std::cout << "           - : slow down simulation" << std::endl;
-  std::cout << "      + or = : accelerate simulation" << std::endl;
-  std::cout << "   backspace : real time speed" << std::endl;
-  std::cout << "           t : display current time in simulation" << std::endl;
-  std::cout << "           r : reset simulation" << std::endl;
-  std::cout << "  " << std::endl;
+osgText::Text* RenderOSG::CreateHudText(const osg::Vec3& pos, const std::string& content, float size)
+{
+    osg::ref_ptr<osgText::Text> text = new osgText::Text;
+    text->setDataVariance( osg::Object::DYNAMIC );
+    text->setFont( font.get() );
+    text->setCharacterSize( size );
+    text->setAxisAlignment( osgText::TextBase::XY_PLANE );
+    text->setPosition( pos );
+    text->setText( content );
+    return text.release();
+}
+
+osgText::Text* RenderOSG::CreateText(const osg::Vec3& pos, const std::string& content, float size)
+{
+    osg::ref_ptr<osgText::Text> text = new osgText::Text;
+    text->setDataVariance( osg::Object::DYNAMIC );
+    text->setFont( font.get() );
+    text->setCharacterSize( size );
+    text->setAxisAlignment( osgText::TextBase::SCREEN );
+    text->setPosition( pos );
+    text->setText( content );
+    return text.release();
 }
 
 RenderOSG::~RenderOSG ()
@@ -443,11 +455,22 @@ void RenderOSG::DrawScene ()
 {
     for (auto* o : objects)
     	o->Draw(this);
+
+    if (hudInfo)
+    {
+	hudTimeText->setText(std::string("Time : ") + std::to_string(simulator->time));
+	hudSpeedText->setText(std::string("Speed : ") + std::to_string(1.0 / simulationTicksDelay));
+    }
 }
 
 void RenderOSG::SetPaused (bool p)
 {
     paused = p;
+    
+    if (paused)
+	hudPausedText->setText(std::string("PAUSED"));
+    else
+	hudPausedText->setText(std::string(""));	
 }
 
 void RenderOSG::Run()

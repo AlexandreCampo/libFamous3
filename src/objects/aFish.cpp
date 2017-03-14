@@ -24,6 +24,7 @@
 #include <osg/MatrixTransform>
 #include <osg/PositionAttitudeTransform>
 #include <osg/Material>
+#include <osg/Billboard>
 
 #include <iostream>
 
@@ -90,7 +91,7 @@ void aFish::AddDevices()
     int cf4 = this->collisionType;
     int ct4 = (1 << 4);
     float range = 0.5;    
-    optical = new DeviceOpticalTransceiver (physicsBullet, body, t2, cf4, ct4, range);
+    optical = new DeviceOpticalTransceiver (physicsBullet, body, principalTransformInverse, cf4, ct4, range);
     if (renderOSG) optical->Register(renderOSG);
     Add (optical);
 
@@ -214,14 +215,10 @@ void aFish::AddDevices()
 void aFish::Draw (RenderOSG* r)
 {
     btScalar ogl[16];
-    btTransform t = body->getCenterOfMassTransform() * principalTransform.inverse();
+    btTransform t = body->getCenterOfMassTransform() * principalTransformInverse;
     t.getOpenGLMatrix( ogl );
     osg::Matrix m(ogl);
     RenderOSGInterface::transform->setMatrix (m);
-
-    osg::ref_ptr<osg::Material> mat = new osg::Material;
-    mat->setDiffuse (osg::Material::FRONT_AND_BACK, osg::Vec4(colr, colg, colb, cola));
-    RenderOSGInterface::transform->getOrCreateStateSet()->setAttributeAndModes(mat, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
 }
 
 void aFish::Draw (RenderOpenGL* r)
@@ -230,7 +227,7 @@ void aFish::Draw (RenderOpenGL* r)
     btMatrix3x3 rot;
     rot.setIdentity();
     
-    btTransform t = body->getCenterOfMassTransform() * principalTransform.inverse();
+    btTransform t = body->getCenterOfMassTransform() * principalTransformInverse;
     t.getOpenGLMatrix(m);
         
    glPushMatrix(); 
@@ -314,8 +311,10 @@ void aFish::Register (PhysicsBullet* p)
     masses[0] = 0.2 * mass;
     masses[1] = 0.8 * mass;
 
+    // calculate inertia and principal transform
     cshape->calculatePrincipalAxisTransform(masses, principalTransform, m_inertia);
-    m_centerOfVolume = principalTransform.inverse().getOrigin();
+    principalTransformInverse = principalTransform.inverse();
+    m_centerOfVolume = principalTransformInverse.getOrigin();
     
     // we can delete previous shapes
     delete cshape;
@@ -329,7 +328,7 @@ void aFish::Register (PhysicsBullet* p)
     btBoxShape* boxShape = new btBoxShape(btVector3(dimensions[0], dimensions[1], dimensions[2]) / 2.0);
     
     localTransform.setIdentity();
-    btTransform newLocalTransform = principalTransform.inverse() * localTransform;
+    btTransform newLocalTransform = principalTransformInverse * localTransform;
     cshape->addChildShape(newLocalTransform,boxShape);
        
     cshape->recalculateLocalAabb();
@@ -400,7 +399,31 @@ void aFish::Register (RenderOSG* r)
     RenderOSGInterface::transform->addChild (t);
     t->addChild (aFishNode);
     r->root->addChild(RenderOSGInterface::transform);
+
+    
+    text = r->CreateText(osg::Vec3(-dimensions[0], 0.0f, dimensions[2]), "", dimensions[0]/2);
+    textGeode = new osg::Geode;
+    textGeode->addDrawable( text );
+    textGeode->setNodeMask(0);
+
+    RenderOSGInterface::transform->addChild (textGeode);
 }
+
+void aFish::SetTextDrawable(bool d)
+{
+    textGeode->setNodeMask(d);
+}
+    
+void aFish::SetText(string s)
+{
+    text->setText(s);
+}
+
+void aFish::SetTextColor(float r, float g, float b, float a)
+{
+    text->setColor(osg::Vec4(r, g, b, a));
+}
+    
 
 void aFish::Unregister (RenderOSG* r)
 {
@@ -470,6 +493,10 @@ void aFish::SetColor (float r, float g, float b, float a)
     this->colg = g;
     this->colb = b;
     this->cola = a;
+
+    osg::ref_ptr<osg::Material> mat = new osg::Material;
+    mat->setDiffuse (osg::Material::FRONT_AND_BACK, osg::Vec4(colr, colg, colb, cola));
+    RenderOSGInterface::transform->getOrCreateStateSet()->setAttributeAndModes(mat, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
 }
 
 void aFish::Step ()
