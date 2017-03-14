@@ -24,10 +24,8 @@
 
 #include <typeinfo>
 
-PhysicsBullet::PhysicsBullet (float scalingFactor)
+PhysicsBullet::PhysicsBullet ()
 {
-    this->scalingFactor = scalingFactor;
-
     ///collision configuration contains default setup for memory, collision setup
     m_collisionConfiguration = new btDefaultCollisionConfiguration();
     
@@ -43,7 +41,7 @@ PhysicsBullet::PhysicsBullet (float scalingFactor)
     m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);   
 //    m_dynamicsWorld = new btContinuousDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);   
 //    m_dynamicsWorld = new btSimpleDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);   
-    m_dynamicsWorld->setGravity(btVector3(0,0,-9.81  * scalingFactor));
+    m_dynamicsWorld->setGravity(btVector3(0,0,-9.81));
 }
 
 

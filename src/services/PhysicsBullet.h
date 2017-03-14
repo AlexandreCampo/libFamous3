@@ -41,7 +41,6 @@ class PhysicsBullet : public Service
 {
 public:
 
-    float scalingFactor;
     bool customPhysics;
 
     btAlignedObjectArray<btCollisionShape*> m_collisionShapes;
@@ -51,7 +50,7 @@ public:
     btDefaultCollisionConfiguration* m_collisionConfiguration;
     btDynamicsWorld* m_dynamicsWorld;
        
-    PhysicsBullet(float scalingFactor);
+    PhysicsBullet();
     ~PhysicsBullet();
     
     void Initialize ();

@@ -41,7 +41,6 @@ public:
 
     float dimensions[3];
     float mass;
-//    float scalingFactor;
 
     btCollisionShape* shape;
     btRigidBody* body;

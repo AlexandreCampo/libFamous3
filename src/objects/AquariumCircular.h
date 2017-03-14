@@ -41,7 +41,6 @@ public:
     float borderResolution;
     btVector3 dimGround;
     btVector3 dimBorder;
-//    float scalingFactor;
 
     int displayList;
     std::vector<osg::ref_ptr<osg::PositionAttitudeTransform>> cubeTransforms;

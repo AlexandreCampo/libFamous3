@@ -54,7 +54,7 @@ aMussel::~aMussel()
 void aMussel::AddDevices()
 {
     float neutralVolume = (1.0 / body->getInvMass()) / waterVolume->density;
-    float ballastVolume = (3.141592564 * 0.07 * 0.07 * 0.2 * physicsBullet->scalingFactor * physicsBullet->scalingFactor * physicsBullet->scalingFactor);
+    float ballastVolume = (3.141592564 * 0.07 * 0.07 * 0.2);
 
     ballast = new DeviceBallast (centerOfVolume, physicsBullet, waterVolume, body, neutralVolume - ballastVolume / 2.0, neutralVolume + ballastVolume / 2.0, 2.0);
     Add (ballast);
@@ -63,7 +63,7 @@ void aMussel::AddDevices()
     t2.setIdentity();    
     int cf2 = this->collisionType;
     int ct2 = (1 << 3);
-    acoustic = new DeviceAcousticTransceiver (physicsBullet, body, t2, cf2, ct2, 0.9 * physicsBullet->scalingFactor);    
+    acoustic = new DeviceAcousticTransceiver (physicsBullet, body, t2, cf2, ct2, 0.9);    
     Add (acoustic);
 
     t2.setIdentity();    
@@ -74,7 +74,7 @@ void aMussel::AddDevices()
     Add (optical);
 
     // add directional optical transceivers
-//    float addedrange = 0.005 * physicsBullet->scalingFactor;
+//    float addedrange = 0.005;
     float a = 30.0 * M_PI / 180.0;
 
     // top
@@ -96,16 +96,16 @@ void aMussel::AddDevices()
     float pyz = sin (a);
     
     // ray sensors may not detect objects that go inside the other object... hence I add some distance.
-    float addedrange = 0.005 * physicsBullet->scalingFactor;
+    float addedrange = 0.005;
     
-    range = 0.3 * physicsBullet->scalingFactor + addedrange;
+    range = 0.3 + addedrange;
         
-    pos = btVector3 (0.0, 0.0, 0.05 * physicsBullet->scalingFactor - addedrange);
+    pos = btVector3 (0.0, 0.0, 0.05 - addedrange);
     dir = btVector3 (0.0, 0.0, 1.0);   
     rayTop = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);  
     Add (rayTop);
     
-    pos = btVector3 (0.0, 0.0, -0.05 * physicsBullet->scalingFactor + addedrange);
+    pos = btVector3 (0.0, 0.0, -0.05 + addedrange);
     dir = btVector3 (0.0, 0.0, -1.0);   
     rayBottom = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);  
     Add (rayBottom);   
@@ -138,9 +138,9 @@ void aMussel::Register (PhysicsBullet* p)
     SetTimeStep(p->GetTimeStep());
 //    p->SetCustomPhysics(true);
 
-    dimensions[0] = 0.2 * physicsBullet->scalingFactor; // diameter (x)
+    dimensions[0] = 0.2; // diameter (x)
     dimensions[1] = dimensions[0]; // diameter (y)
-    dimensions[2] = 0.75 * physicsBullet->scalingFactor; // height (z)
+    dimensions[2] = 0.75; // height (z)
 
     mass = 5;
     btScalar volume = M_PI * dimensions[0] * dimensions[0] * dimensions[1];
@@ -241,7 +241,7 @@ void aMussel::Register (RenderOSG* r)
     osg::ref_ptr<osg::MatrixTransform> transformScale = new osg::MatrixTransform();
     osg::Matrix m = osg::Matrix::identity();
     float coeff = 0.66;
-    m.makeScale(osg::Vec3(physicsBullet->scalingFactor * coeff, physicsBullet->scalingFactor * coeff, physicsBullet->scalingFactor * coeff));
+    m.makeScale(osg::Vec3(coeff, coeff, coeff));
     transformScale->setMatrix(m);
 
     transform->addChild (transformScale);

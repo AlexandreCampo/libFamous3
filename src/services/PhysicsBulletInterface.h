@@ -39,7 +39,6 @@ public:
 
     PhysicsBullet* physicsBullet = NULL;
     
-    btScalar scalingFactor;
     int collisionType;
     int collisionFilter;
 

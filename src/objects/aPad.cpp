@@ -88,7 +88,7 @@ void aPad::AddDevices ()
     
     btTransform t;
     t.setIdentity();    
-    acoustic = new DeviceAcousticTransceiver (physicsBullet, body, t, acousticCollisionFilter, acousticCollisionType, 0.7 * physicsBullet->scalingFactor);
+    acoustic = new DeviceAcousticTransceiver (physicsBullet, body, t, acousticCollisionFilter, acousticCollisionType, 0.7);
     Add (acoustic);
 }
 

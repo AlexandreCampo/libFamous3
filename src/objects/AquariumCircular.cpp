@@ -216,7 +216,7 @@ void AquariumCircular::Register (RenderOpenGL* r)
 	
 	// if (i == 0)
 	{
-	    float wallWidth = 0.07 * physicsBullet->scalingFactor;
+	    float wallWidth = 0.07;
 	    position[0] = 0;
 	    position[1] = 0;
 	    position[2] = width/2.0;
@@ -257,17 +257,17 @@ void AquariumCircular::Register (RenderOpenGL* r)
 	    float cr = 78.0 / 254.0;
 	    float cg = 140.0 / 254.0;
 	    float cb = 254.0 / 254.0;
-	    for (float px = -radius; px <=radius; px += 0.11 * physicsBullet->scalingFactor)
+	    for (float px = -radius; px <=radius; px += 0.11)
 	    {
-		for (float py = -radius; py <=radius; py += 0.11 * physicsBullet->scalingFactor)
+		for (float py = -radius; py <=radius; py += 0.11)
 		{
 		    float sides[3];
-		    sides[0] = 0.014 * physicsBullet->scalingFactor;
-		    sides[1] = 0.014 * physicsBullet->scalingFactor;
-		    sides[2] = 0.014 * physicsBullet->scalingFactor;
+		    sides[0] = 0.014;
+		    sides[1] = 0.014;
+		    sides[2] = 0.014;
 		    position[0] = px;
 		    position[1] = py;
-		    position[2] = height + dimGround.z() / 2.0 + sin((px + py) * 0.6) * 0.04 * physicsBullet->scalingFactor;
+		    position[2] = height + dimGround.z() / 2.0 + sin((px + py) * 0.6) * 0.04;
 
 		    GLfloat light[4];
 		    light[0] = cr; light[1] = cg; light[2] = cb; light[3] = 1.0;
@@ -413,7 +413,7 @@ void AquariumCircular::Register (RenderOSG* r)
     }
     
     // add walls
-    float wallWidth = 0.07 * physicsBullet->scalingFactor;
+    float wallWidth = 0.07;
     osg::ref_ptr<osg::Box> b1 = new osg::Box(osg::Vec3(0,-radius - wallWidth / 2.0, height/2), radius * 2, wallWidth, height);
     osg::ref_ptr<osg::ShapeDrawable> b1d = new osg::ShapeDrawable(b1);
 
@@ -491,9 +491,9 @@ void AquariumCircular::Register (RenderOSG* r)
     // for (auto* t : cubeTransforms) delete t;
     cubeTransforms.clear();
 
-    for (float x = -radius; x < radius; x += 0.25 * physicsBullet->scalingFactor)
+    for (float x = -radius; x < radius; x += 0.25)
     {
-	for (float y = -radius; y < radius; y += 0.25 * physicsBullet->scalingFactor)
+	for (float y = -radius; y < radius; y += 0.25)
 	{
 	    // skip position out of circle
 	    if (x * x + y * y > radius * radius) continue;
