@@ -118,7 +118,7 @@ void aMussel::AddDevices()
 void aMussel::Draw (RenderOSG* r)
 {
     btScalar ogl[16];
-    btTransform t = body->getCenterOfMassTransform() * principalTransform.inverse();
+    btTransform t = body->getCenterOfMassTransform() * principalTransformInverse;
     t.getOpenGLMatrix( ogl );
     osg::Matrix m(ogl);
     transform->setMatrix (m);
@@ -169,8 +169,10 @@ void aMussel::Register (PhysicsBullet* p)
     masses[0] = 0.2 * mass;
     masses[1] = 0.8 * mass;
 
+    // get inertia and principal transform
     cshape->calculatePrincipalAxisTransform (masses, principalTransform, m_inertia);
-    centerOfVolume = principalTransform.inverse().getOrigin();
+    principalTransformInverse = principalTransform.inverse();
+    centerOfVolume = principalTransformInverse.getOrigin();
 
     // we can delete previous shapes
     delete cshape;
@@ -184,7 +186,7 @@ void aMussel::Register (PhysicsBullet* p)
     btCylinderShapeZ* cylinderShape = new btCylinderShapeZ(btVector3(dimensions[0], dimensions[1], dimensions[2]) / 2.0);
     
     localTransform.setIdentity();
-    btTransform newLocalTransform = principalTransform.inverse() * localTransform;
+    btTransform newLocalTransform = principalTransformInverse * localTransform;
     cshape->addChildShape(newLocalTransform,cylinderShape);
        
     cshape->recalculateLocalAabb();

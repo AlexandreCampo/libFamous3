@@ -45,6 +45,7 @@ public:
     btCollisionShape* shape;
     btRigidBody* body;
     btTransform principalTransform;
+    btTransform principalTransformInverse;
     btVector3 centerOfVolume;
 
     std::string meshFilename;

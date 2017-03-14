@@ -95,7 +95,7 @@ void aPad::AddDevices ()
 void aPad::Draw (RenderOSG* r)
 {
     btScalar ogl[16];
-    btTransform t = body->getCenterOfMassTransform() * principalTransform.inverse();
+    btTransform t = body->getCenterOfMassTransform() * principalTransformInverse;
     t.getOpenGLMatrix( ogl );
     osg::Matrix m(ogl);
     RenderOSGInterface::transform->setMatrix (m);
@@ -179,14 +179,16 @@ void aPad::Register (PhysicsBullet* p)
     btCompoundShape* cshape = new btCompoundShape(false);
     btBoxShape* boxShape = new btBoxShape(btVector3(dimensions[0], dimensions[1], dimensions[2]) / 2.0);
     principalTransform.setIdentity();
-    cshape->addChildShape(principalTransform.inverse(), boxShape);
+    principalTransformInverse = principalTransformInverse;
+    
+    cshape->addChildShape(principalTransformInverse, boxShape);
        
     cshape->recalculateLocalAabb();
     p->m_collisionShapes.push_back(cshape);
     shape = cshape;
-
+    
     shape->calculateLocalInertia(mass,m_inertia);    
-    centerOfVolume = principalTransform.inverse().getOrigin();
+    centerOfVolume = principalTransformInverse.getOrigin();
     
     btDefaultMotionState* myMotionState = new btDefaultMotionState(principalTransform);
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,shape,m_inertia);

@@ -43,6 +43,7 @@ public:
     btRigidBody* body;
 
     btTransform principalTransform;
+    btTransform principalTransformInverse;
 
     
     std::string meshFilename;
