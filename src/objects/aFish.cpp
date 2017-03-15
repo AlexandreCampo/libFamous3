@@ -28,6 +28,8 @@
 
 #include <iostream>
 
+using namespace std;
+
 aFish::aFish() :
     Object(),
     PhysicsBulletInterface(),
@@ -43,8 +45,8 @@ aFish::aFish() :
     cola = 1.0;
 
     // define collision type
-    SetCollisionType (1 << 2);
-    SetCollisionFilter (0x7FFFFFFF);
+    setCollisionType (1 << 2);
+    setCollisionFilter (0x7FFFFFFF);
 
     displayList = 0;
 }
@@ -55,45 +57,45 @@ aFish::~aFish()
 {
 }
 
-void aFish::AddDevices()
+void aFish::addDevices()
 {
     propellerLeft = new DevicePropeller (physicsBullet, body, 1);
-    propellerLeft->SetPosition(m_centerOfVolume + btVector3( 0, -dimensions[1] / 2.0, 0 ));
-    propellerLeft->SetOrientation(btQuaternion( 0, 0, 0 ));
-    if (renderOSG) propellerLeft->Register(renderOSG);
-    propellerLeft->SetDrawable(false);
-    Add(propellerLeft);
+    propellerLeft->setPosition(m_centerOfVolume + btVector3( 0, -dimensions[1] / 2.0, 0 ));
+    propellerLeft->setOrientation(btQuaternion( 0, 0, 0 ));
+    if (renderOSG) propellerLeft->registerService(renderOSG);
+    propellerLeft->setDrawable(false);
+    this->add(propellerLeft);
     
     propellerRight = new DevicePropeller (physicsBullet, body, 1);
-    propellerRight->SetPosition(m_centerOfVolume + btVector3( 0, dimensions[1] / 2.0, 0 ));
-    propellerRight->SetOrientation(btQuaternion( 0, 0, 0 ));
-    if (renderOSG) propellerRight->Register(renderOSG);
-    propellerRight->SetDrawable(false);
-    Add(propellerRight);
+    propellerRight->setPosition(m_centerOfVolume + btVector3( 0, dimensions[1] / 2.0, 0 ));
+    propellerRight->setOrientation(btQuaternion( 0, 0, 0 ));
+    if (renderOSG) propellerRight->registerService(renderOSG);
+    propellerRight->setDrawable(false);
+    this->add(propellerRight);
     
     // propellers = new DevicePropellers(physicsBullet, body, leftPos, rightPos, 0.1);
-    // Add (propellers);
+    // this->add (propellers);
 
     float neutralVolume = (1.0 / body->getInvMass()) / waterVolume->density;
     float ballastVolume = (0.03 * 0.03 * 0.2);
 
     ballast = new DeviceBallast (m_centerOfVolume, physicsBullet, waterVolume, body, neutralVolume - ballastVolume / 2.0, neutralVolume + ballastVolume / 2.0);
-    Add (ballast);
+    this->add (ballast);
     
     btTransform t2;
     t2.setIdentity();    
     int cf2 = this->collisionType;
     int ct2 = (1 << 3);
     acoustic = new DeviceAcousticTransceiver (physicsBullet, body, t2, cf2, ct2, 0.9);    
-    Add (acoustic);
+    this->add (acoustic);
 
     t2.setIdentity();    
     int cf4 = this->collisionType;
     int ct4 = (1 << 4);
     float range = 0.5;    
     optical = new DeviceOpticalTransceiver (physicsBullet, body, principalTransformInverse, cf4, ct4, range);
-    if (renderOSG) optical->Register(renderOSG);
-    Add (optical);
+    if (renderOSG) optical->registerService(renderOSG);
+    this->add (optical);
 
     // add directional optical transceivers
 //    float addedrange = 0.005;
@@ -102,52 +104,52 @@ void aFish::AddDevices()
     // front left
     btVector3 pos (0.0, 0.0, 0.0);
     btVector3 dir (1, -sin(a), 0);   
-    optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
-    optical->AddReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->addTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->addReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
 
     // front right
     pos = btVector3 (0.0, 0.0, 0.0);
     dir = btVector3 (1, sin(a), 0);   
-    optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
-    optical->AddReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->addTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->addReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
 
     // left
     pos = btVector3 (0.0, 0.0, 0.0);
     dir = btVector3 (0, 1, 0);   
-    optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
-    optical->AddReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->addTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->addReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
 
     // right
     pos = btVector3 (0.0, 0.0, 0.0);
     dir = btVector3 (0, -1, 0);   
-    optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
-    optical->AddReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->addTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->addReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
 
     // front
     pos = btVector3 (0.0, 0.0, 0.0);
     dir = btVector3 (1, 0, 0);   
-    optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
-    optical->AddReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->addTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->addReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
 
     // back
     pos = btVector3 (0.0, 0.0, 0.0);
     dir = btVector3 (-1, 0, 0);   
-    optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
-    optical->AddReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->addTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->addReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
 
     // top
     pos = btVector3 (0.0, 0.0, 0.0);
     dir = btVector3 (0, 0, 1);   
-    optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
-    optical->AddReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->addTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->addReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
 
     // bottom
     pos = btVector3 (0.0, 0.0, 0.0);
     dir = btVector3 (0, 0, -1);   
-    optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
-    optical->AddReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->addTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->addReceiver (pos, dir, range, 30.0 * M_PI / 180.0);
 
-    optical->SetReceiveOmnidirectional(true);
+    optical->setReceiveOmnidirectional(true);
 
     // adding ray sensors for proximity
     int cf3 = 0x7FFFFFFF; 
@@ -164,55 +166,55 @@ void aFish::AddDevices()
     pos = btVector3 (0.1 - addedrange, -0.005 , 0.005 );
     dir = btVector3 (px, -pyz, pyz);   
     rayFrontLU = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);
-    Add (rayFrontLU);
+    this->add (rayFrontLU);
     
     pos = btVector3 (0.1 - addedrange, -0.005 , -0.005 );
     dir = btVector3 (px, -pyz, -pyz);   
     rayFrontLD = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);
-    Add (rayFrontLD);
+    this->add (rayFrontLD);
 
     pos = btVector3 (0.1 - addedrange, 0.005 , 0.005 );
     dir = btVector3 (px, pyz, pyz);   
     rayFrontRU = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);
-    Add (rayFrontRU);
+    this->add (rayFrontRU);
 
     pos = btVector3 (0.1 - addedrange, 0.005 , -0.005 );
     dir = btVector3 (px, pyz, -pyz);   
     rayFrontRD = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);
-    Add (rayFrontRD);
+    this->add (rayFrontRD);
     
     pos = btVector3 (0.0, -0.025 + addedrange, 0.0);
     dir = btVector3 (0.0, -1.0, 0.0);   
     rayLeft = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);  
-    Add (rayLeft);
+    this->add (rayLeft);
     
     pos = btVector3 (0.0, 0.025 - addedrange, 0.0);
     dir = btVector3 (0.0, 1.0, 0.0);   
     rayRight = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);  
-    Add (rayRight);
+    this->add (rayRight);
     
     pos = btVector3 (0.0, 0.0, 0.05 - addedrange);
     dir = btVector3 (0.0, 0.0, 1.0);   
     rayTop = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);  
-    Add (rayTop);
+    this->add (rayTop);
     
     pos = btVector3 (0.0, 0.0, -0.05 + addedrange);
     dir = btVector3 (0.0, 0.0, -1.0);   
     rayBottom = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);  
-    Add (rayBottom);
+    this->add (rayBottom);
     
     pos = btVector3 (-0.1 + addedrange, 0.0, 0);
     dir = btVector3 (-1.0, 0.0, 0.0);   
     rayBack = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);  
-    Add (rayBack);
+    this->add (rayBack);
 
 
     networker = new DeviceNetworker ();    
-    Add (networker);
+    this->add (networker);
     
 }
 
-void aFish::Draw (RenderOSG* r)
+void aFish::draw (RenderOSG* r)
 {
     btScalar ogl[16];
     btTransform t = body->getCenterOfMassTransform() * principalTransformInverse;
@@ -221,7 +223,7 @@ void aFish::Draw (RenderOSG* r)
     RenderOSGInterface::transform->setMatrix (m);
 }
 
-void aFish::Draw (RenderOpenGL* r)
+void aFish::draw (RenderOpenGL* r)
 {
     btScalar m[16];
     btMatrix3x3 rot;
@@ -244,7 +246,7 @@ void aFish::Draw (RenderOpenGL* r)
    else
    {
        glutSolidCube (dimensions[0]/4.0);
-//    r->dsSetColor (1, 0, 0);
+//    r->dssetColor (1, 0, 0);
 //    r->dsSetTexture (0);
     // pos[0] = dimensions[0] * 4.0 / 5.0 / 2.0;
     // dims[0] *= 1.0 / 5.0;
@@ -276,11 +278,11 @@ void aFish::Draw (RenderOpenGL* r)
 
 
 
-void aFish::Register (PhysicsBullet* p)
+void aFish::registerService (PhysicsBullet* p)
 {
-    PhysicsBulletInterface::Register(p);
+    PhysicsBulletInterface::registerService(p);
     
-    SetTimeStep(p->GetTimeStep());
+    setTimestep(p->getTimestep());
 
     dimensions[0] = 0.35;
     dimensions[1] = 0.10;
@@ -353,28 +355,28 @@ void aFish::Register (PhysicsBullet* p)
     p->m_dynamicsWorld->addRigidBody(body, collisionType, collisionFilter);
 }
 
-void aFish::Unregister (PhysicsBullet* p)
+void aFish::unregisterService (PhysicsBullet* p)
 {
 }
 
-void aFish::Register (RenderOpenGL* r)
+void aFish::registerService (RenderOpenGL* r)
 {
-    RenderOpenGLInterface::Register(r);
+    RenderOpenGLInterface::registerService(r);
 }
 
-void aFish::Unregister (RenderOpenGL* r)
+void aFish::unregisterService (RenderOpenGL* r)
 {
-    RenderOpenGLInterface::Unregister(r);
+    RenderOpenGLInterface::unregisterService(r);
 }
 
-void aFish::SetMeshFilename (std::string filename)
+void aFish::setMeshFilename (std::string filename)
 {
     meshFilename = filename;
 }
 
-void aFish::Register (RenderOSG* r)
+void aFish::registerService (RenderOSG* r)
 {
-    RenderOSGInterface::Register (r);
+    RenderOSGInterface::registerService (r);
 
     if (meshFilename.empty())
     {
@@ -401,7 +403,7 @@ void aFish::Register (RenderOSG* r)
     r->root->addChild(RenderOSGInterface::transform);
 
     
-    text = r->CreateText(osg::Vec3(-dimensions[0], 0.0f, dimensions[2]), "", dimensions[0]/2);
+    text = r->createText(osg::Vec3(-dimensions[0], 0.0f, dimensions[2]), "", dimensions[0]/2);
     textGeode = new osg::Geode;
     textGeode->addDrawable( text );
     textGeode->setNodeMask(0);
@@ -409,53 +411,53 @@ void aFish::Register (RenderOSG* r)
     RenderOSGInterface::transform->addChild (textGeode);
 }
 
-void aFish::SetTextDrawable(bool d)
+void aFish::setTextDrawable(bool d)
 {
     textGeode->setNodeMask(d);
 }
     
-void aFish::SetText(string s)
+void aFish::setText(string s)
 {
     text->setText(s);
 }
 
-void aFish::SetTextColor(float r, float g, float b, float a)
+void aFish::setTextColor(float r, float g, float b, float a)
 {
     text->setColor(osg::Vec4(r, g, b, a));
 }
     
 
-void aFish::Unregister (RenderOSG* r)
+void aFish::unregisterService (RenderOSG* r)
 {
-    RenderOSGInterface::Unregister(r);
+    RenderOSGInterface::unregisterService(r);
 }
 
-void aFish::Register (EnergyManager* m)
+void aFish::registerService (EnergyManager* m)
 {
-    EnergyManagerInterface::Register(m);
+    EnergyManagerInterface::registerService(m);
 }
 
-void aFish::Unregister (EnergyManager* m)
+void aFish::unregisterService (EnergyManager* m)
 {
-    EnergyManagerInterface::Unregister(m);
+    EnergyManagerInterface::unregisterService(m);
 }
 
-void aFish::Register (WaterVolume* w)
+void aFish::registerService (WaterVolume* w)
 {
-    WaterVolumeInterface::Register(w);
+    WaterVolumeInterface::registerService(w);
     
     // update quadratic drag with new fluid density
     setDragQuadraticCoefficients(m_linearQuadraticDrag, m_angularQuadraticDrag, w->density);
 }
 
-void aFish::Unregister (WaterVolume* w)
+void aFish::unregisterService (WaterVolume* w)
 {
-    WaterVolumeInterface::Unregister(w);
+    WaterVolumeInterface::unregisterService(w);
 }
 
 
 
-void aFish::SetPosition (btVector3 p)
+void aFish::setPosition (btVector3 p)
 {
     btTransform t = body->getCenterOfMassTransform();
     t.setOrigin(p);
@@ -465,13 +467,13 @@ void aFish::SetPosition (btVector3 p)
     body->setAngularVelocity(btVector3(0,0,0));
 }
 
-btVector3 aFish::GetPosition ()
+btVector3 aFish::getPosition ()
 {
     return body->getCenterOfMassTransform().getOrigin();
 }
 
 
-void aFish::SetRotation (btQuaternion q)
+void aFish::setRotation (btQuaternion q)
 {
     btTransform t = body->getCenterOfMassTransform();
     t.setRotation(q);
@@ -481,13 +483,13 @@ void aFish::SetRotation (btQuaternion q)
     body->setAngularVelocity(btVector3(0,0,0));
 }
 
-btQuaternion aFish::GetRotation (btQuaternion q)
+btQuaternion aFish::getRotation (btQuaternion q)
 {
     return body->getOrientation();
 }
 
 
-void aFish::SetColor (float r, float g, float b, float a)
+void aFish::setColor (float r, float g, float b, float a)
 {
     this->colr = r;
     this->colg = g;
@@ -499,7 +501,7 @@ void aFish::SetColor (float r, float g, float b, float a)
     RenderOSGInterface::transform->getOrCreateStateSet()->setAttributeAndModes(mat, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
 }
 
-void aFish::Step ()
+void aFish::step ()
 {
     // custom underwater physics
     const btMatrix3x3& worldBasis = body->getWorldTransform().getBasis();
@@ -550,15 +552,15 @@ void aFish::updateInertiaTensor ()
     body->updateInertiaTensor();
 }
 
-void aFish::SetProximitySensorsRange(float range)
+void aFish::setProximitySensorsRange(float range)
 {
-    if (rayFrontLU) rayFrontLU->SetRange(range);
-    if (rayFrontLD) rayFrontLD->SetRange(range);
-    if (rayFrontRU) rayFrontRU->SetRange(range);
-    if (rayFrontRD) rayFrontRD->SetRange(range);
-    if (rayTop) rayTop->SetRange(range);
-    if (rayBottom) rayBottom->SetRange(range);
-    if (rayLeft) rayLeft->SetRange(range);
-    if (rayRight) rayRight->SetRange(range);
-    if (rayBack) rayBack->SetRange(range);
+    if (rayFrontLU) rayFrontLU->setRange(range);
+    if (rayFrontLD) rayFrontLD->setRange(range);
+    if (rayFrontRU) rayFrontRU->setRange(range);
+    if (rayFrontRD) rayFrontRD->setRange(range);
+    if (rayTop) rayTop->setRange(range);
+    if (rayBottom) rayBottom->setRange(range);
+    if (rayLeft) rayLeft->setRange(range);
+    if (rayRight) rayRight->setRange(range);
+    if (rayBack) rayBack->setRange(range);
 }

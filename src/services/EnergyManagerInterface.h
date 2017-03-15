@@ -37,15 +37,14 @@ public :
 
     EnergyManagerInterface (float capacity, float level);
 
-    virtual void Register (EnergyManager* r);
-    virtual void Unregister (EnergyManager* r);    
+    virtual void registerService (EnergyManager* r);
+    virtual void unregisterService (EnergyManager* r);    
 
-    void Connect (EnergyManagerInterface* o);
-    void Disconnect (EnergyManagerInterface* o);
+    void connect (EnergyManagerInterface* o);
+    void disconnect (EnergyManagerInterface* o);
 
-    void Push (EnergyManagerInterface* o, float energy);
-    void Pull (EnergyManagerInterface* o, float energy);
-//    void Transfer (EnergyManagerInterface* o, float energy);
+    void push (EnergyManagerInterface* o, float energy);
+    void pull (EnergyManagerInterface* o, float energy);
 };
 
 #endif

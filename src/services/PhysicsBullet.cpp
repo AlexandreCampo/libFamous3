@@ -78,12 +78,7 @@ PhysicsBullet::~PhysicsBullet ()
 	delete m_collisionConfiguration;
 }
 
-void PhysicsBullet::Initialize ()
-{    
-}
-
-
-void PhysicsBullet::Step ()
+void PhysicsBullet::step ()
 {
-    m_dynamicsWorld->stepSimulation(simulator->timestep, 0, simulator->timestep);
+    m_dynamicsWorld->stepSimulation(timestep, 0, timestep);
 }

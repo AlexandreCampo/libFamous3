@@ -29,14 +29,14 @@
 
 DevicePropeller::DevicePropeller(PhysicsBullet* p, btRigidBody* body, float maxForce) 
 {
-    SetActionTimeStep(p->GetTimeStep());
+    setActionTimestep(p->getTimestep());
     
     this->body = body;    
     this->maxForce = maxForce;
 
     this->transform.setIdentity();
     
-    SetSpeed(0);
+    setSpeed(0);
     drawable = false;
 }
 
@@ -46,49 +46,49 @@ DevicePropeller::~DevicePropeller()
 
 }
 
-void DevicePropeller::SetPosition(btVector3 position)
+void DevicePropeller::setPosition(btVector3 position)
 {
     transform.setOrigin(position);
 }
 
-btVector3 DevicePropeller::GetPosition()
+btVector3 DevicePropeller::getPosition()
 {
     return transform.getOrigin();
 }
 
-void DevicePropeller::SetOrientation(btQuaternion q)
+void DevicePropeller::setOrientation(btQuaternion q)
 {
     transform.setRotation(q);
 }
 
-btQuaternion DevicePropeller::GetOrientation()
+btQuaternion DevicePropeller::getOrientation()
 {
     return transform.getRotation();
 }
 
-void DevicePropeller::SetSpeed(float s)
+void DevicePropeller::setSpeed(float s)
 {
     speed = s;
     force = maxForce * s;
 }
 
-float DevicePropeller::GetSpeed()
+float DevicePropeller::getSpeed()
 {
     return speed;
 }
 
-void DevicePropeller::SetDrawable(bool d)
+void DevicePropeller::setDrawable(bool d)
 {
     drawable = d;
     RenderOSGInterface::transform->setNodeMask(d);
 }
 
-bool DevicePropeller::IsDrawable()
+bool DevicePropeller::isDrawable()
 {
     return drawable;
 }
 
-void DevicePropeller::ActionStep()
+void DevicePropeller::actionStep()
 {
     const btMatrix3x3& bodyRotation = body->getCenterOfMassTransform().getBasis();
     const btMatrix3x3& selfBasis = transform.getBasis();
@@ -101,18 +101,18 @@ void DevicePropeller::ActionStep()
     body->applyTorque(t);
 }
 
-void DevicePropeller::PerceptionStep()
+void DevicePropeller::perceptionStep()
 {
 }
 
-void DevicePropeller::Reset()
+void DevicePropeller::reset()
 {
     force = 0;
 }
 
-void DevicePropeller::Register (RenderOSG* r)
+void DevicePropeller::registerService (RenderOSG* r)
 {
-    RenderOSGInterface::Register (r);
+    RenderOSGInterface::registerService (r);
 
     if (!devicePropellerNode)
     {
@@ -144,12 +144,12 @@ void DevicePropeller::Register (RenderOSG* r)
     RenderOSGInterface::transform->setNodeMask(0);
 }
 
-void DevicePropeller::Unregister (RenderOSG* r)
+void DevicePropeller::unregisterService (RenderOSG* r)
 {
-    RenderOSGInterface::Unregister(r);
+    RenderOSGInterface::unregisterService(r);
 }
 
-void DevicePropeller::Draw (RenderOSG* r)
+void DevicePropeller::draw (RenderOSG* r)
 {
     if (drawable)
     {

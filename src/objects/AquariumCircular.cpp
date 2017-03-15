@@ -35,6 +35,7 @@
 #include <GL/gl.h>   
 #include <GL/glu.h>  
 
+using namespace std;
 
 AquariumCircular::AquariumCircular (float radius, float height, float thickness, float resolution) :
     Object(),
@@ -59,8 +60,8 @@ AquariumCircular::AquariumCircular (float radius, float height, float thickness,
     dimBorder.setZ (height);
 
     // define collision type
-    SetCollisionType (1<<1);
-    SetCollisionFilter (0x7FFFFFFF);
+    setCollisionType (1<<1);
+    setCollisionFilter (0x7FFFFFFF);
 }
 
 
@@ -69,7 +70,7 @@ AquariumCircular::~AquariumCircular()
 
 }
 
-void AquariumCircular::Draw (RenderOpenGL* r)
+void AquariumCircular::draw (RenderOpenGL* r)
 {
     if (displayList > 0)
     {
@@ -81,7 +82,7 @@ void AquariumCircular::Draw (RenderOpenGL* r)
     }
 }
 
-void AquariumCircular::Draw (RenderOSG* r)
+void AquariumCircular::draw (RenderOSG* r)
 {
     // btScalar ogl[16];
     // btTransform t = body->getCenterOfMassTransform() * principalTransform.inverse();
@@ -102,9 +103,9 @@ void AquariumCircular::Draw (RenderOSG* r)
 }
 
 
-void AquariumCircular::Register(PhysicsBullet* p)
+void AquariumCircular::registerService(PhysicsBullet* p)
 {
-    PhysicsBulletInterface::Register(p);
+    PhysicsBulletInterface::registerService(p);
     
     // create the ground floor
     btBoxShape* groundShape = new btBoxShape(dimGround / 2.0);
@@ -178,14 +179,14 @@ void AquariumCircular::Register(PhysicsBullet* p)
     }
 }
 
-void AquariumCircular::Unregister(PhysicsBullet* p)
+void AquariumCircular::unregisterService(PhysicsBullet* p)
 {
     
 }
 
-void AquariumCircular::Register (RenderOpenGL* r)
+void AquariumCircular::registerService (RenderOpenGL* r)
 {
-    RenderOpenGLInterface::Register(r);
+    RenderOpenGLInterface::registerService(r);
 
     // create a display list
     displayList = glGenLists (1);
@@ -347,15 +348,15 @@ void AquariumCircular::Register (RenderOpenGL* r)
     glEndList();    
 }
 
-void AquariumCircular::Unregister (RenderOpenGL* r)
+void AquariumCircular::unregisterService (RenderOpenGL* r)
 {
-    RenderOpenGLInterface::Unregister(r);
+    RenderOpenGLInterface::unregisterService(r);
 }
 
 
-void AquariumCircular::Register (RenderOSG* r)
+void AquariumCircular::registerService (RenderOSG* r)
 {
-    RenderOSGInterface::Register(r);
+    RenderOSGInterface::registerService(r);
 
     osg::Geode* geode = new osg::Geode();
  
@@ -511,17 +512,17 @@ void AquariumCircular::Register (RenderOSG* r)
     
 }
 
-void AquariumCircular::Unregister (RenderOSG* r)
+void AquariumCircular::unregisterService (RenderOSG* r)
 {
-    RenderOSGInterface::Unregister(r);
+    RenderOSGInterface::unregisterService(r);
 }
 
-void AquariumCircular::Register (WaterVolume* w)
+void AquariumCircular::registerService (WaterVolume* w)
 {
-    WaterVolumeInterface::Register(w);
+    WaterVolumeInterface::registerService(w);
 }
 
-void AquariumCircular::Unregister (WaterVolume* w)
+void AquariumCircular::unregisterService (WaterVolume* w)
 {
-    WaterVolumeInterface::Unregister(w);
+    WaterVolumeInterface::unregisterService(w);
 }

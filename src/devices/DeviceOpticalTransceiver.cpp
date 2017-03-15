@@ -69,10 +69,10 @@ DeviceOpticalTransceiver::DeviceOpticalTransceiver(PhysicsBullet* p, btRigidBody
 	std::cerr << "The body " << body << " misses a proper user pointer in its collision shape !" << std::endl;
     }
 
-    Reset();
+    reset();
 }
 
-void DeviceOpticalTransceiver::AddTransmitter (btVector3 position, btVector3 direction, btScalar range, btScalar angle)
+void DeviceOpticalTransceiver::addTransmitter (btVector3 position, btVector3 direction, btScalar range, btScalar angle)
 {
     transmitters.push_back (Transmitter (position, direction, range, angle));
 
@@ -110,7 +110,7 @@ void DeviceOpticalTransceiver::AddTransmitter (btVector3 position, btVector3 dir
     }
 }
 
-void DeviceOpticalTransceiver::AddReceiver (btVector3 position, btVector3 direction, btScalar range, btScalar angle)
+void DeviceOpticalTransceiver::addReceiver (btVector3 position, btVector3 direction, btScalar range, btScalar angle)
 {
     receivers.push_back (Receiver (position, direction, range, angle));
 }
@@ -121,7 +121,7 @@ DeviceOpticalTransceiver::~DeviceOpticalTransceiver()
 
 }
 
-void DeviceOpticalTransceiver::ActionStep ()
+void DeviceOpticalTransceiver::actionStep ()
 {
     if (messagesSent.size() > 0)
     {
@@ -142,12 +142,12 @@ void DeviceOpticalTransceiver::ActionStep ()
     }
 }
 
-void DeviceOpticalTransceiver::PerceptionStep ()
+void DeviceOpticalTransceiver::perceptionStep ()
 {
     // everything is done in action step...
 }
     
-void DeviceOpticalTransceiver::Reset ()
+void DeviceOpticalTransceiver::reset ()
 {
     messagesReceived.clear();
     messagesSent.clear();
@@ -352,13 +352,13 @@ bool DeviceOpticalTransceiver::process (const btBroadphaseProxy *proxy)
 }
 
 
-void DeviceOpticalTransceiver::Send (int content, int transmitter)
+void DeviceOpticalTransceiver::send (int content, int transmitter)
 {
     Message m (maxRange, content, transmitter);
     messagesSent.push_back(m);
 }
 
-bool DeviceOpticalTransceiver::Receive (Message& m)
+bool DeviceOpticalTransceiver::receive (Message& m)
 {
     if (messagesReceived.empty())
     {	
@@ -372,7 +372,7 @@ bool DeviceOpticalTransceiver::Receive (Message& m)
     }
 }
 
-void DeviceOpticalTransceiver::SetRange (float range)
+void DeviceOpticalTransceiver::setRange (float range)
 {
     // change the large range
     maxRange = range;
@@ -380,25 +380,25 @@ void DeviceOpticalTransceiver::SetRange (float range)
     s->setUnscaledRadius (range);
 }
 
-void DeviceOpticalTransceiver::SetReceiveOmnidirectional(bool omni)
+void DeviceOpticalTransceiver::setReceiveOmnidirectional(bool omni)
 {
     receiveOmnidirectional = omni;
 }
 
-void DeviceOpticalTransceiver::SetDrawable(bool d)
+void DeviceOpticalTransceiver::setDrawable(bool d)
 {
     drawable = d;
     RenderOSGInterface::transform->setNodeMask(d);
 }
 
-bool DeviceOpticalTransceiver::IsDrawable()
+bool DeviceOpticalTransceiver::isDrawable()
 {
     return drawable;
 }
 
-void DeviceOpticalTransceiver::Register (RenderOSG* r)
+void DeviceOpticalTransceiver::registerService (RenderOSG* r)
 {
-    RenderOSGInterface::Register (r);
+    RenderOSGInterface::registerService (r);
 
     if (!deviceOpticalTransceiverNode)
     {
@@ -420,7 +420,7 @@ void DeviceOpticalTransceiver::Register (RenderOSG* r)
     RenderOSGInterface::transform = new osg::MatrixTransform();
 }
 
-void DeviceOpticalTransceiver::Draw (RenderOSG* r)
+void DeviceOpticalTransceiver::draw (RenderOSG* r)
 {
     if (drawable)
     {

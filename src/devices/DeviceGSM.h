@@ -35,14 +35,14 @@ public :
 
     DeviceGSM(GSMNetwork* n);
 
-    void Send (int dst, std::vector<char> content);
-    bool Receive (GSMNetwork::Message& msg);
+    void send (int dst, std::vector<char> content);
+    bool receive (GSMNetwork::Message& msg);
 
-    void ActionStep ();
-    void PerceptionStep ();
-    void Reset();
+    void actionStep ();
+    void perceptionStep ();
+    void reset();
 
-    void SetObject(Object* o);
+    void setObject(Object* o);
 
 };
 

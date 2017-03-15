@@ -100,27 +100,27 @@ public :
     RenderOpenGL(int argc = 0, char** argv = 0);
     ~RenderOpenGL();
 
-    /* void Add (RenderOpenGLInterface* object); */
+    /* void this->add (RenderOpenGLInterface* object); */
     /* void Remove (RenderOpenGLInterface* object); */
 
-    void Run();
-    void InitGL(int width, int height);
-    void ResizeScene(int width, int height);
-    void DrawScene();
-    void Step ();
-    void SetPaused (bool p);
-    void RecalculateTimings ();
+    void run();
+    void initGL(int width, int height);
+    void resizeScene(int width, int height);
+    void drawScene();
+    void step ();
+    void setPaused (bool p);
+    void recalculateTimings ();
 
     ///callback methods by glut
-    void KeyboardCallback(unsigned char key, int x, int y);
-    void KeyboardUpCallback(unsigned char key, int x, int y);
-    void SpecialKeyboard(int key, int x, int y);
-    void SpecialKeyboardUp(int key, int x, int y);
-    void Reshape(int w, int h);
-    void Mouse(int button, int state, int x, int y);
-    void MouseMotion(int x,int y);
-    void DisplayCallback();
-    void Idle();
+    void keyboardCallback(unsigned char key, int x, int y);
+    void keyboardUpCallback(unsigned char key, int x, int y);
+    void specialKeyboard(int key, int x, int y);
+    void specialKeyboardUp(int key, int x, int y);
+    void reshape(int w, int h);
+    void mouse(int button, int state, int x, int y);
+    void mouseMotion(int x,int y);
+    void displayCallback();
+    void idle();
 
     
     // drawing methods
@@ -173,13 +173,9 @@ public :
     void dsSetSphereQuality (int n);
     void dsSetCappedCylinderQuality (int n);
 
-    int LoadNetlogoMesh(std::string filename, float scaling = 1.0, float rotAngle = 0.0, float rotAxisX = 0.0, float rotAxisY = 0.0, float rotAxisZ = 0.0);
+    int loadNetlogoMesh(std::string filename, float scaling = 1.0, float rotAngle = 0.0, float rotAxisX = 0.0, float rotAxisY = 0.0, float rotAxisZ = 0.0);
 };
 
-
-#ifndef M_PI
-#define M_PI (3.14159265358979323846)
-#endif
 
 // constants to convert degrees to radians and the reverse
 #define RAD_TO_DEG (180.0/M_PI)

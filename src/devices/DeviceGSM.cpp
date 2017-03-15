@@ -33,29 +33,29 @@ DeviceGSM::DeviceGSM(GSMNetwork* n)
     this->gsmNetwork = n;
 }
 
-void DeviceGSM::ActionStep ()
+void DeviceGSM::actionStep ()
 {
 }
 
-void DeviceGSM::PerceptionStep ()
+void DeviceGSM::perceptionStep ()
 {
 }
     
-void DeviceGSM::Reset ()
+void DeviceGSM::reset ()
 {
     GSMNetworkInterface* o = (GSMNetworkInterface*) object;
 
     if (o) o->GSMNetworkInterface::messagesReceived.clear();
 }
 
-void DeviceGSM::Send (int dst, std::vector<char> content)
+void DeviceGSM::send (int dst, std::vector<char> content)
 {
     GSMNetworkInterface* o = (GSMNetworkInterface*) object;
 
     gsmNetwork->messagesInTransit.push_back(GSMNetwork::Message(o->id, dst, object->simulator->time, content));
 }
 
-bool DeviceGSM::Receive (GSMNetwork::Message& msg)
+bool DeviceGSM::receive (GSMNetwork::Message& msg)
 {
     GSMNetworkInterface* o = (GSMNetworkInterface*) object;
     
@@ -71,11 +71,11 @@ bool DeviceGSM::Receive (GSMNetwork::Message& msg)
     return true;
 }
 
-void DeviceGSM::SetObject(Object* o)
+void DeviceGSM::setObject(Object* o)
 {
     // downcast
     object = (Object*) dynamic_cast<GSMNetworkInterface*> (o);
     
     if (!object)
-	std::cerr << "DeviceGSM was added to an object that does not implement GSMNetworkInterface !" << endl;
+	std::cerr << "DeviceGSM was added to an object that does not implement GSMNetworkInterface !" << std::endl;
 }

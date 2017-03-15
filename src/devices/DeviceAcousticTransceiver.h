@@ -65,16 +65,16 @@ public :
     DeviceAcousticTransceiver(PhysicsBullet* p, btRigidBody* b, btTransform t, int collisionFilter, int collisionType = 2^30, float maxRange = 1.0);
     ~DeviceAcousticTransceiver();
 
-    void Send (int content);
-    bool Receive (int& c);
+    void send (int content);
+    bool receive (int& c);
 
-    void ActionStep ();
-    void PerceptionStep ();
-    void Reset();
+    void actionStep ();
+    void perceptionStep ();
+    void reset();
 
     virtual bool process (const btBroadphaseProxy *proxy);
 
-    void Draw (RenderOpenGL* r);
+    void draw (RenderOpenGL* r);
 };
 
 

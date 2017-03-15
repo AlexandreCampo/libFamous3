@@ -30,10 +30,10 @@ class RenderOpenGLInterface
 {
 public : 
 
-    virtual void Register (RenderOpenGL* r);
-    virtual void Unregister (RenderOpenGL* r);    
+    virtual void registerService (RenderOpenGL* r);
+    virtual void unregisterService (RenderOpenGL* r);    
 
-    virtual void Draw(RenderOpenGL* r) = 0;
+    virtual void draw(RenderOpenGL* r) = 0;
 };
 
 #endif

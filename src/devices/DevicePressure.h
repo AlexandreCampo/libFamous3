@@ -41,11 +41,11 @@ public :
     DevicePressure(btVector3 position, PhysicsBullet* p, WaterVolume* w, btRigidBody* b);
     ~DevicePressure ();
 
-    void PerceptionStep();
-    void ActionStep();
-    void Reset();
+    void perceptionStep();
+    void actionStep();
+    void reset();
 
-    float GetValue();
+    float getValue();
 };
 
 

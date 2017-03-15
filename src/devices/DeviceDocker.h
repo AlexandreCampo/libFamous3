@@ -58,20 +58,20 @@ public :
     
     ~DeviceDocker();
 
-    void ActionStep ();
-    void PerceptionStep ();
-    void Reset();
+    void actionStep ();
+    void perceptionStep ();
+    void reset();
 
-    std::list<DeviceDocker*>& DetectDockableDevices();
-    bool Dock(DeviceDocker* dockable);
+    std::list<DeviceDocker*>& detectDockableDevices();
+    bool dock(DeviceDocker* dockable);
     bool undock(DeviceDocker* dockable);
 
     virtual bool process (const btBroadphaseProxy *proxy);
     
-    void SetDockable(bool d);
-    bool IsDockable();
+    void setDockable(bool d);
+    bool isDockable();
 
-    void Draw (RenderOSG* r);
+    void draw (RenderOSG* r);
 };
 
 

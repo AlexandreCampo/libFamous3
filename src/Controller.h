@@ -23,22 +23,23 @@
 class Object;
 
 #include <limits>
+#include <cstddef>
 
 class Controller
 {
 public :
-    Object* object;
+    Object* object = NULL;
 
     float timestep = std::numeric_limits<float>::max();
     float nextTime = 0.0;
 
-    Controller (Object* o);
+    Controller ();
+    
+    virtual void step () = 0;
+    virtual void reset () = 0;
 
-    virtual void Step () = 0;
-    virtual void Reset () = 0;
-
-    void SetTimeStep(float t);
-    float GetTimeStep();    
+    void setTimestep(float t);
+    float getTimestep();    
 };
 
 #endif

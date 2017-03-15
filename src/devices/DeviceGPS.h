@@ -39,11 +39,11 @@ public :
     DeviceGPS(btVector3 position, PhysicsBullet* p, btRigidBody* b);
     ~DeviceGPS ();
 
-    void PerceptionStep();
-    void ActionStep();
-    void Reset();
+    void perceptionStep();
+    void actionStep();
+    void reset();
 
-    btVector3 GetGlobalPosition();
+    btVector3 getGlobalPosition();
 };
 
 

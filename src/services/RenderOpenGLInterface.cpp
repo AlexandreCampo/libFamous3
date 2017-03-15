@@ -22,12 +22,12 @@
 #include <list>
 
 
-void RenderOpenGLInterface::Register (RenderOpenGL* r)
+void RenderOpenGLInterface::registerService (RenderOpenGL* r)
 {
     r->objects.push_back(this);
 }
 
-void RenderOpenGLInterface::Unregister (RenderOpenGL* r)
+void RenderOpenGLInterface::unregisterService (RenderOpenGL* r)
 {
     std::list<RenderOpenGLInterface*>::iterator it;
     for (it = r->objects.begin(); it != r->objects.end(); it++)

@@ -48,23 +48,23 @@ DeviceRayCast::~DeviceRayCast()
 
 }
 
-void DeviceRayCast::ActionStep ()
+void DeviceRayCast::actionStep ()
 {
 }
 
-void DeviceRayCast::PerceptionStep ()
+void DeviceRayCast::perceptionStep ()
 {
     calculated = false;
 
     // lazy on demand... code moved to query
 }
 
-void DeviceRayCast::Reset()
+void DeviceRayCast::reset()
 {
     calculated = false;
 }
 
-float DeviceRayCast::GetValue ()
+float DeviceRayCast::getValue ()
 {
     if (!calculated)
     {
@@ -83,7 +83,7 @@ float DeviceRayCast::GetValue ()
 }
     
 
-void DeviceRayCast::Draw (RenderOpenGL* r)
+void DeviceRayCast::draw (RenderOpenGL* r)
 {   
     btTransform transform;
     btScalar m[16];
@@ -133,7 +133,7 @@ btScalar DeviceRayCast::addSingleResult(btCollisionWorld::LocalRayResult& rayRes
     return 1.f;
 }
 
-void DeviceRayCast::SetRange(float range)
+void DeviceRayCast::setRange(float range)
 {
     this->range = range;
     rayToLocal = position + direction * range;    

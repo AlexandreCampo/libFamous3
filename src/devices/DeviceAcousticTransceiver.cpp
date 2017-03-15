@@ -61,7 +61,7 @@ DeviceAcousticTransceiver::DeviceAcousticTransceiver(PhysicsBullet* p, btRigidBo
 	std::cerr << "The body " << parentBody << " misses a proper user pointer in its collision shape !" << std::endl;
     }
 
-    Reset();
+    reset();
 }
 
 
@@ -70,7 +70,7 @@ DeviceAcousticTransceiver::~DeviceAcousticTransceiver()
 
 }
 
-void DeviceAcousticTransceiver::ActionStep ()
+void DeviceAcousticTransceiver::actionStep ()
 {
     if (messagesSent.size() > 0)
     {
@@ -92,18 +92,18 @@ void DeviceAcousticTransceiver::ActionStep ()
 }
 
 
-void DeviceAcousticTransceiver::PerceptionStep ()
+void DeviceAcousticTransceiver::perceptionStep ()
 {
     // everything is done in action step...
 }
     
-void DeviceAcousticTransceiver::Reset ()
+void DeviceAcousticTransceiver::reset ()
 {
     messagesReceived.clear();
     messagesSent.clear();
 }
 
-void DeviceAcousticTransceiver::Draw (RenderOpenGL* r)
+void DeviceAcousticTransceiver::draw (RenderOpenGL* r)
 {   
     btTransform transform;
     btScalar m[16];
@@ -194,14 +194,14 @@ bool DeviceAcousticTransceiver::process (const btBroadphaseProxy *proxy)
 }
 
 
-void DeviceAcousticTransceiver::Send (int content)
+void DeviceAcousticTransceiver::send (int content)
 {
     // this message will be sent in a given radius
     Message m (maxRange, content);
     messagesSent.push_back(m);
 }
 
-bool DeviceAcousticTransceiver::Receive (int& content)
+bool DeviceAcousticTransceiver::receive (int& content)
 {
     if (messagesReceived.empty())
     {	

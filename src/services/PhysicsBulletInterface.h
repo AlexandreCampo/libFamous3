@@ -44,16 +44,14 @@ public:
 
     PhysicsBulletInterface();
     
-    virtual void Register (PhysicsBullet* p) = 0;
-    virtual void Unregister (PhysicsBullet* p) = 0;    
+    virtual void registerService (PhysicsBullet* p) = 0;
+    virtual void unregisterService (PhysicsBullet* p) = 0;    
 
-    int GetCollisionType ();
-    void SetCollisionType (int type);
+    int getCollisionType ();
+    void setCollisionType (int type);
 
-    int GetCollisionFilter ();
-    void SetCollisionFilter (int filter);
-
-//    virtual void CustomPhysics ();
+    int getCollisionFilter ();
+    void setCollisionFilter (int filter);
 };
 
 

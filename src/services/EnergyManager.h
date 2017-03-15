@@ -57,8 +57,8 @@ public :
     EnergyManager();
     ~EnergyManager();
 
-    void Step ();
-    void Reset ();
+    void step ();
+    void reset ();
 };
 
 

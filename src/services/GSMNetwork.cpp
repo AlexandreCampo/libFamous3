@@ -35,7 +35,7 @@
 #include "GSMNetwork.h"
 
 
-void GSMNetwork::Step ()
+void GSMNetwork::step ()
 {
     // distribute messages to their destination
     for (auto& m : messagesInTransit)
@@ -47,7 +47,7 @@ void GSMNetwork::Step ()
     messagesInTransit.clear();
 }
 
-void GSMNetwork::Reset ()
+void GSMNetwork::reset ()
 {
     messagesInTransit.clear();
 }

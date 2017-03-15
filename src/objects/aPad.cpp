@@ -26,6 +26,7 @@
 
 #include <iostream>
 
+using namespace std;
 
 aPad::aPad() :
     Object(),
@@ -34,8 +35,8 @@ aPad::aPad() :
     WaterVolumeInterface()
 {
     // define collision type
-    SetCollisionType (1 << 2);
-    SetCollisionFilter (0x7FFFFFFF);
+    setCollisionType (1 << 2);
+    setCollisionFilter (0x7FFFFFFF);
 
     acousticCollisionFilter = (1 << 2); // TODO we should probably not include walls ....
     acousticCollisionType = (1 << 3);
@@ -52,22 +53,22 @@ aPad::~aPad()
 
 }
 
-void aPad::AddDevices () 
+void aPad::addDevices () 
 {
     // simplified actuator
     propellerLeft = new DevicePropeller (physicsBullet, body, 7);
-    propellerLeft->SetPosition(centerOfVolume + btVector3( 0, -dimensions[1] / 2.0, 0 ));
-    propellerLeft->SetOrientation(btQuaternion( 0, 0, 0 ));
-    if (renderOSG) propellerLeft->Register(renderOSG);
-    propellerLeft->SetDrawable(false);
-    Add(propellerLeft);
+    propellerLeft->setPosition(centerOfVolume + btVector3( 0, -dimensions[1] / 2.0, 0 ));
+    propellerLeft->setOrientation(btQuaternion( 0, 0, 0 ));
+    if (renderOSG) propellerLeft->registerService(renderOSG);
+    propellerLeft->setDrawable(false);
+    this->add(propellerLeft);
     
     propellerRight = new DevicePropeller (physicsBullet, body, 7);
-    propellerRight->SetPosition(centerOfVolume + btVector3( 0, dimensions[1] / 2.0, 0 ));
-    propellerRight->SetOrientation(btQuaternion( 0, 0, 0 ));
-    if (renderOSG) propellerRight->Register(renderOSG);
-    propellerRight->SetDrawable(false);
-    Add(propellerRight);
+    propellerRight->setPosition(centerOfVolume + btVector3( 0, dimensions[1] / 2.0, 0 ));
+    propellerRight->setOrientation(btQuaternion( 0, 0, 0 ));
+    if (renderOSG) propellerRight->registerService(renderOSG);
+    propellerRight->setDrawable(false);
+    this->add(propellerRight);
 
     // 4 ballasts
     for (int i = 0; i < 4; i++)
@@ -82,17 +83,17 @@ void aPad::AddDevices ()
     	DeviceBallast* ballast = new DeviceBallast (centerOfVolume + quatRotate (rotation, relpos), physicsBullet, waterVolume, body, neutralVolume - ballastVolume / 2.0, neutralVolume + ballastVolume / 2.0, 2.0);
 
     	ballasts.push_back(ballast);
-    	Add (ballast);
+    	this->add (ballast);
     }
     
     
     btTransform t;
     t.setIdentity();    
     acoustic = new DeviceAcousticTransceiver (physicsBullet, body, t, acousticCollisionFilter, acousticCollisionType, 0.7);
-    Add (acoustic);
+    this->add (acoustic);
 }
 
-void aPad::Draw (RenderOSG* r)
+void aPad::draw (RenderOSG* r)
 {
     btScalar ogl[16];
     btTransform t = body->getCenterOfMassTransform() * principalTransformInverse;
@@ -105,15 +106,15 @@ void aPad::Draw (RenderOSG* r)
     aPadNode->getOrCreateStateSet()->setAttributeAndModes(mat, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
 }
 
-void aPad::SetMeshFilename (std::string filename)
+void aPad::setMeshFilename (std::string filename)
 {
     meshFilename = filename;
 }
 
 
-void aPad::Register (RenderOSG* r)
+void aPad::registerService (RenderOSG* r)
 {
-    RenderOSGInterface::Register (r);
+    RenderOSGInterface::registerService (r);
 
     if (meshFilename.empty())
     {
@@ -141,25 +142,25 @@ void aPad::Register (RenderOSG* r)
     r->root->addChild(RenderOSGInterface::transform);
 }
 
-void aPad::Unregister (RenderOSG* r)
+void aPad::unregisterService (RenderOSG* r)
 {
-    RenderOSGInterface::Unregister(r);
+    RenderOSGInterface::unregisterService(r);
 }
 
-void aPad::Register (WaterVolume* w)
+void aPad::registerService (WaterVolume* w)
 {
-    WaterVolumeInterface::Register(w);
+    WaterVolumeInterface::registerService(w);
     
     // update quadratic drag with new fluid density
     setDragQuadraticCoefficients(m_linearQuadraticDrag, m_angularQuadraticDrag, w->density);
 }
 
-void aPad::Unregister (WaterVolume* w)
+void aPad::unregisterService (WaterVolume* w)
 {
-    WaterVolumeInterface::Unregister(w);
+    WaterVolumeInterface::unregisterService(w);
 }
 
-void aPad::SetColor (float r, float g, float b, float a)
+void aPad::setColor (float r, float g, float b, float a)
 {
     this->colr = r;
     this->colg = g;
@@ -167,9 +168,9 @@ void aPad::SetColor (float r, float g, float b, float a)
     this->cola = a;
 }
 
-void aPad::Register (PhysicsBullet* p)
+void aPad::registerService (PhysicsBullet* p)
 {
-    PhysicsBulletInterface::Register(p);
+    PhysicsBulletInterface::registerService(p);
     
     dimensions[0] = 0.7;
     dimensions[1] = 0.7;
@@ -208,13 +209,13 @@ void aPad::Register (PhysicsBullet* p)
     p->m_dynamicsWorld->addRigidBody(body, collisionType, collisionFilter);    
 }
 
-void aPad::Unregister (PhysicsBullet* p)
+void aPad::unregisterService (PhysicsBullet* p)
 {
-    PhysicsBulletInterface::Unregister(p);
+    PhysicsBulletInterface::unregisterService(p);
 }
 
 
-void aPad::SetPosition (btVector3 p)
+void aPad::setPosition (btVector3 p)
 {
     btTransform t = body->getCenterOfMassTransform();
     t.setOrigin(p);
@@ -224,13 +225,13 @@ void aPad::SetPosition (btVector3 p)
     body->setAngularVelocity(btVector3(0,0,0));
 }
 
-btVector3 aPad::GetPosition ()
+btVector3 aPad::getPosition ()
 {
     return body->getCenterOfMassTransform().getOrigin();
 }
 
 
-void aPad::SetRotation (btQuaternion q)
+void aPad::setRotation (btQuaternion q)
 {
     btTransform t = body->getCenterOfMassTransform();
     t.setRotation(q);
@@ -240,32 +241,32 @@ void aPad::SetRotation (btQuaternion q)
     body->setAngularVelocity(btVector3(0,0,0));
 }
 
-btQuaternion aPad::GetRotation (btQuaternion q)
+btQuaternion aPad::getRotation (btQuaternion q)
 {
     return body->getOrientation();
 }
 
 
-float aPad::GetEmissionRange()
+float aPad::getEmissionRange()
 {
     return acoustic->maxRange;
 }
 
-void aPad::SetEmissionRange(float r)
+void aPad::setEmissionRange(float r)
 {
     // at the moment it is easier (but slower) to destroy the device and create a new one
     PhysicsBullet* p = acoustic->physics;
 
-    Remove (acoustic);
+    this->remove (acoustic);
     delete (acoustic);
 	
     btTransform t;
     t.setIdentity();    
     acoustic = new DeviceAcousticTransceiver (p, body, t, acousticCollisionFilter, acousticCollisionType, r);
-    Add (acoustic);
+    this->add (acoustic);
 }
 
-void aPad::Step ()
+void aPad::step ()
 {
     // custom underwater physics
     const btMatrix3x3& worldBasis = body->getWorldTransform().getBasis();

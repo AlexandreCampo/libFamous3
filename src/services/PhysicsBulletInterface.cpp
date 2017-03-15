@@ -27,37 +27,32 @@ PhysicsBulletInterface::PhysicsBulletInterface()
     collisionFilter = (1 << 30) - 1;    
 }
 
-int PhysicsBulletInterface::GetCollisionType ()
+int PhysicsBulletInterface::getCollisionType ()
 {
     return collisionType;
 }
 
-void PhysicsBulletInterface::SetCollisionType (int type)
+void PhysicsBulletInterface::setCollisionType (int type)
 {
     collisionType = type;
 }
 
-int PhysicsBulletInterface::GetCollisionFilter ()
+int PhysicsBulletInterface::getCollisionFilter ()
 {
     return collisionFilter;
 }
 
-void PhysicsBulletInterface::SetCollisionFilter (int filter)
+void PhysicsBulletInterface::setCollisionFilter (int filter)
 {
     collisionFilter = filter;
 }
 
-// void PhysicsBulletInterface::CustomPhysics()
-// {
-
-// }
-
-void PhysicsBulletInterface::Register (PhysicsBullet* w)
+void PhysicsBulletInterface::registerService (PhysicsBullet* w)
 {
     physicsBullet = w;
 }
 
-void PhysicsBulletInterface::Unregister (PhysicsBullet* w)
+void PhysicsBulletInterface::unregisterService (PhysicsBullet* w)
 {
     physicsBullet = NULL;
 }

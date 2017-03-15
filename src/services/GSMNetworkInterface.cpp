@@ -19,14 +19,14 @@
 
 #include "GSMNetworkInterface.h"
 
-void GSMNetworkInterface::Register (GSMNetwork* n, int id)
+void GSMNetworkInterface::registerService (GSMNetwork* n, int id)
 {
     this->id = id;
     this->gsmNetwork = n;    
     gsmNetwork->objects[id] = this;
 }
 
-void GSMNetworkInterface::Unregister (GSMNetwork* m)
+void GSMNetworkInterface::unregisterService (GSMNetwork* m)
 {
     gsmNetwork->objects.erase(id);
     gsmNetwork = NULL;

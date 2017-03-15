@@ -53,11 +53,7 @@ public:
     PhysicsBullet();
     ~PhysicsBullet();
     
-    void Initialize ();
-    void Step ();
-    
-    /* void SetCustomPhysics(bool flag); */
-    /* bool GetCustomPhysics(); */
+    void step ();
 };
 
 #endif

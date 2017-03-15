@@ -31,8 +31,8 @@ public :
 
     WaterVolumeInterface ();
 
-    void Register (WaterVolume* r);
-    void Unregister (WaterVolume* r);
+    void registerService (WaterVolume* r);
+    void unregisterService (WaterVolume* r);
 };
 
 #endif

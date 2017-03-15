@@ -46,8 +46,8 @@ public :
     WaterVolume(float density, WaterVolumeHeightCallback calculateHeightCallback, WaterVolumeCurrentCallback calculateCurrentCallback);
     ~WaterVolume();
 
-    void Step ();
-    void Reset ();
+    void step ();
+    void reset ();
 };
 
 

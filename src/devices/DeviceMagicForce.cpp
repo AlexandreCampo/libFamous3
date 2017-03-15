@@ -24,7 +24,7 @@
 DeviceMagicForce::DeviceMagicForce(PhysicsBullet* p, btRigidBody* body)
 {
     this->body = body;
-    SetActionTimeStep(p->GetTimeStep());
+    setActionTimestep(p->getTimestep());
 }
 
 
@@ -33,22 +33,22 @@ DeviceMagicForce::~DeviceMagicForce()
 
 }
 
-void DeviceMagicForce::ApplyCentralForce(btVector3 f)
+void DeviceMagicForce::applyCentralForce(btVector3 f)
 {
     centralForce = f;
 }
 
-void DeviceMagicForce::PerceptionStep()
+void DeviceMagicForce::perceptionStep()
 {
 }
 
-void DeviceMagicForce::ActionStep()
+void DeviceMagicForce::actionStep()
 {
     body->applyCentralForce(centralForce);
 
     centralForce = btVector3(0,0,0);
 }
 
-void DeviceMagicForce::Reset()
+void DeviceMagicForce::reset()
 {
 }

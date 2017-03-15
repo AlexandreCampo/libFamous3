@@ -35,7 +35,7 @@
 #include "EnergyManager.h"
 
 
-void EnergyManager::Step ()
+void EnergyManager::step ()
 {
     // go through the list of objects and mark them as unprocessed
     for (unsigned int i = 0; i < objects.size(); i++)
@@ -77,7 +77,7 @@ void EnergyManager::Step ()
     transactions.clear();
 }
 
-void EnergyManager::Reset ()
+void EnergyManager::reset ()
 {
     transactions.clear();
 }

@@ -50,12 +50,12 @@ public :
     DeviceBallast(btVector3 position, PhysicsBullet* p, WaterVolume* w, btRigidBody* b, float minVolume, float maxVolume, float actionCoefficient = 1.0);
     ~DeviceBallast ();
 
-    void PerceptionStep();
-    void ActionStep();
-    void Reset();
+    void perceptionStep();
+    void actionStep();
+    void reset();
     
-    void SetBuoyancyFactor (float f);
-    btVector3 GetBuoyancyForce ();
+    void setBuoyancyFactor (float f);
+    btVector3 getBuoyancyForce ();
 };
 
 

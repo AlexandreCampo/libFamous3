@@ -28,7 +28,7 @@ DeviceBallast::DeviceBallast(btVector3 position, PhysicsBullet* p, WaterVolume* 
     this->physics = p;
     this->waterVolume = w;
     this->body = b;
-    SetActionTimeStep(p->GetTimeStep());
+    setActionTimestep(p->getTimestep());
 
     this->minVolume = minVolume;
     this->maxVolume = maxVolume;
@@ -37,7 +37,7 @@ DeviceBallast::DeviceBallast(btVector3 position, PhysicsBullet* p, WaterVolume* 
     // calculate volume of fluid to make up for the mass of the body
     neutralVolume = (maxVolume + minVolume) / 2.0;
 
-    SetBuoyancyFactor(0.0);
+    setBuoyancyFactor(0.0);
 }
 
 
@@ -46,7 +46,7 @@ DeviceBallast::~DeviceBallast()
 }
 
 // the factor is in [-1; 1] , 0 is neutral buoyancy
-void DeviceBallast::SetBuoyancyFactor (float f)
+void DeviceBallast::setBuoyancyFactor (float f)
 {
     buoyancyFactor = f;
     
@@ -56,11 +56,11 @@ void DeviceBallast::SetBuoyancyFactor (float f)
     sphereRadius = cbrt(volume * 3.0 / 4.0 / M_PI);
 }
 
-void DeviceBallast::PerceptionStep()
+void DeviceBallast::perceptionStep()
 {
 }
 
-void DeviceBallast::ActionStep()
+void DeviceBallast::actionStep()
 {
     btVector3 worldpos = body->getCenterOfMassTransform() * position;        
     
@@ -109,9 +109,9 @@ void DeviceBallast::ActionStep()
     body->applyTorque(buoyancyTorque);
 }
 
-void DeviceBallast::Reset()
+void DeviceBallast::reset()
 {
-    SetBuoyancyFactor (0.0);    
+    setBuoyancyFactor (0.0);    
 }
    
 

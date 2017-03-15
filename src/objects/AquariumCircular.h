@@ -52,21 +52,21 @@ public:
     AquariumCircular(float radius = 3.0, float height = 2.0, float thickness = 1.0, float resolution = 40.0);
     ~AquariumCircular();
 
-    void Draw (RenderOpenGL* r);
-    void Draw (RenderOSG* r);
-    void BuildDisplayList ();
+    void draw (RenderOpenGL* r);
+    void draw (RenderOSG* r);
+    void buildDisplayList ();
 
-    void Register (PhysicsBullet* p);
-    void Unregister (PhysicsBullet* p);
+    void registerService (PhysicsBullet* p);
+    void unregisterService (PhysicsBullet* p);
 
-    void Register (RenderOpenGL* r);
-    void Unregister (RenderOpenGL* r);
+    void registerService (RenderOpenGL* r);
+    void unregisterService (RenderOpenGL* r);
 
-    void Register (RenderOSG* r);
-    void Unregister (RenderOSG* r);
+    void registerService (RenderOSG* r);
+    void unregisterService (RenderOSG* r);
 
-    void Register (WaterVolume* r);
-    void Unregister (WaterVolume* r);
+    void registerService (WaterVolume* r);
+    void unregisterService (WaterVolume* r);
 };
 
 #endif

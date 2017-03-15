@@ -94,38 +94,28 @@ public :
     RenderOSG(Simulator* simulator, int argc = 0, char** argv = 0);
     ~RenderOSG();
 
-    void Run();
-    void DrawScene();
-    void Step ();
-    void SetPaused (bool p);
-    void RecalculateTimings ();
+    void run();
+    void drawScene();
+    void step ();
+    void setPaused (bool p);
+    void recalculateTimings ();
 
-    void LoadFont(std::string filename);
-    osgText::Text* CreateText(const osg::Vec3& pos, const std::string& content, float size );
-    osgText::Text* CreateHudText(const osg::Vec3& pos, const std::string& content, float size );
+    void loadFont(std::string filename);
+    osgText::Text* createText(const osg::Vec3& pos, const std::string& content, float size );
+    osgText::Text* createHudText(const osg::Vec3& pos, const std::string& content, float size );
 
     ///callback methods by glut
-    void Keyboard(unsigned char key, int x, int y);
-    void KeyboardUp(unsigned char key, int x, int y);
-    void SpecialKeyboard(int key, int x, int y);
-    void SpecialKeyboardUp(int key, int x, int y);
-    void Reshape(int w, int h);
-    void Mouse(int button, int state, int x, int y);
-    void MouseMotion(int x,int y);
-    void Display();
-    void Idle();
+    void keyboard(unsigned char key, int x, int y);
+    void keyboardUp(unsigned char key, int x, int y);
+    void specialKeyboard(int key, int x, int y);
+    void specialKeyboardUp(int key, int x, int y);
+    void reshape(int w, int h);
+    void mouse(int button, int state, int x, int y);
+    void mouseMotion(int x,int y);
+    void display();
+    void idle();
 
 };
-
-
-/* #ifndef M_PI */
-/* #define M_PI (3.14159265358979323846) */
-/* #endif */
-
-/* // constants to convert degrees to radians and the reverse */
-/* #define RAD_TO_DEG (180.0/M_PI) */
-/* #define DEG_TO_RAD (M_PI/180.0) */
-
 
 
 #endif

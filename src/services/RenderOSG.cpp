@@ -54,6 +54,7 @@
 #define ESCAPE 27
 #define BACKSPACE 8
 
+using namespace std;
 
 // Static callbacks
 // ================
@@ -63,57 +64,57 @@ static RenderOSG* RenderOSGInstance = 0;
 
 static void glutKeyboardCallback(unsigned char key, int x, int y)
 {
-    RenderOSGInstance->Keyboard(key,x,y);
+    RenderOSGInstance->keyboard(key,x,y);
 }
 
 static void glutKeyboardUpCallback(unsigned char key, int x, int y)
 {
-    RenderOSGInstance->KeyboardUp(key,x,y);
+    RenderOSGInstance->keyboardUp(key,x,y);
 }
 
 static void glutSpecialKeyboardCallback(int key, int x, int y)
 {
-    RenderOSGInstance->SpecialKeyboard(key,x,y);
+    RenderOSGInstance->specialKeyboard(key,x,y);
 }
 
 static void glutSpecialKeyboardUpCallback(int key, int x, int y)
 {
-    RenderOSGInstance->SpecialKeyboardUp(key,x,y);
+    RenderOSGInstance->specialKeyboardUp(key,x,y);
 }
 
 
 static void glutReshapeCallback(int w, int h)
 {
-    RenderOSGInstance->Reshape(w,h);
+    RenderOSGInstance->reshape(w,h);
 }
 
 static void glutIdleCallback()
 {
-    RenderOSGInstance->Idle();
+    RenderOSGInstance->idle();
 }
 
 static void glutMouseCallback(int button, int state, int x, int y)
 {
-    RenderOSGInstance->Mouse(button,state,x,y);
+    RenderOSGInstance->mouse(button,state,x,y);
 }
 
 
 static void glutMotionCallback(int x,int y)
 {
-    RenderOSGInstance->MouseMotion(x,y);
+    RenderOSGInstance->mouseMotion(x,y);
 }
 
 
 static void glutDisplayCallback(void)
 {
-    RenderOSGInstance->Display();
+    RenderOSGInstance->display();
 }
 
 // =============================
 // RenderOSG Methods
 // =============================
 
-void RenderOSG::Display(void)
+void RenderOSG::display(void)
 {
     // update and render the scene graph
     if (viewer.valid()) viewer->frame();
@@ -123,7 +124,7 @@ void RenderOSG::Display(void)
     glutPostRedisplay();
 }
 
-void RenderOSG::Reshape( int w, int h )
+void RenderOSG::reshape( int w, int h )
 {
     // update the window dimensions, in case the window has been resized.
     if (window.valid()) 
@@ -140,7 +141,7 @@ void RenderOSG::Reshape( int w, int h )
     }
 }
 
-void RenderOSG::Mouse( int button, int state, int x, int y )
+void RenderOSG::mouse( int button, int state, int x, int y )
 {
     if (window.valid())
     {
@@ -164,7 +165,7 @@ void RenderOSG::Mouse( int button, int state, int x, int y )
     }
 }
 
-void RenderOSG::MouseMotion( int x, int y )
+void RenderOSG::mouseMotion( int x, int y )
 {
     if (window.valid())
     {	
@@ -173,17 +174,14 @@ void RenderOSG::MouseMotion( int x, int y )
 	mouseX = x;
 	mouseY = y;
 
-//	if (mouseButton)
 	window->getEventQueue()->mouseMotion( x, y );
-
-//	cout << "mouse " << x << " " << y << endl;
     }
 }
 
-void RenderOSG::Keyboard( unsigned char key, int /*x*/, int /*y*/ )
+void RenderOSG::keyboard( unsigned char key, int /*x*/, int /*y*/ )
 {
     /* avoid thrashing this call */
-    usleep(100);
+    usleep(50);
 
     osg::Matrix initialCamMatrix;
 
@@ -191,9 +189,9 @@ void RenderOSG::Keyboard( unsigned char key, int /*x*/, int /*y*/ )
     {
     case ' ' :
 
-	SetPaused(!paused);
+	setPaused(!paused);
 	
-	std::cout << "Pause toggled ... " << std::endl;
+	cout << "Pause toggled ... " << endl;
 	break;
 
     /* If escape is pressed, kill everything. */
@@ -210,21 +208,21 @@ void RenderOSG::Keyboard( unsigned char key, int /*x*/, int /*y*/ )
 	// that reduce delay
 	simulationTicksDelay /= 1.5;
 //	if (simulationTicksDelay < 1.0) simulationTicksDelay = 1.0;
-	std::cout << "Accelerate and run at " << 1.0 / simulationTicksDelay << " speed WRT realtime" << std::endl;
+	cout << "Accelerate and run at " << 1.0 / simulationTicksDelay << " speed WRT realtime" << endl;
 	break;
 
     case '-' : 
 
 	// that reduce delay
 	simulationTicksDelay *= 1.5;
-	std::cout << "Slow down and run at " << 1.0 / simulationTicksDelay << " speed WRT realtime" << std::endl;
+	cout << "Slow down and run at " << 1.0 / simulationTicksDelay << " speed WRT realtime" << endl;
 	break;
     
 
     case BACKSPACE : 
 
 	simulationTicksDelay = 1.0;
-	std::cout << "Reset speed and run realtime" << std::endl;
+	cout << "reset speed and run realtime" << endl;
 	break;
 
     case 'h' : 
@@ -234,7 +232,7 @@ void RenderOSG::Keyboard( unsigned char key, int /*x*/, int /*y*/ )
 	if (hudHelp)
 	    hudHelpText->setText(helpString);
 	else
-	    hudHelpText->setText(std::string(""));
+	    hudHelpText->setText(string(""));
 	    
 	break;
 	
@@ -247,13 +245,13 @@ void RenderOSG::Keyboard( unsigned char key, int /*x*/, int /*y*/ )
 	
     case 'r' : 
 
-	std::cout << "Reset simulation" << std::endl;
-	simulator->Reset();
+	cout << "reset simulation" << endl;
+	simulator->reset();
 	break;
 
     case 'z' : 
 
-	std::cout << "Reset view" << std::endl;
+	cout << "reset view" << endl;
 	initialCamMatrix.makeLookAt (
 		osg::Vec3(0, 0, 10), // eye position 
 		osg::Vec3(0, 0, 0), // looking at position
@@ -292,7 +290,7 @@ RenderOSG::RenderOSG(Simulator* simulator, int argc, char** argv)
     simulationElapsedTicks = 0.0;
     refreshDelay = (long int) (1.0 / 24.0 * 1000.0 * 1000.0);
     gettimeofday(&lastTv, NULL);   
-    RecalculateTimings();
+    recalculateTimings();
 
     paused = false;
 
@@ -369,9 +367,9 @@ RenderOSG::RenderOSG(Simulator* simulator, int argc, char** argv)
     root->addChild( hudCamera.get() );
     
     // add some text to display in hud
-    hudTimeText = CreateHudText(osg::Vec3(20.0f, 80.0f, 0.0f), "Time : ", 20.0f);
-    hudSpeedText = CreateHudText(osg::Vec3(20.0f, 50.0f, 0.0f), "Speed : ", 20.0f);
-    hudPausedText = CreateHudText(osg::Vec3(20.0f, 20.0f, 0.0f), "", 20.0f);
+    hudTimeText = createHudText(osg::Vec3(20.0f, 80.0f, 0.0f), "Time : ", 20.0f);
+    hudSpeedText = createHudText(osg::Vec3(20.0f, 50.0f, 0.0f), "Speed : ", 20.0f);
+    hudPausedText = createHudText(osg::Vec3(20.0f, 20.0f, 0.0f), "", 20.0f);
     osg::Geode* hudTextGeode = new osg::Geode;
     hudTextGeode->addDrawable( hudTimeText );
     hudTextGeode->addDrawable( hudSpeedText );
@@ -393,17 +391,17 @@ RenderOSG::RenderOSG(Simulator* simulator, int argc, char** argv)
     helpString += string("           h : toggle help\n");
     helpString += string(" \n");
 
-    cout << "OpenSceneGraph render is active" << std::endl << std::endl;
+    cout << "OpenSceneGraph render is active" << endl << endl;
     cout << helpString;
     
-    hudHelpText = CreateHudText(osg::Vec3(20.0f, 400.0f, 0.0f), "", 20.0f);
+    hudHelpText = createHudText(osg::Vec3(20.0f, 400.0f, 0.0f), "", 20.0f);
     hudTextGeode->addDrawable( hudHelpText );    
     
     // activate only after text is created...
     hudInfo = true;
 }
 
-void RenderOSG::LoadFont(std::string filename)
+void RenderOSG::loadFont(string filename)
 {
     font = osgText::readFontFile(filename);
     hudTimeText->setFont(font);
@@ -412,7 +410,7 @@ void RenderOSG::LoadFont(std::string filename)
     hudHelpText->setFont(font);
 }
 
-osgText::Text* RenderOSG::CreateHudText(const osg::Vec3& pos, const std::string& content, float size)
+osgText::Text* RenderOSG::createHudText(const osg::Vec3& pos, const string& content, float size)
 {
     osg::ref_ptr<osgText::Text> text = new osgText::Text;
     text->setDataVariance( osg::Object::DYNAMIC );
@@ -424,7 +422,7 @@ osgText::Text* RenderOSG::CreateHudText(const osg::Vec3& pos, const std::string&
     return text.release();
 }
 
-osgText::Text* RenderOSG::CreateText(const osg::Vec3& pos, const std::string& content, float size)
+osgText::Text* RenderOSG::createText(const osg::Vec3& pos, const string& content, float size)
 {
     osg::ref_ptr<osgText::Text> text = new osgText::Text;
     text->setDataVariance( osg::Object::DYNAMIC );
@@ -442,58 +440,58 @@ RenderOSG::~RenderOSG ()
 }
 
 // if timestep is changed, we have to call that function
-void RenderOSG::RecalculateTimings ()
+void RenderOSG::recalculateTimings ()
 {
     simulationTicksDelay = simulator->timestep / (1.0 / 24.0);
 }
 
-void RenderOSG::Step ()
+void RenderOSG::step ()
 {
 }
 
-void RenderOSG::DrawScene ()
+void RenderOSG::drawScene ()
 {
     for (auto* o : objects)
-    	o->Draw(this);
+    	o->draw(this);
 
     if (hudInfo)
     {
-	hudTimeText->setText(std::string("Time : ") + std::to_string(simulator->time));
-	hudSpeedText->setText(std::string("Speed : ") + std::to_string(1.0 / simulationTicksDelay));
+	hudTimeText->setText(string("Time : ") + to_string(simulator->time));
+	hudSpeedText->setText(string("Speed : ") + to_string(1.0 / simulationTicksDelay));
     }
 }
 
-void RenderOSG::SetPaused (bool p)
+void RenderOSG::setPaused (bool p)
 {
     paused = p;
     
     if (paused)
-	hudPausedText->setText(std::string("PAUSED"));
+	hudPausedText->setText(string("PAUSED"));
     else
-	hudPausedText->setText(std::string(""));	
+	hudPausedText->setText(string(""));	
 }
 
-void RenderOSG::Run()
+void RenderOSG::run()
 {
     glutMainLoop();  
 }
 
-void RenderOSG::KeyboardUp(unsigned char key, int x, int y)
+void RenderOSG::keyboardUp(unsigned char key, int x, int y)
 {
 
 }
 
-void RenderOSG::SpecialKeyboard(int key, int x, int y)
+void RenderOSG::specialKeyboard(int key, int x, int y)
 {
 
 }
 
-void RenderOSG::SpecialKeyboardUp(int key, int x, int y)
+void RenderOSG::specialKeyboardUp(int key, int x, int y)
 {
 
 }
 
-void RenderOSG::Idle()
+void RenderOSG::idle()
 {
     // this render has to callback the simulator ...
    if (!paused)
@@ -503,7 +501,7 @@ void RenderOSG::Idle()
        while (simulationElapsedTicks >= simulationTicksDelay 
 	      && simulationElapsedTicks > 0.0)
        {
-	   simulator->Step();
+	   simulator->step();
 	   simulationElapsedTicks -= simulationTicksDelay;
        }
    }
@@ -519,7 +517,7 @@ void RenderOSG::Idle()
        usleep (100);
    }
 
-   DrawScene();
+   drawScene();
 
    lastTv = tv;
 }

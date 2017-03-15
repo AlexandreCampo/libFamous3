@@ -21,10 +21,9 @@
 #define SIMULATOR_H
 
 #include "Object.h"
+#include "Service.h"
 
 #include <vector>
-
-using namespace std;
 
 class Simulator
 {
@@ -34,22 +33,22 @@ public :
 
     bool randomizeExecutionSequence;
     
-    vector<Object*> objects;
-    vector<Service*> services;
+    std::vector<Object*> objects;
+    std::vector<Service*> services;
 
     Simulator(bool silent = false);
     ~Simulator();
 
-    void Add (Service* r);
-    void Add (Object* o);
+    void add (Service* r);
+    void add (Object* o);
 
-    void Remove (Service* r);
-    void Remove (Object* o);
+    void remove (Service* r);
+    void remove (Object* o);
 
-    void Step ();
-    void Reset ();
-    void SetTimeStep(float t);
-    float GetTimeStep();
+    void step ();
+    void reset ();
+    void setTimestep(float t);
+    float getTimestep();
 };
 
 #endif

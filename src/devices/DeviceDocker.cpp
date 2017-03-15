@@ -68,7 +68,7 @@ DeviceDocker::DeviceDocker(PhysicsBullet* p, btRigidBody* b, btTransform t, floa
 	std::cerr << "The body " << parentBody << " misses a proper user pointer in its collision shape !" << std::endl;
     }
 
-    Reset();
+    reset();
 }
 
 
@@ -77,18 +77,18 @@ DeviceDocker::~DeviceDocker()
 
 }
 
-void DeviceDocker::ActionStep ()
+void DeviceDocker::actionStep ()
 {
 }
 
 
-void DeviceDocker::PerceptionStep ()
+void DeviceDocker::perceptionStep ()
 {
     calculated = false;
     detectedDevices.clear();
 }
     
-void DeviceDocker::Reset ()
+void DeviceDocker::reset ()
 {
     calculated = false;
     detectedDevices.clear();
@@ -101,11 +101,11 @@ void DeviceDocker::Reset ()
 	undock(dockedBy.begin()->first);
 }
 
-void DeviceDocker::Draw (RenderOSG* r)
+void DeviceDocker::draw (RenderOSG* r)
 {   
 }
 
-std::list<DeviceDocker*>& DeviceDocker::DetectDockableDevices()
+std::list<DeviceDocker*>& DeviceDocker::detectDockableDevices()
 {
     if (!calculated)
     {
@@ -124,7 +124,7 @@ std::list<DeviceDocker*>& DeviceDocker::DetectDockableDevices()
     return detectedDevices;
 }
 
-bool DeviceDocker::Dock(DeviceDocker* dockable)
+bool DeviceDocker::dock(DeviceDocker* dockable)
 {
     // only if device accepts to be docked
     if (!dockable->dockable)
@@ -259,12 +259,12 @@ bool DeviceDocker::process (const btBroadphaseProxy *proxy)
     return true;
 }
 
-void DeviceDocker::SetDockable(bool d)
+void DeviceDocker::setDockable(bool d)
 {
     dockable = d;
 }
 
-bool DeviceDocker::IsDockable()
+bool DeviceDocker::isDockable()
 {
     return dockable;
 }

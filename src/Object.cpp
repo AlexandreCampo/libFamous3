@@ -20,20 +20,18 @@
 #include "Object.h"
 
 #include <cstddef>
-#include <iostream>
 
 Object::~Object ()
 {
-    controller = NULL;
 }
 
-void Object::Add (Device* d)
+void Object::add (Device* d)
 {
     devices.push_back(d);
-    d->SetObject(this);
+    d->setObject(this);
 }
 
-void Object::Remove (Device* d)
+void Object::remove (Device* d)
 {
     std::vector<Device*>::iterator it;
     for (it = devices.begin(); it != devices.end(); it++)
@@ -46,26 +44,40 @@ void Object::Remove (Device* d)
     }
 }
 
-
-void Object::Set (Controller* c)
+void Object::add (Controller* c)
 {
-    controller = c;
+    controllers.push_back(c);
+    c->object = this;
 }
 
-void Object::Step ()
+void Object::remove (Controller* c)
+{
+    std::vector<Controller*>::iterator it;
+    for (it = controllers.begin(); it != controllers.end(); it++)
+    {
+	if (*it == c)
+	{
+	    (*it)->object = NULL;
+	    controllers.erase(it);
+	    break;
+	}
+    }
+}
+
+void Object::step ()
 {
 }
 
-void Object::Reset()
+void Object::reset()
 {
 }
 
-void Object::SetTimeStep(float t)
+void Object::setTimestep(float t)
 {
     timestep = t;
 }
 
-float Object::GetTimeStep()
+float Object::getTimestep()
 {
     return timestep;
 }

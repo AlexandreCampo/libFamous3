@@ -19,31 +19,25 @@
 
 #include "Service.h"
 
-#include <iostream>
-
-// Service::Service(Simulator* s)
-// {
-//     this->simulator = s;
-// }
 
 Service::~Service()
 {
 }
 
-void Service::Step ()
+void Service::step ()
 {
 }
 
-void Service::Reset ()
+void Service::reset ()
 {
 }
 
-void Service::SetTimeStep(float t)
+void Service::setTimestep(float t)
 {
     timestep = t;
 }
 
-float Service::GetTimeStep()
+float Service::getTimestep()
 {
     return timestep;
 }

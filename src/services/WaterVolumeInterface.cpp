@@ -25,12 +25,12 @@ WaterVolumeInterface::WaterVolumeInterface ()
 {
 }
 
-void WaterVolumeInterface::Register (WaterVolume* w)
+void WaterVolumeInterface::registerService (WaterVolume* w)
 {
     waterVolume = w;
 }
 
-void WaterVolumeInterface::Unregister (WaterVolume* w)
+void WaterVolumeInterface::unregisterService (WaterVolume* w)
 {
     waterVolume = NULL;
 }

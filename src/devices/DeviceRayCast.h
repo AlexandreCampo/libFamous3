@@ -64,17 +64,17 @@ public :
     DeviceRayCast(PhysicsBullet* p, btRigidBody* b, btVector3 position, btVector3 direction, btScalar range, int collisionFilter, int collisionType = 0x7FFFFFFF);
     ~DeviceRayCast();
 
-    void ActionStep ();
-    void PerceptionStep ();
-    void Reset();
+    void actionStep ();
+    void perceptionStep ();
+    void reset();
     
-    float GetValue();
+    float getValue();
 
     btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult,bool normalInWorldSpace);
    
-    void Draw (RenderOpenGL* r);
+    void draw (RenderOpenGL* r);
 
-    void SetRange(float range);
+    void setRange(float range);
 };
 
 

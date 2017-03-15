@@ -19,32 +19,32 @@
 
 #include "Device.h"
 
-void Device::SetPerceptionTimeStep(float t)
+void Device::setPerceptionTimestep(float t)
 {
     perceptionTimestep = t;
 }
 
-void Device::SetActionTimeStep(float t)
+void Device::setActionTimestep(float t)
 {
     actionTimestep = t;
 }
 
-float Device::GetPerceptionTimeStep()
+float Device::getPerceptionTimestep()
 {
     return perceptionTimestep;
 }
 
-float Device::GetActionTimeStep()
+float Device::getActionTimestep()
 {
     return actionTimestep;
 }
 
-void Device::SetObject(Object* o)
+void Device::setObject(Object* o)
 {
     this->object = o;
 }
 
-Object* Device::GetObject()
+Object* Device::getObject()
 {
     return object;
 }

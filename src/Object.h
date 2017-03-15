@@ -37,21 +37,22 @@ public:
     Simulator* simulator;
     std::vector<Service*> services;
     std::vector<Device*> devices;
-    Controller* controller;
+    std::vector<Controller*> controllers;
 
     float timestep = std::numeric_limits<float>::max();;
     float nextTime = 0.0;
     
     virtual ~Object();
 
-    virtual void Add (Device* device);
-    virtual void Remove (Device* d);
-    virtual void Set (Controller* controller);
-    virtual void Step ();
-    virtual void Reset ();
+    virtual void add (Device* device);
+    virtual void remove (Device* d);
+    virtual void add (Controller* controller);
+    virtual void remove (Controller* c);
+    virtual void step ();
+    virtual void reset ();
 
-    void SetTimeStep(float t);
-    float GetTimeStep();    
+    void setTimestep(float t);
+    float getTimestep();    
 };
 
 #endif

@@ -36,10 +36,10 @@ public :
     DeviceMagicForce (PhysicsBullet* p, btRigidBody* body);
     ~DeviceMagicForce ();
 
-    void PerceptionStep();
-    void ActionStep();
-    void Reset();
-    void ApplyCentralForce (btVector3 force);
+    void perceptionStep();
+    void actionStep();
+    void reset();
+    void applyCentralForce (btVector3 force);
 };
 
 

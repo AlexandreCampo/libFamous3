@@ -95,41 +95,41 @@ public:
     aFish ();
     ~aFish ();
 
-    void Step ();
+    void step ();
 
-    void AddDevices();
+    void addDevices();
 
-    void Draw (RenderOpenGL* r);
-    void Draw (RenderOSG* r);
+    void draw (RenderOpenGL* r);
+    void draw (RenderOSG* r);
 
-    void Register (PhysicsBullet* p);
-    void Unregister (PhysicsBullet* p);
+    void registerService (PhysicsBullet* p);
+    void unregisterService (PhysicsBullet* p);
 
-    void Register (RenderOpenGL* r);
-    void Unregister (RenderOpenGL* r);
+    void registerService (RenderOpenGL* r);
+    void unregisterService (RenderOpenGL* r);
 
-    void SetMeshFilename (std::string filename);
-    void Register (RenderOSG* r);
-    void Unregister (RenderOSG* r);
+    void setMeshFilename (std::string filename);
+    void registerService (RenderOSG* r);
+    void unregisterService (RenderOSG* r);
 
-    void Register (EnergyManager* m);
-    void Unregister (EnergyManager* m);
+    void registerService (EnergyManager* m);
+    void unregisterService (EnergyManager* m);
 
-    void Register (WaterVolume* w);
-    void Unregister (WaterVolume* w);
+    void registerService (WaterVolume* w);
+    void unregisterService (WaterVolume* w);
 
-    void SetPosition (btVector3 p);
-    btVector3 GetPosition ();
-    void SetRotation (btQuaternion q);
-    btQuaternion GetRotation (btQuaternion q);
+    void setPosition (btVector3 p);
+    btVector3 getPosition ();
+    void setRotation (btQuaternion q);
+    btQuaternion getRotation (btQuaternion q);
 
-    void SetColor (float r = 1, float g = 0, float b = 0, float a = 1);
+    void setColor (float r = 1, float g = 0, float b = 0, float a = 1);
 
-    void SetTextDrawable(bool d);
-    void SetText(std::string s);
-    void SetTextColor(float r, float g, float b, float a = 1);
+    void setTextDrawable(bool d);
+    void setText(std::string s);
+    void setTextColor(float r, float g, float b, float a = 1);
 
-    void SetProximitySensorsRange(float range);
+    void setProximitySensorsRange(float range);
 
 
     // ================ Custom Physics ==============================

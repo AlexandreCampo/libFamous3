@@ -34,17 +34,17 @@ public :
     float nextPerceptionTime = 0.0;
     float nextActionTime = 0.0;
 
-    virtual void PerceptionStep () = 0;
-    virtual void ActionStep () = 0;
-    virtual void Reset () = 0;
+    virtual void perceptionStep () = 0;
+    virtual void actionStep () = 0;
+    virtual void reset () = 0;
 
-    virtual void SetObject(Object* o);
-    Object* GetObject();
+    virtual void setObject(Object* o);
+    Object* getObject();
     
-    void SetPerceptionTimeStep(float t);
-    void SetActionTimeStep(float t);
-    float GetPerceptionTimeStep();    
-    float GetActionTimeStep();    
+    void setPerceptionTimestep(float t);
+    void setActionTimestep(float t);
+    float getPerceptionTimestep();    
+    float getActionTimestep();    
 };
 
 #endif

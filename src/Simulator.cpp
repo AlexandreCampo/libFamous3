@@ -63,19 +63,19 @@ Simulator::~Simulator()
     }
 }
 
-void Simulator::Add (Service* s)
+void Simulator::add (Service* s)
 {
     s->simulator = this;
     services.push_back(s);
 }
 
-void Simulator::Add (Object* o)
+void Simulator::add (Object* o)
 {
     o->simulator = this;
     objects.push_back(o);
 }
 
-void Simulator::Remove (Service* s)
+void Simulator::remove (Service* s)
 {
     std::vector<Service*>::iterator it;
     for (it = services.begin(); it != services.end(); it++)
@@ -88,7 +88,7 @@ void Simulator::Remove (Service* s)
     }
 }
 
-void Simulator::Remove (Object* o)
+void Simulator::remove (Object* o)
 {
     std::vector<Object*>::iterator it;
     for (it = objects.begin(); it != objects.end(); it++)
@@ -101,7 +101,7 @@ void Simulator::Remove (Object* o)
     }
 }
 
-void Simulator::Step ()
+void Simulator::step ()
 {    
     // randomize execution order of objects 
     if (randomizeExecutionSequence)
@@ -117,7 +117,7 @@ void Simulator::Step ()
 	{
 	    if (time >= d->nextPerceptionTime)
 	    {
-		d->PerceptionStep();
+		d->perceptionStep();
 		d->nextPerceptionTime += d->perceptionTimestep;
 	    }
 	}
@@ -126,13 +126,13 @@ void Simulator::Step ()
     // then controllers of objects process information
     for (auto* o : objects)
     {
-	// controller
-	if (o->controller)
+	// controllers
+	for (auto* c : o->controllers)
 	{
-	    if (time >= o->controller->nextTime)
+	    if (time >= c->nextTime)
 	    {
-		o->controller->Step();
-		o->controller->nextTime += o->controller->timestep;
+		c->step();
+		c->nextTime += c->timestep;
 	    }	    
 	}
     }
@@ -144,7 +144,7 @@ void Simulator::Step ()
 	{
 	    if (time >= d->nextActionTime)
 	    {
-		d->ActionStep();
+		d->actionStep();
 		d->nextActionTime += d->actionTimestep;
 	    }
 	}
@@ -155,7 +155,7 @@ void Simulator::Step ()
     {
 	if (time >= o->nextTime)
 	{
-	    o->Step();
+	    o->step();
 	    o->nextTime += o->timestep;
 	}
     }
@@ -167,7 +167,7 @@ void Simulator::Step ()
     {
 	if (time >= s->nextTime)
 	{
-	    s->Step();
+	    s->step();
 	    s->nextTime += s->timestep;
 	}
     }
@@ -175,7 +175,7 @@ void Simulator::Step ()
     time += timestep;
 }
 
-void Simulator::Reset ()
+void Simulator::reset ()
 {
     time = 0.0;
 
@@ -184,36 +184,36 @@ void Simulator::Reset ()
     // knowing who does what, so this leaves freedom in what happens.
     for (auto* s : services)
     {
-    	s->Reset();
+    	s->reset();
 	s->nextTime = 0;
     }
 
     for (auto* o : objects)
     {
-    	o->Reset();
+    	o->reset();
     	o->nextTime = 0;
 
-    	if (o->controller != NULL)
+	for (auto* c : o->controllers)
     	{
-    	    o->controller->Reset();
-    	    o->controller->nextTime = 0;
+    	    c->reset();
+    	    c->nextTime = 0;
     	}
 	
     	for (auto* d : o->devices)
     	{
-    	    d->Reset();
+    	    d->reset();
     	    d->nextPerceptionTime = 0;
     	    d->nextActionTime = 0;
     	}
     }
 }
 
-void Simulator::SetTimeStep(float t)
+void Simulator::setTimestep(float t)
 {
     timestep = t;
 }
 
-float Simulator::GetTimeStep()
+float Simulator::getTimestep()
 {
     return timestep;
 }

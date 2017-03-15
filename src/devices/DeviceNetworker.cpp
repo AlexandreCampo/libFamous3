@@ -31,7 +31,7 @@
 
 DeviceNetworker::DeviceNetworker()
 {
-    Reset();
+    reset();
 }
 
 DeviceNetworker::~DeviceNetworker()
@@ -39,7 +39,7 @@ DeviceNetworker::~DeviceNetworker()
 
 }
 
-void DeviceNetworker::ActionStep ()
+void DeviceNetworker::actionStep ()
 {
     std::list<Message>::iterator it = messagesToSend.begin();
     for (; it != messagesToSend.end(); ++it)
@@ -62,35 +62,35 @@ void DeviceNetworker::ActionStep ()
     messagesToSend.clear();
 }
 
-void DeviceNetworker::PerceptionStep ()
+void DeviceNetworker::perceptionStep ()
 {
     // everything is done in action step...
 }
     
-void DeviceNetworker::Reset ()
+void DeviceNetworker::reset ()
 {
     messagesReceived.clear();
     messagesToSend.clear();
 }
 
-void DeviceNetworker::Draw (RenderOpenGL* r)
+void DeviceNetworker::draw (RenderOpenGL* r)
 {   
 }
 
 
-void DeviceNetworker::Send (int content, float time, DeviceNetworker* dst)
+void DeviceNetworker::send (int content, float time, DeviceNetworker* dst)
 {
     Message m (content, time, this, dst);
     messagesToSend.push_back(m);
 }
 
-void DeviceNetworker::SendToAll (int content, float time)
+void DeviceNetworker::sendToAll (int content, float time)
 {
     Message m (content, time, this, NULL);
     messagesToSend.push_back(m);
 }
 
-bool DeviceNetworker::Receive (Message& msg)
+bool DeviceNetworker::receive (Message& msg)
 {
     if (messagesReceived.empty())
     {	
@@ -103,37 +103,36 @@ bool DeviceNetworker::Receive (Message& msg)
     }
 }
 
-
-void DeviceNetworker::Connect (Object* o)
+void DeviceNetworker::connect (Object* o)
 {
     // find the device of the object
     for (unsigned int i = 0; i < o->devices.size(); i++)
     {
 	if (typeid (*(o->devices[i])) == typeid(*this))
 	{
-	    Connect (static_cast<DeviceNetworker*> (o->devices[i]));
+	    connect (static_cast<DeviceNetworker*> (o->devices[i]));
 	}
     }
 }
 
-void DeviceNetworker::Disconnect (Object* o)
+void DeviceNetworker::disconnect (Object* o)
 {
     // find the device of the object
     for (unsigned int i = 0; i < o->devices.size(); i++)
     {
 	if (typeid (*(o->devices[i])) == typeid(*this))
 	{
-	    Disconnect (static_cast<DeviceNetworker*> (o->devices[i]));
+	    disconnect (static_cast<DeviceNetworker*> (o->devices[i]));
 	}
     }
 }
 
-void DeviceNetworker::Connect (DeviceNetworker* r)
+void DeviceNetworker::connect (DeviceNetworker* r)
 {
     connections.push_back(r);
 }
 
-void DeviceNetworker::Disconnect (DeviceNetworker* r)
+void DeviceNetworker::disconnect (DeviceNetworker* r)
 {
     std::list<DeviceNetworker*>::iterator it;
     for (it = connections.begin(); it != connections.end(); it++)

@@ -37,21 +37,21 @@ DevicePressure::~DevicePressure()
 {
 }
 
-void DevicePressure::PerceptionStep()
+void DevicePressure::perceptionStep()
 {
     calculated = false;
 }
 
-void DevicePressure::ActionStep()
+void DevicePressure::actionStep()
 {
 }
 
-void DevicePressure::Reset()
+void DevicePressure::reset()
 {
     calculated = false;
 }
    
-float DevicePressure::GetValue()
+float DevicePressure::getValue()
 {
     
     if (!calculated)

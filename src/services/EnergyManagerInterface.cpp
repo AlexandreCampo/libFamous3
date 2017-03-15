@@ -27,13 +27,13 @@ EnergyManagerInterface::EnergyManagerInterface (float capacity, float level)
     this->energyCapacity = capacity;
 }
 
-void EnergyManagerInterface::Register (EnergyManager* m)
+void EnergyManagerInterface::registerService (EnergyManager* m)
 {
     energyManager = m;
     m->objects.push_back(this);
 }
 
-void EnergyManagerInterface::Unregister (EnergyManager* m)
+void EnergyManagerInterface::unregisterService (EnergyManager* m)
 {
     std::vector<EnergyManagerInterface*>::iterator it;
     for (it = m->objects.begin(); it != m->objects.end(); it++)
@@ -46,12 +46,12 @@ void EnergyManagerInterface::Unregister (EnergyManager* m)
     energyManager = NULL;
 }
 
-void EnergyManagerInterface::Connect (EnergyManagerInterface* o)
+void EnergyManagerInterface::connect (EnergyManagerInterface* o)
 {
     energyConnections.push_back(o);
 }
 
-void EnergyManagerInterface::Disconnect (EnergyManagerInterface* o)
+void EnergyManagerInterface::disconnect (EnergyManagerInterface* o)
 {
     std::list<EnergyManagerInterface*>::iterator it;
     for (it = energyConnections.begin(); it != energyConnections.end(); it++)
@@ -68,12 +68,12 @@ void EnergyManagerInterface::Disconnect (EnergyManagerInterface* o)
 //     energyManager->transactions.push_back(EnergyManager::Transaction(this, dst, energy));
 // }
 
-void EnergyManagerInterface::Push (EnergyManagerInterface* dst, float energy)
+void EnergyManagerInterface::push (EnergyManagerInterface* dst, float energy)
 {
     energyManager->transactions.push_back(EnergyManager::Transaction(this, dst, energy));
 }
 
-void EnergyManagerInterface::Pull (EnergyManagerInterface* src, float energy)
+void EnergyManagerInterface::pull (EnergyManagerInterface* src, float energy)
 {
     energyManager->transactions.push_back(EnergyManager::Transaction(src, this, energy));
 }

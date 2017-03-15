@@ -32,8 +32,8 @@ public :
     int id;
     std::list<GSMNetwork::Message> messagesReceived;
 
-    virtual void Register (GSMNetwork* r, int id);
-    virtual void Unregister (GSMNetwork* r);    
+    virtual void registerService (GSMNetwork* r, int id);
+    virtual void unregisterService (GSMNetwork* r);    
 };
 
 #endif

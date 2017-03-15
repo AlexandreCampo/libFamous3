@@ -24,6 +24,7 @@ class Simulator;
 
 #include <limits>
 
+
 class Service
 {
 public:
@@ -32,14 +33,13 @@ public:
     float timestep = std::numeric_limits<float>::max();
     float nextTime = 0.0;
 
-//    Service(Simulator* s);
     virtual ~Service();
 
-    virtual void Step ();
-    virtual void Reset ();
+    virtual void step ();
+    virtual void reset ();
 
-    void SetTimeStep(float t);
-    float GetTimeStep();    
+    void setTimestep(float t);
+    float getTimestep();    
 };
 
 #endif

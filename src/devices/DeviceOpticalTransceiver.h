@@ -114,29 +114,29 @@ public :
     DeviceOpticalTransceiver(PhysicsBullet* p, btRigidBody* b, btTransform t, int collisionFilter, int collisionType = 2^30, float maxRange = 1.0); 
     ~DeviceOpticalTransceiver();
 
-    void AddTransmitter (btVector3 position, btVector3 direction, btScalar range, btScalar angle);
-    void AddReceiver (btVector3 position, btVector3 direction, btScalar range, btScalar angle);
-    void SetReceiveOmnidirectional(bool omni);
+    void addTransmitter (btVector3 position, btVector3 direction, btScalar range, btScalar angle);
+    void addReceiver (btVector3 position, btVector3 direction, btScalar range, btScalar angle);
+    void setReceiveOmnidirectional(bool omni);
     
-    void Send (int content, int transmitter = -1);
-    bool Receive (Message& m);
+    void send (int content, int transmitter = -1);
+    bool receive (Message& m);
 
-    void ActionStep ();
+    void actionStep ();
     bool process (const btBroadphaseProxy *proxy);
     bool processOmniToOmni(Message& m, btCollisionObject* dobj, DeviceOpticalTransceiver* od);
     bool processTransmitterToOmni(Message& m, const Transmitter& tra, btCollisionObject* dobj, DeviceOpticalTransceiver* od);
     bool processOmniToReceivers(Message& m, btCollisionObject* dobj, DeviceOpticalTransceiver* od);
     bool processTransmitterToReceivers(Message& m, const Transmitter& tra, btCollisionObject* dobj, DeviceOpticalTransceiver* od);
 
-    void PerceptionStep ();
-    void Reset();
+    void perceptionStep ();
+    void reset();
 
-    void SetRange(float range);
+    void setRange(float range);
 
-    void SetDrawable(bool d);
-    bool IsDrawable();
-    void Register (RenderOSG* r);
-    void Draw (RenderOSG* r);
+    void setDrawable(bool d);
+    bool isDrawable();
+    void registerService (RenderOSG* r);
+    void draw (RenderOSG* r);
 
 };
 

@@ -36,21 +36,21 @@ DeviceGPS::~DeviceGPS()
 {
 }
 
-void DeviceGPS::PerceptionStep()
+void DeviceGPS::perceptionStep()
 {
     calculated = false;
 }
 
-void DeviceGPS::ActionStep()
+void DeviceGPS::actionStep()
 {
 }
 
-void DeviceGPS::Reset()
+void DeviceGPS::reset()
 {
     calculated = false;
 }
    
-btVector3 DeviceGPS::GetGlobalPosition()
+btVector3 DeviceGPS::getGlobalPosition()
 {    
     if (!calculated)
     {

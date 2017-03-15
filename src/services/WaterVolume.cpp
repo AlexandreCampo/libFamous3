@@ -36,11 +36,11 @@ WaterVolume::~WaterVolume ()
 }
 
 
-void WaterVolume::Step ()
+void WaterVolume::step ()
 {
 }
 
-void WaterVolume::Reset ()
+void WaterVolume::reset ()
 {
 }
 

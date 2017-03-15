@@ -51,50 +51,50 @@ static RenderOpenGL* RenderOpenGLInstance = 0;
 
 static void glutKeyboardCallback(unsigned char key, int x, int y)
 {
-    RenderOpenGLInstance->KeyboardCallback(key,x,y);
+    RenderOpenGLInstance->keyboardCallback(key,x,y);
 }
 
 static void glutKeyboardUpCallback(unsigned char key, int x, int y)
 {
-    RenderOpenGLInstance->KeyboardUpCallback(key,x,y);
+    RenderOpenGLInstance->keyboardUpCallback(key,x,y);
 }
 
 static void glutSpecialKeyboardCallback(int key, int x, int y)
 {
-    RenderOpenGLInstance->SpecialKeyboard(key,x,y);
+    RenderOpenGLInstance->specialKeyboard(key,x,y);
 }
 
 static void glutSpecialKeyboardUpCallback(int key, int x, int y)
 {
-    RenderOpenGLInstance->SpecialKeyboardUp(key,x,y);
+    RenderOpenGLInstance->specialKeyboardUp(key,x,y);
 }
 
 
 static void glutReshapeCallback(int w, int h)
 {
-    RenderOpenGLInstance->Reshape(w,h);
+    RenderOpenGLInstance->reshape(w,h);
 }
 
 static void glutIdleCallback()
 {
-    RenderOpenGLInstance->Idle();
+    RenderOpenGLInstance->idle();
 }
 
 static void glutMouseCallback(int button, int state, int x, int y)
 {
-    RenderOpenGLInstance->Mouse(button,state,x,y);
+    RenderOpenGLInstance->mouse(button,state,x,y);
 }
 
 
 static void glutMotionCallback(int x,int y)
 {
-    RenderOpenGLInstance->MouseMotion(x,y);
+    RenderOpenGLInstance->mouseMotion(x,y);
 }
 
 
 static void glutDisplayCallback(void)
 {
-    RenderOpenGLInstance->DisplayCallback();
+    RenderOpenGLInstance->displayCallback();
 }
 
 // =============================
@@ -161,7 +161,7 @@ RenderOpenGL::RenderOpenGL(int argc, char** argv)
     simulationElapsedTicks = 0.0;
     refreshDelay = (long int) (1.0 / 24.0 * 1000.0 * 1000.0);
     gettimeofday(&lastTv, NULL);   
-    RecalculateTimings();
+    recalculateTimings();
 
     paused = false;
 
@@ -205,7 +205,7 @@ RenderOpenGL::RenderOpenGL(int argc, char** argv)
   fullscreen = false;
 
   /* Initialize our window. */
-  InitGL(800, 600);
+  initGL(800, 600);
 
 
   // display some basic information for end user
@@ -228,16 +228,16 @@ RenderOpenGL::~RenderOpenGL ()
 }
 
 // if timestep is changed, we have to call that function
-void RenderOpenGL::RecalculateTimings ()
+void RenderOpenGL::recalculateTimings ()
 {
     simulationTicksDelay = simulator->timestep / (1.0 / 24.0);
 }
 
-void RenderOpenGL::Step ()
+void RenderOpenGL::step ()
 {
 }
 
-void RenderOpenGL::DrawScene ()
+void RenderOpenGL::drawScene ()
 {
     dsDrawFrame();
 
@@ -245,16 +245,16 @@ void RenderOpenGL::DrawScene ()
     std::list<RenderOpenGLInterface*>::iterator it;
     for (it = objects.begin(); it != objects.end(); it++)
     {
-	(*it)->Draw(this);
+	(*it)->draw(this);
     }
 
     glLoadIdentity();
     glutSwapBuffers();
 }
 
-/* A general OpenGL initialization function.  Sets all of the initial parameters. */
+/* A general OpenGL initialization function.  sets all of the initial parameters. */
 // We call this right after our OpenGL window is created.
-void RenderOpenGL::InitGL(int width, int height)
+void RenderOpenGL::initGL(int width, int height)
 {
     this->width = width;
     this->height = height;
@@ -270,7 +270,7 @@ void RenderOpenGL::InitGL(int width, int height)
 
 
 /* The function called when our window is resized (which shouldn't happen, because we're fullscreen) */
-void RenderOpenGL::Reshape(int width, int height)
+void RenderOpenGL::reshape(int width, int height)
 {
   if (height==0)				// Prevent A Divide By Zero If The Window Is Too Small
     height=1;
@@ -278,7 +278,7 @@ void RenderOpenGL::Reshape(int width, int height)
   this->width = width;
   this->height = height;
 
-  glViewport(0, 0, width, height);		// Reset The Current Viewport And Perspective Transformation
+  glViewport(0, 0, width, height);		// reset The Current Viewport And Perspective Transformation
 
   setPerspective (aperture, vnear, vfar);
 }
@@ -297,14 +297,14 @@ void RenderOpenGL::setPerspective (float aperture, float near, float far)
 }
 
 
-void RenderOpenGL::SetPaused (bool p)
+void RenderOpenGL::setPaused (bool p)
 {
     paused = p;
 }
 
 
 /* The function called whenever a key is pressed. */
-void RenderOpenGL::KeyboardCallback(unsigned char key, int x, int y) 
+void RenderOpenGL::keyboardCallback(unsigned char key, int x, int y) 
 {
     /* avoid thrashing this call */
     usleep(100);
@@ -349,7 +349,7 @@ void RenderOpenGL::KeyboardCallback(unsigned char key, int x, int y)
     if (key == BACKSPACE)
     {
 	simulationTicksDelay = 1.0;
-	std::cout << "Reset speed and run realtime" << std::endl;
+	std::cout << "reset speed and run realtime" << std::endl;
     }
 
     if (key == 't')
@@ -359,34 +359,34 @@ void RenderOpenGL::KeyboardCallback(unsigned char key, int x, int y)
 
     if (key == 'r')
     {
-	std::cout << "Reset simulation" << std::endl;
-	simulator->Reset();
+	std::cout << "reset simulation" << std::endl;
+	simulator->reset();
     }
 }
 
 
-void RenderOpenGL::Run()
+void RenderOpenGL::run()
 {
    /* Start Event Processing Engine */  
   glutMainLoop();  
 }
 
-void RenderOpenGL::KeyboardUpCallback(unsigned char key, int x, int y)
+void RenderOpenGL::keyboardUpCallback(unsigned char key, int x, int y)
 {
 
 }
 
-void RenderOpenGL::SpecialKeyboard(int key, int x, int y)
+void RenderOpenGL::specialKeyboard(int key, int x, int y)
 {
 
 }
 
-void RenderOpenGL::SpecialKeyboardUp(int key, int x, int y)
+void RenderOpenGL::specialKeyboardUp(int key, int x, int y)
 {
 
 }
 
-void RenderOpenGL::Mouse(int button, int state, int x, int y)
+void RenderOpenGL::mouse(int button, int state, int x, int y)
 {
     // add or remove a bit
     int bit = 1;
@@ -403,7 +403,7 @@ void RenderOpenGL::Mouse(int button, int state, int x, int y)
     }
 }
 
-void RenderOpenGL::MouseMotion(int x,int y)
+void RenderOpenGL::mouseMotion(int x,int y)
 {
     mouseLastX = mouseX;
     mouseLastY = mouseY;
@@ -418,11 +418,11 @@ void RenderOpenGL::MouseMotion(int x,int y)
     }
 }
 
-void RenderOpenGL::DisplayCallback()
+void RenderOpenGL::displayCallback()
 {
 }
 
-void RenderOpenGL::Idle()
+void RenderOpenGL::idle()
 {
     // this render has to callback the simulator ...
    if (!paused)
@@ -432,7 +432,7 @@ void RenderOpenGL::Idle()
        while (simulationElapsedTicks >= simulationTicksDelay 
 	      && simulationElapsedTicks > 0.0)
        {
-	   simulator->Step();
+	   simulator->step();
 	   simulationElapsedTicks -= simulationTicksDelay;
        }
    }
@@ -448,13 +448,13 @@ void RenderOpenGL::Idle()
        usleep (100);
    }
 
-   DrawScene();
+   drawScene();
    lastTv = tv;
 }
 
 
 // ===================
-// Drawing functions
+// drawing functions
 // ===================
 
 static void normalizeVector3 (float v[3])
@@ -1744,7 +1744,7 @@ void RenderOpenGL::dsSetCappedCylinderQuality (int n)
   capped_cylinder_quality = n;
 }
 
-int RenderOpenGL::LoadNetlogoMesh(std::string filename, float scaling, float rotAngle, float rotAxisX, float rotAxisY, float rotAxisZ)
+int RenderOpenGL::loadNetlogoMesh(std::string filename, float scaling, float rotAngle, float rotAxisX, float rotAxisY, float rotAxisZ)
 {
     int displayList = glGenLists (1);
     glNewList(displayList, GL_COMPILE);
@@ -1764,7 +1764,7 @@ int RenderOpenGL::LoadNetlogoMesh(std::string filename, float scaling, float rot
     {
 	std::string lineread;
 	typedef boost::tokenizer<boost::escaped_list_separator<char> > tokenizer;
-	string se = "\\"; string ss = " \n"; string sq = "\"";
+	std::string se = "\\"; std::string ss = " \n"; std::string sq = "\"";
 	boost::escaped_list_separator<char> separators(se, ss, sq);
 	std::string stopToken = "stop";
 	std::string normalToken = "normal:";

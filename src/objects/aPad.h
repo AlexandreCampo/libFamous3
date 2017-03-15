@@ -62,31 +62,31 @@ public:
     aPad ();
     ~aPad ();
 
-    void Step ();
+    void step ();
 
-    void AddDevices();
+    void addDevices();
 
-    void Draw (RenderOSG* r);
+    void draw (RenderOSG* r);
 
-    void Register (PhysicsBullet* p);
-    void Unregister (PhysicsBullet* p);
+    void registerService (PhysicsBullet* p);
+    void unregisterService (PhysicsBullet* p);
 
-    void SetMeshFilename (std::string filename);
-    void Register (RenderOSG* r);
-    void Unregister (RenderOSG* r);
+    void setMeshFilename (std::string filename);
+    void registerService (RenderOSG* r);
+    void unregisterService (RenderOSG* r);
 
-    void Register (WaterVolume* w);
-    void Unregister (WaterVolume* w);
+    void registerService (WaterVolume* w);
+    void unregisterService (WaterVolume* w);
 
-    void SetPosition (btVector3 p);
-    btVector3 GetPosition ();
-    void SetRotation (btQuaternion q);
-    btQuaternion GetRotation (btQuaternion q);
+    void setPosition (btVector3 p);
+    btVector3 getPosition ();
+    void setRotation (btQuaternion q);
+    btQuaternion getRotation (btQuaternion q);
 
-    void SetColor (float r = 1, float g = 0, float b = 0, float a = 1);
+    void setColor (float r = 1, float g = 0, float b = 0, float a = 1);
 
-    float GetEmissionRange();
-    void SetEmissionRange(float r);
+    float getEmissionRange();
+    void setEmissionRange(float r);
 
 
     // ================ Custom Physics ==============================

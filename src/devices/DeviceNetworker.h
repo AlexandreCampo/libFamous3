@@ -58,20 +58,20 @@ public :
     DeviceNetworker(); 
     ~DeviceNetworker();
 
-    void Connect (DeviceNetworker* r);
-    void Disconnect (DeviceNetworker* r);
-    void Connect (Object* o);
-    void Disconnect (Object* o);
+    void connect (DeviceNetworker* r);
+    void disconnect (DeviceNetworker* r);
+    void connect (Object* o);
+    void disconnect (Object* o);
 
-    void Send (int content, float time, DeviceNetworker* dst);
-    void SendToAll (int content, float time);
-    bool Receive (Message& msg);
+    void send (int content, float time, DeviceNetworker* dst);
+    void sendToAll (int content, float time);
+    bool receive (Message& msg);
 
-    void ActionStep ();
-    void PerceptionStep ();
-    void Reset();
+    void actionStep ();
+    void perceptionStep ();
+    void reset();
 
-    void Draw (RenderOpenGL* r);
+    void draw (RenderOpenGL* r);
 };
 
 

@@ -33,10 +33,10 @@ public :
     osg::ref_ptr<osg::Node> node;
     osg::ref_ptr<osg::MatrixTransform> transform;
 
-    virtual void Register (RenderOSG* r);
-    virtual void Unregister (RenderOSG* r);    
+    virtual void registerService (RenderOSG* r);
+    virtual void unregisterService (RenderOSG* r);    
 
-    virtual void Draw(RenderOSG* r) = 0;
+    virtual void draw(RenderOSG* r) = 0;
 };
 
 #endif

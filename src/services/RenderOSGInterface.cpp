@@ -22,13 +22,13 @@
 #include <list>
 
 
-void RenderOSGInterface::Register (RenderOSG* r)
+void RenderOSGInterface::registerService (RenderOSG* r)
 {
     renderOSG = r;
     r->objects.push_back(this);
 }
 
-void RenderOSGInterface::Unregister (RenderOSG* r)
+void RenderOSGInterface::unregisterService (RenderOSG* r)
 {
     std::list<RenderOSGInterface*>::iterator it;
     for (it = r->objects.begin(); it != r->objects.end(); it++)

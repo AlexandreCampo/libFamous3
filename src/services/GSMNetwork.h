@@ -56,8 +56,8 @@ public :
     GSMNetwork();
     ~GSMNetwork();
 
-    void Step ();
-    void Reset ();
+    void step ();
+    void reset ();
 };
 
 

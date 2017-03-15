@@ -20,33 +20,31 @@
 #include "Controller.h"
 #include "Object.h"
 
-Controller::Controller (Object* o)
+Controller::Controller ()
 {
-    this->object = o;
-    object->Set (this);
 }
 
-void Controller::SetTimeStep(float t)
+void Controller::setTimestep(float t)
 {
     timestep = t;
 
     if (object)
     {
-	if (object->GetTimeStep() > t)
-	    object->SetTimeStep(t);
+	if (object->getTimestep() > t)
+	    object->setTimestep(t);
 
 	for (auto* d : object->devices)
 	{
-	    if (d->GetPerceptionTimeStep() > t)
-		d->SetPerceptionTimeStep(t);
+	    if (d->getPerceptionTimestep() > t)
+		d->setPerceptionTimestep(t);
 	    
-	    if (d->GetActionTimeStep() > t)
-		d->SetActionTimeStep(t);
+	    if (d->getActionTimestep() > t)
+		d->setActionTimestep(t);
 	}
     }
 }
 
-float Controller::GetTimeStep()
+float Controller::getTimestep()
 {
     return timestep;
 }

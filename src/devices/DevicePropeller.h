@@ -45,24 +45,24 @@ public :
     DevicePropeller(PhysicsBullet* p, btRigidBody* body, float maxForce);
     ~DevicePropeller ();
 
-    void ActionStep();
-    void PerceptionStep();
-    void Reset();
-    void Draw (RenderOSG* r);
+    void actionStep();
+    void perceptionStep();
+    void reset();
+    void draw (RenderOSG* r);
     
-    float GetSpeed ();
-    void SetSpeed (float s);
+    float getSpeed ();
+    void setSpeed (float s);
 
-    void SetPosition(btVector3 position);
-    btVector3 GetPosition();
-    void SetOrientation(btQuaternion q);
-    btQuaternion GetOrientation();
+    void setPosition(btVector3 position);
+    btVector3 getPosition();
+    void setOrientation(btQuaternion q);
+    btQuaternion getOrientation();
 
-    void Register (RenderOSG* r);
-    void Unregister (RenderOSG* r);
+    void registerService (RenderOSG* r);
+    void unregisterService (RenderOSG* r);
 
-    void SetDrawable(bool d);
-    bool IsDrawable();
+    void setDrawable(bool d);
+    bool isDrawable();
 
 };
 

@@ -41,8 +41,8 @@ aMussel::aMussel() :
     cola = 1.0;
 
     // define collision type
-    SetCollisionType (1 << 2);
-    SetCollisionFilter (0x7FFFFFFF);
+    setCollisionType (1 << 2);
+    setCollisionFilter (0x7FFFFFFF);
 }
  
 
@@ -51,27 +51,27 @@ aMussel::~aMussel()
 {
 }
 
-void aMussel::AddDevices()
+void aMussel::addDevices()
 {
     float neutralVolume = (1.0 / body->getInvMass()) / waterVolume->density;
     float ballastVolume = (3.141592564 * 0.07 * 0.07 * 0.2);
 
     ballast = new DeviceBallast (centerOfVolume, physicsBullet, waterVolume, body, neutralVolume - ballastVolume / 2.0, neutralVolume + ballastVolume / 2.0, 2.0);
-    Add (ballast);
+    this->add (ballast);
     
     btTransform t2;
     t2.setIdentity();    
     int cf2 = this->collisionType;
     int ct2 = (1 << 3);
     acoustic = new DeviceAcousticTransceiver (physicsBullet, body, t2, cf2, ct2, 0.9);    
-    Add (acoustic);
+    this->add (acoustic);
 
     t2.setIdentity();    
     int cf4 = this->collisionType;
     int ct4 = (1 << 4);
     float range = 0.2;    
     optical = new DeviceOpticalTransceiver (physicsBullet, body, t2, cf4, ct4, range);    
-    Add (optical);
+    this->add (optical);
 
     // add directional optical transceivers
 //    float addedrange = 0.005;
@@ -80,12 +80,12 @@ void aMussel::AddDevices()
     // top
     btVector3 pos = btVector3 (0.0, 0.0, 0.0);
     btVector3 dir = btVector3 (0, 0, 1);   
-    optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->addTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
 
     // bottom
     pos = btVector3 (0.0, 0.0, 0.0);
     dir = btVector3 (0, 0, -1);   
-    optical->AddTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
+    optical->addTransmitter (pos, dir, range, 30.0 * M_PI / 180.0);
 
 
     // adding ray sensors for proximity
@@ -103,19 +103,19 @@ void aMussel::AddDevices()
     pos = btVector3 (0.0, 0.0, 0.05 - addedrange);
     dir = btVector3 (0.0, 0.0, 1.0);   
     rayTop = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);  
-    Add (rayTop);
+    this->add (rayTop);
     
     pos = btVector3 (0.0, 0.0, -0.05 + addedrange);
     dir = btVector3 (0.0, 0.0, -1.0);   
     rayBottom = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);  
-    Add (rayBottom);   
+    this->add (rayBottom);   
 
     // networker = new DeviceNetworker ();    
-    // Add (networker);
+    // add (networker);
     
 }
 
-void aMussel::Draw (RenderOSG* r)
+void aMussel::draw (RenderOSG* r)
 {
     btScalar ogl[16];
     btTransform t = body->getCenterOfMassTransform() * principalTransformInverse;
@@ -131,12 +131,11 @@ void aMussel::Draw (RenderOSG* r)
     
 }
 
-void aMussel::Register (PhysicsBullet* p)
+void aMussel::registerService (PhysicsBullet* p)
 {
-    PhysicsBulletInterface::Register(p);
+    PhysicsBulletInterface::registerService(p);
     
-    SetTimeStep(p->GetTimeStep());
-//    p->SetCustomPhysics(true);
+    setTimestep(p->getTimestep());
 
     dimensions[0] = 0.2; // diameter (x)
     dimensions[1] = dimensions[0]; // diameter (y)
@@ -211,20 +210,20 @@ void aMussel::Register (PhysicsBullet* p)
     p->m_dynamicsWorld->addRigidBody(body, collisionType, collisionFilter);
 }
 
-void aMussel::Unregister (PhysicsBullet* p)
+void aMussel::unregisterService (PhysicsBullet* p)
 {
-    PhysicsBulletInterface::Unregister(p);
+    PhysicsBulletInterface::unregisterService(p);
 }
 
 
-void aMussel::SetMeshFilename (std::string filename)
+void aMussel::setMeshFilename (std::string filename)
 {
     meshFilename = filename;
 }
 
-void aMussel::Register (RenderOSG* r)
+void aMussel::registerService (RenderOSG* r)
 {
-    RenderOSGInterface::Register (r);
+    RenderOSGInterface::registerService (r);
 
     osg::ref_ptr<osg::Geode> geode; 
     osg::ref_ptr<osg::Cylinder> cylinder; 
@@ -251,35 +250,35 @@ void aMussel::Register (RenderOSG* r)
     r->root->addChild(transform);
 }
 
-void aMussel::Unregister (RenderOSG* r)
+void aMussel::unregisterService (RenderOSG* r)
 {
-    RenderOSGInterface::Unregister(r);
+    RenderOSGInterface::unregisterService(r);
 }
 
-void aMussel::Register (EnergyManager* m)
+void aMussel::registerService (EnergyManager* m)
 {
-    EnergyManagerInterface::Register(m);
+    EnergyManagerInterface::registerService(m);
 }
 
-void aMussel::Unregister (EnergyManager* m)
+void aMussel::unregisterService (EnergyManager* m)
 {
-    EnergyManagerInterface::Unregister(m);
+    EnergyManagerInterface::unregisterService(m);
 }
 
-void aMussel::Register (WaterVolume* w)
+void aMussel::registerService (WaterVolume* w)
 {
-    WaterVolumeInterface::Register(w);
+    WaterVolumeInterface::registerService(w);
 
     // update quadratic drag with new fluid density
     setDragQuadraticCoefficients(m_linearQuadraticDrag, m_angularQuadraticDrag, w->density);
 }
 
-void aMussel::Unregister (WaterVolume* w)
+void aMussel::unregisterService (WaterVolume* w)
 {
-    WaterVolumeInterface::Unregister(w);
+    WaterVolumeInterface::unregisterService(w);
 }
 
-void aMussel::SetPosition (btVector3 p)
+void aMussel::setPosition (btVector3 p)
 {
     btTransform t = body->getCenterOfMassTransform();
     t.setOrigin(p);
@@ -289,13 +288,13 @@ void aMussel::SetPosition (btVector3 p)
     body->setAngularVelocity(btVector3(0,0,0));
 }
 
-btVector3 aMussel::GetPosition ()
+btVector3 aMussel::getPosition ()
 {
     return body->getCenterOfMassTransform().getOrigin();
 }
 
 
-void aMussel::SetRotation (btQuaternion q)
+void aMussel::setRotation (btQuaternion q)
 {
     btTransform t = body->getCenterOfMassTransform();
     t.setRotation(q);
@@ -305,12 +304,12 @@ void aMussel::SetRotation (btQuaternion q)
     body->setAngularVelocity(btVector3(0,0,0));
 }
 
-btQuaternion aMussel::GetRotation (btQuaternion q)
+btQuaternion aMussel::getRotation (btQuaternion q)
 {
     return body->getOrientation();
 }
 
-void aMussel::SetColor (float r, float g, float b, float a)
+void aMussel::setColor (float r, float g, float b, float a)
 {
     this->colr = r;
     this->colg = g;
@@ -318,7 +317,7 @@ void aMussel::SetColor (float r, float g, float b, float a)
     this->cola = a;
 }
 
-void aMussel::Step ()
+void aMussel::step ()
 {
     // custom underwater physics
     const btMatrix3x3& worldBasis = body->getWorldTransform().getBasis();
