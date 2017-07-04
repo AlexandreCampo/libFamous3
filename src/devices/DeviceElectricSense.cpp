@@ -19,18 +19,11 @@
 
 #include "DeviceElectricSense.h"
 
-//#include "PhysicsBullet.h"
-//#include "PhysicsBulletInterface.h"
-//#include "RenderOpenGLInterface.h"
-//#include "RenderOSGInterface.h"
 #include "Object.h"
 
-//#include <list>
-//#include <vector>
 #include <iostream>
 #include <typeinfo>
-//#include <eigen3>
-//#include <Eigen/Dense>
+#include <limits>
 
 using namespace Eigen;
 using namespace std;
@@ -145,11 +138,26 @@ void DeviceElectricSense::addElectrode(btVector3 position)
 //    inducedI = VectorXf(numElectrodes);    
 }
 
+void DeviceElectricSense::setMinElectrodeDistance(float mindist)
+{
+    minElectrodeDistance = mindist;
+}
+
 void DeviceElectricSense::setPolarization (VectorXf& polarization)
 {
     this->polarization = polarization;
     I0 = C0 * polarization;
 
+    // determine if robot is polarized or not
+    VectorXf abspola = polarization.cwiseAbs();
+    abspola = abspola.array() - abspola(0);    
+    if (fabs(abspola.sum()) < numeric_limits<float>::epsilon() )
+	polarized = false;
+    else
+	polarized = true;
+
+    
+    
     // std::cout << "set pola+I0 "
     // 	      << polarization(0) << " "
     // 	      << polarization(1) << " "
@@ -245,8 +253,8 @@ VectorXf DeviceElectricSense::getCurrents()
     
     
     // init vector of measured currents
-    I = VectorXf::Zero(numElectrodes);
-            
+    I = I0;
+    
     // add current contributions from active neighbours
     if (inducedICalculated)
     {
@@ -287,19 +295,10 @@ VectorXf DeviceElectricSense::getCurrents()
 	// add current from passive devices to self
 	I += od->inducedI;
     }
-    
-    // wrap up...
-    for(int i = 0; i < numElectrodes; i++)
-    {
-        if (abs( I(i) ) > abs( I0(i) ) )
-        {
-	    if (I(i) < 0.0)		
-		I(i) = - abs( I0(i) );
-	    else
-		I(i) = abs( I0(i) );
-        }
-    }
-    
+
+    // // TODO debug
+    // cout << "before wrap up : " << I(0) << " " << I(1) << " " << I(2) << " " << I(3) << " " << I(4) << " | ";
+        
     return I;
 }
 
@@ -334,12 +333,28 @@ void DeviceElectricSense::addContribution(DeviceElectricSense* src, DeviceElectr
 	{
 	    btVector3 diff = dst->electrodePositionsTransformed[i] - src->electrodePositionsTransformed[j];
 	    float dist = diff.length();
+	    dist = std::max(dist, minElectrodeDistance);
 	    contributions(i) += ISrc(j) / dist;
         }
     }
     
-    std::cout << " adding contributions" << contributions(0) << " " << contributions(1) << " " << contributions(2) << " " << contributions(3) << " " << contributions(4) << std::endl;	    
+    std::cout << " adding contributions" << contributions(0) << " " << contributions(1) << " " << contributions(2) << " " << contributions(3) << " " << contributions(4) << " | ";	    
     
-    contributions /= 4.0 * M_PI * gamma;        
+    contributions /= 4.0 * M_PI * gamma;
+//    contributions = dst->C0 * contributions;
+
+    // // saturate contributions (can not exceed Isrc)
+    // for(int i = 0; i < dst->numElectrodes; i++)
+    // {
+    //     if (abs( contributions(i) ) > abs( ISrc(i) ) )
+    //     {
+    // 	    if (contributions(i) < 0.0)		
+    // 		contributions(i) = - abs( ISrc(i) );
+    // 	    else
+    // 		contributions(i) = abs( ISrc(i) );
+    //     }
+    // }    
+    
     IDst += dst->C0 * contributions;
+
 }

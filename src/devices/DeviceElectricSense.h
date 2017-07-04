@@ -44,6 +44,7 @@ public :
     btCollisionShape* collisionShape;
 
     float maxRange;
+    float minElectrodeDistance = 0.01;
 
     DeviceElectricSense(PhysicsBullet* p, btRigidBody* b, btTransform t, int collisionFilter, int collisionType = 2^30, float maxRange = 1.0);
     ~DeviceElectricSense();
@@ -64,6 +65,8 @@ public :
     // methods & members for e-sense calculations
     // ------------------------------------------
     void addElectrode(btVector3 position);
+
+    void setMinElectrodeDistance(float mindist);
     void setPolarization (Eigen::VectorXf& polarization);
     void setC0 (Eigen::MatrixXf& C0);
     virtual bool process (const btBroadphaseProxy *proxy);
