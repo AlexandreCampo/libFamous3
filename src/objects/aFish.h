@@ -34,6 +34,7 @@
 #include "DeviceOpticalTransceiver.h"
 #include "DeviceRayCast.h"
 #include "DeviceNetworker.h"
+#include "DeviceElectricSense.h"
 
 
 // store only one and same geometry  for all robots
@@ -89,7 +90,8 @@ public:
     DeviceAcousticTransceiver* acoustic;
     DeviceOpticalTransceiver* optical;
     DeviceNetworker* networker;
-
+    DeviceElectricSense* esense;
+    
     float colr, colg, colb, cola;
 
     aFish ();

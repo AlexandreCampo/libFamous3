@@ -59,15 +59,21 @@ void aPad::addDevices ()
     propellerLeft = new DevicePropeller (physicsBullet, body, 7);
     propellerLeft->setPosition(centerOfVolume + btVector3( 0, -dimensions[1] / 2.0, 0 ));
     propellerLeft->setOrientation(btQuaternion( 0, 0, 0 ));
-    if (renderOSG) propellerLeft->registerService(renderOSG);
-    propellerLeft->setDrawable(false);
+    if (renderOSG)
+    {
+	propellerLeft->registerService(renderOSG);
+	propellerLeft->setDrawable(false);
+    }
     this->add(propellerLeft);
     
     propellerRight = new DevicePropeller (physicsBullet, body, 7);
     propellerRight->setPosition(centerOfVolume + btVector3( 0, dimensions[1] / 2.0, 0 ));
     propellerRight->setOrientation(btQuaternion( 0, 0, 0 ));
-    if (renderOSG) propellerRight->registerService(renderOSG);
-    propellerRight->setDrawable(false);
+    if (renderOSG)
+    {
+	propellerRight->registerService(renderOSG);	
+	propellerRight->setDrawable(false);
+    }
     this->add(propellerRight);
 
     // 4 ballasts
@@ -115,7 +121,7 @@ void aPad::setMeshFilename (std::string filename)
 void aPad::registerService (RenderOSG* r)
 {
     RenderOSGInterface::registerService (r);
-
+    
     if (meshFilename.empty())
     {
 	cout << "No 3d model defined for OSG Render..." << endl;
@@ -171,6 +177,7 @@ void aPad::setColor (float r, float g, float b, float a)
 void aPad::registerService (PhysicsBullet* p)
 {
     PhysicsBulletInterface::registerService(p);
+    setTimestep(p->getTimestep());
     
     dimensions[0] = 0.7;
     dimensions[1] = 0.7;
@@ -180,7 +187,7 @@ void aPad::registerService (PhysicsBullet* p)
     btCompoundShape* cshape = new btCompoundShape(false);
     btBoxShape* boxShape = new btBoxShape(btVector3(dimensions[0], dimensions[1], dimensions[2]) / 2.0);
     principalTransform.setIdentity();
-    principalTransformInverse = principalTransformInverse;
+    principalTransformInverse = principalTransform.inverse();
     
     cshape->addChildShape(principalTransformInverse, boxShape);
        

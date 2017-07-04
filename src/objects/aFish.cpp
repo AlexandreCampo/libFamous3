@@ -62,15 +62,21 @@ void aFish::addDevices()
     propellerLeft = new DevicePropeller (physicsBullet, body, 1);
     propellerLeft->setPosition(m_centerOfVolume + btVector3( 0, -dimensions[1] / 2.0, 0 ));
     propellerLeft->setOrientation(btQuaternion( 0, 0, 0 ));
-    if (renderOSG) propellerLeft->registerService(renderOSG);
-    propellerLeft->setDrawable(false);
+    if (renderOSG)
+    {
+	propellerLeft->registerService(renderOSG);
+	propellerLeft->setDrawable(false);
+    }
     this->add(propellerLeft);
     
     propellerRight = new DevicePropeller (physicsBullet, body, 1);
     propellerRight->setPosition(m_centerOfVolume + btVector3( 0, dimensions[1] / 2.0, 0 ));
     propellerRight->setOrientation(btQuaternion( 0, 0, 0 ));
-    if (renderOSG) propellerRight->registerService(renderOSG);
-    propellerRight->setDrawable(false);
+    if (renderOSG)
+    {
+	propellerRight->registerService(renderOSG);
+	propellerRight->setDrawable(false);
+    }
     this->add(propellerRight);
     
     // propellers = new DevicePropellers(physicsBullet, body, leftPos, rightPos, 0.1);
@@ -211,7 +217,49 @@ void aFish::addDevices()
 
     networker = new DeviceNetworker ();    
     this->add (networker);
+
+    btTransform t5;
+    t5.setIdentity();    
+    int cf5 = this->collisionType;
+    int ct5 = (1 << 5);
+    esense = new DeviceElectricSense (physicsBullet, body, t5, cf5, ct5, 0.9);    
+
+    esense->addElectrode (btVector3(0.0, 0.00, -0.2));
+    esense->addElectrode (btVector3(0.06, 0.0, 0.2));
+    esense->addElectrode (btVector3(0.0, 0.06, 0.2));
+    esense->addElectrode (btVector3(-0.06, 0.0, 0.2));
+    esense->addElectrode (btVector3(0.0, -0.06, 0.2));
+
+    Eigen::MatrixXf C0(5,5);
+    float gamma = 0.06;
+    C0(0,0) = gamma * 0.2557;
+    C0(0,1) = gamma * -0.0639;
+    C0(0,2) = gamma * -0.0639;
+    C0(0,3) = gamma * -0.0639;
+    C0(0,4) = gamma * -0.0639;
+    C0(1,0) = gamma * -0.0639;
+    C0(1,1) = gamma * 0.1218;
+    C0(1,2) = gamma * -0.0203;
+    C0(1,3) = gamma * -0.0173;
+    C0(1,4) = gamma * -0.0203;
+    C0(2,0) = gamma * -0.0639;
+    C0(2,1) = gamma * -0.0203;
+    C0(2,2) = gamma * 0.1218;
+    C0(2,3) = gamma * -0.0203;
+    C0(2,4) = gamma * -0.0173;
+    C0(3,0) = gamma * -0.0639;
+    C0(3,1) = gamma * -0.0173;
+    C0(3,2) = gamma * -0.0203;
+    C0(3,3) = gamma * 0.1218;
+    C0(3,4) = gamma * -0.0203;
+    C0(4,0) = gamma * -0.0639;
+    C0(4,1) = gamma * -0.0203;
+    C0(4,2) = gamma * -0.0173;
+    C0(4,3) = gamma * -0.0203;
+    C0(4,4) = gamma * 0.1218;
+    esense->setC0(C0);
     
+    this->add (esense);
 }
 
 void aFish::draw (RenderOSG* r)
@@ -413,17 +461,26 @@ void aFish::registerService (RenderOSG* r)
 
 void aFish::setTextDrawable(bool d)
 {
-    textGeode->setNodeMask(d);
+    if (renderOSG)
+    {
+	textGeode->setNodeMask(d);
+    }
 }
     
 void aFish::setText(string s)
 {
-    text->setText(s);
+    if (renderOSG)
+    {
+	text->setText(s);
+    }
 }
 
 void aFish::setTextColor(float r, float g, float b, float a)
 {
-    text->setColor(osg::Vec4(r, g, b, a));
+    if (renderOSG)
+    {
+	text->setColor(osg::Vec4(r, g, b, a));
+    }
 }
     
 
@@ -496,9 +553,12 @@ void aFish::setColor (float r, float g, float b, float a)
     this->colb = b;
     this->cola = a;
 
-    osg::ref_ptr<osg::Material> mat = new osg::Material;
-    mat->setDiffuse (osg::Material::FRONT_AND_BACK, osg::Vec4(colr, colg, colb, cola));
-    RenderOSGInterface::transform->getOrCreateStateSet()->setAttributeAndModes(mat, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
+    if (renderOSG)
+    {
+	osg::ref_ptr<osg::Material> mat = new osg::Material;
+	mat->setDiffuse (osg::Material::FRONT_AND_BACK, osg::Vec4(colr, colg, colb, cola));
+	RenderOSGInterface::transform->getOrCreateStateSet()->setAttributeAndModes(mat, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
+    }
 }
 
 void aFish::step ()

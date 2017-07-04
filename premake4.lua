@@ -11,6 +11,7 @@ solution "famous"
  
       if os.is ("linux") then
      	    includedirs { "/usr/include/bullet" }
+     	    includedirs { "/usr/include/eigen3" }
 
       elseif os.is ("macosx") then
      	     includedirs { "/opt/local/include/bullet" }
