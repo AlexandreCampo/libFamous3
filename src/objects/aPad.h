@@ -28,6 +28,7 @@
 #include "DeviceAcousticTransceiver.h"
 #include "DeviceBallast.h"
 #include "DevicePropeller.h"
+#include "DeviceDocker.h"
 
 // store only one and same geometry  for all robots
 static osg::ref_ptr<osg::Node> aPadNode = NULL;
@@ -56,6 +57,7 @@ public:
     int acousticCollisionFilter;
     int acousticCollisionType;
     DeviceAcousticTransceiver* acoustic;
+    std::vector<DeviceDocker*> dockers;
 
     float colr, colg, colb, cola;
 

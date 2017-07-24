@@ -49,12 +49,15 @@ public :
     bool dockable = true;
     bool calculated = false;
     
-    std::list<DeviceDocker*> detectedDevices;
-    std::map<DeviceDocker*, btFixedConstraint*> dockedTo;
-    std::map<DeviceDocker*, btFixedConstraint*> dockedBy;
-
-
-    DeviceDocker(PhysicsBullet* p, btRigidBody* b, btTransform t, float maxDetectionRange, float maxDockingRange, float verticalTolerance, int detectionCollisionFiler, int dockingCollisionFilter, int detectionCollisionType, int dockingCollisionType);
+    std::vector<btVector3> detectedPositions;
+    DeviceDocker* closestDevice;
+    float closestDeviceDistance;
+    btVector3 closestDeviceRelativePosition;
+    
+    DeviceDocker* docked = NULL;
+    btFixedConstraint* constraint = NULL;
+    
+    DeviceDocker(PhysicsBullet* p, btRigidBody* b, float maxDetectionRange, float maxDockingRange, float verticalTolerance, int detectionCollisionFiler, int dockingCollisionFilter, int detectionCollisionType, int dockingCollisionType);
     
     ~DeviceDocker();
 
@@ -62,9 +65,15 @@ public :
     void perceptionStep ();
     void reset();
 
-    std::list<DeviceDocker*>& detectDockableDevices();
-    bool dock(DeviceDocker* dockable);
-    bool undock(DeviceDocker* dockable);
+    void setPosition(btVector3 position);
+    btVector3 getPosition();
+    void setOrientation(btQuaternion q);
+    btQuaternion getOrientation();
+   
+    btVector3 getClosestDockableDevice();
+    std::vector<btVector3>& getDockableDevices();
+    bool dock();
+    bool undock();
 
     virtual bool process (const btBroadphaseProxy *proxy);
     

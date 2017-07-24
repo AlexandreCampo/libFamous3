@@ -62,7 +62,7 @@ public :
     std::list<Message> messagesSent;
 
 
-    DeviceAcousticTransceiver(PhysicsBullet* p, btRigidBody* b, btTransform t, int collisionFilter, int collisionType = 2^30, float maxRange = 1.0);
+    DeviceAcousticTransceiver(PhysicsBullet* p, btRigidBody* b, int collisionFilter, int collisionType = 2^30, float maxRange = 1.0);
     ~DeviceAcousticTransceiver();
 
     void send (int content);
@@ -75,6 +75,12 @@ public :
     virtual bool process (const btBroadphaseProxy *proxy);
 
     void draw (RenderOpenGL* r);
+
+    void setPosition(btVector3 position);
+    btVector3 getPosition();
+    void setOrientation(btQuaternion q);
+    btQuaternion getOrientation();
+
 };
 
 

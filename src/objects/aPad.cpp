@@ -91,11 +91,29 @@ void aPad::addDevices ()
     	ballasts.push_back(ballast);
     	this->add (ballast);
     }
-    
-    
-    btTransform t;
-    t.setIdentity();    
-    acoustic = new DeviceAcousticTransceiver (physicsBullet, body, t, acousticCollisionFilter, acousticCollisionType, 0.7);
+
+    // 4 docking systems
+    int cfDetect = this->collisionType;
+    int cfDocking = this->collisionType;
+    int ctDetect = (1 << 6);
+    int ctDocking = (1 << 7);
+
+    for (int i = 0; i < 4; i++)
+    {
+	DeviceDocker* docker = new DeviceDocker (physicsBullet, body, 1.0, 0.3, 0.1, cfDetect, ctDetect, cfDocking, ctDocking);
+
+	// 15 cm off the main body to avoid collisions between docked body and parent body
+    	btVector3 relpos = btVector3(0, dimensions[0] / 2.0 + 0.15, 0);
+    	btQuaternion rotation (btVector3(0,0,1), M_PI / 2.0 * i);
+	docker->setPosition(centerOfVolume + quatRotate (rotation, relpos));
+	docker->setOrientation(btQuaternion( 0, 0, 0 ));
+	dockers.push_back(docker);
+	add(docker);
+    }
+        
+    acoustic = new DeviceAcousticTransceiver (physicsBullet, body, acousticCollisionFilter, acousticCollisionType, 0.7);
+    acoustic->setPosition(centerOfVolume);
+    acoustic->setOrientation(btQuaternion( 0, 0, 0 ));
     this->add (acoustic);
 }
 
@@ -264,12 +282,13 @@ void aPad::setEmissionRange(float r)
     // at the moment it is easier (but slower) to destroy the device and create a new one
     PhysicsBullet* p = acoustic->physics;
 
+    btTransform t = acoustic->localTransform;
+    
     this->remove (acoustic);
     delete (acoustic);
 	
-    btTransform t;
-    t.setIdentity();    
-    acoustic = new DeviceAcousticTransceiver (p, body, t, acousticCollisionFilter, acousticCollisionType, r);
+    acoustic = new DeviceAcousticTransceiver (p, body, acousticCollisionFilter, acousticCollisionType, r);
+    acoustic->localTransform = t;
     this->add (acoustic);
 }
 

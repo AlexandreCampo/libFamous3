@@ -28,13 +28,12 @@
 #include <iostream>
 #include <typeinfo>
 
-DeviceDocker::DeviceDocker(PhysicsBullet* p, btRigidBody* b, btTransform t, float maxDetectionRange, float maxDockingRange, float verticalTolerance, int detectionCollisionFiler, int dockingCollisionFilter, int detectionCollisionType, int dockingCollisionType) : 
+DeviceDocker::DeviceDocker(PhysicsBullet* p, btRigidBody* b, float maxDetectionRange, float maxDockingRange, float verticalTolerance, int detectionCollisionFilter, int dockingCollisionFilter, int detectionCollisionType, int dockingCollisionType) : 
     btBroadphaseAabbCallback (),
     RenderOSGInterface()
 {
     this->physics = p;
     this->parentBody = b;
-    this->localTransform = t;
 
     // inherited from ContactResultCallback
     this->detectionCollisionFilter = detectionCollisionFilter;
@@ -85,27 +84,55 @@ void DeviceDocker::actionStep ()
 void DeviceDocker::perceptionStep ()
 {
     calculated = false;
-    detectedDevices.clear();
+    detectedPositions.clear();
+    closestDevice = NULL;
+    closestDeviceDistance = std::numeric_limits<float>::max();
+    closestDeviceRelativePosition.setZero();
 }
     
 void DeviceDocker::reset ()
 {
     calculated = false;
-    detectedDevices.clear();
+    dockable = true;
+    detectedPositions.clear();
+    closestDeviceDistance = std::numeric_limits<float>::max();
 
     // release any connected device
-    while (dockedTo.size() > 0)
-	undock(dockedTo.begin()->first);
+    undock();
+}
 
-    while (dockedBy.size() > 0)
-	undock(dockedBy.begin()->first);
+void DeviceDocker::setPosition(btVector3 position)
+{
+    localTransform.setOrigin(position);
+}
+
+btVector3 DeviceDocker::getPosition()
+{
+    return localTransform.getOrigin();
+}
+
+void DeviceDocker::setOrientation(btQuaternion q)
+{
+    localTransform.setRotation(q);
+}
+
+btQuaternion DeviceDocker::getOrientation()
+{
+    return localTransform.getRotation();
 }
 
 void DeviceDocker::draw (RenderOSG* r)
 {   
 }
 
-std::list<DeviceDocker*>& DeviceDocker::detectDockableDevices()
+btVector3 DeviceDocker::getClosestDockableDevice()
+{
+    getDockableDevices();
+    return closestDeviceRelativePosition;
+}
+
+    
+std::vector<btVector3>& DeviceDocker::getDockableDevices()
 {
     if (!calculated)
     {
@@ -120,82 +147,66 @@ std::list<DeviceDocker*>& DeviceDocker::detectDockableDevices()
 	// process will be called when a collision is detected
 	btBroadphaseInterface* broadphase =  physics->m_dynamicsWorld->getBroadphase();
 	broadphase->aabbTest(aabbMin,aabbMax, (*this));
+
+	// stored results are valid for this time step
+	calculated = true;
     }
-    return detectedDevices;
+
+    return detectedPositions;
 }
 
-bool DeviceDocker::dock(DeviceDocker* dockable)
+bool DeviceDocker::dock()
 {
+    // already docked
+    if (docked)
+    {
+	return false;
+    }
+    
+    getDockableDevices();
+
+    if (closestDevice == NULL)
+    {
+	return false;
+    }
+    
     // only if device accepts to be docked
-    if (!dockable->dockable)
-    {
-	return false;
-    }
-    
-    // make sure that device is in docking range    
-    btTransform other = dockable->parentBody->getWorldTransform() * dockable->localTransform;
-    btTransform self = parentBody->getWorldTransform() * localTransform;	
-
-    btVector3 diff = other.getOrigin() - self.getOrigin();
-    
-    btScalar dist = diff.length();
-
-    // check for distance first
-    if ( dist > maxDockingRange)
+    if (!closestDevice->dockable)
     {
 	return false;
     }
 
-    // now check if inside the cylinder
-    btVector3 localOther = self.inverse() * diff;
-    if (fabs(localOther.getZ()) > verticalTolerance)
+    // and that device is not already docked
+    if (closestDevice->docked)
     {
 	return false;
     }
-
-    // already docked ?
-    if (dockedTo.find(dockable) != dockedTo.end())
-	return true;
-
-    if (dockedBy.find(dockable) != dockedBy.end())
-	return true;
     
-    // allright, device is within range, not already docked, implement docking...
-    btFixedConstraint* c = new btFixedConstraint(*parentBody, *dockable->parentBody, localTransform, dockable->localTransform);
-    dockedTo[dockable] = c;
-    dockable->dockedBy[this] = c;
+    // allright, device is within range, not already docked, implement docking...    
+    constraint = new btFixedConstraint(*parentBody, *closestDevice->parentBody, localTransform, closestDevice->localTransform);
+    physics->m_dynamicsWorld->addConstraint(constraint);
 
-    physics->m_dynamicsWorld->addConstraint(c);
-
+    docked = closestDevice;
+    closestDevice->docked = this;
+    closestDevice->constraint = constraint;
+    
     return true;
 }
 
-bool DeviceDocker::undock(DeviceDocker* dockable)
+bool DeviceDocker::undock()
 {
-    // undock unilaterally, no matter who initiated docking
-    if (dockedTo.find(dockable) != dockedTo.end())
+    if (docked == NULL)
     {
-	btFixedConstraint* c = dockedTo[dockable];
-	physics->m_dynamicsWorld->removeConstraint(c);
-
-	dockedTo.erase(dockable);
-	dockable->dockedBy.erase(this);
-
-	return true;
-    }
-    else if (dockedBy.find(dockable) != dockedBy.end())
-    {
-	btFixedConstraint* c = dockedBy[dockable];
-	physics->m_dynamicsWorld->removeConstraint(c);
-
-	dockedBy.erase(dockable);
-	dockable->dockedTo.erase(this);
-
-	return true;
+	return false;
     }
 
-    // oops did not find the device...
-    return false;
+    // undock unilaterally, no matter who initiated docking		
+    physics->m_dynamicsWorld->removeConstraint(constraint);
+    delete constraint;
+    docked->constraint = NULL;
+    docked->docked = NULL;
+    docked = NULL;
+    return true;
 }
 
 bool DeviceDocker::process (const btBroadphaseProxy *proxy)
@@ -205,7 +216,7 @@ bool DeviceDocker::process (const btBroadphaseProxy *proxy)
     if (detectedObject == collisionBody) return true;
     if (detectedObject == parentBody) return true;
 	
-    //only perform raycast if filterMask matches
+    //only perform tests if filterMask matches
     btBroadphaseProxy* bph = detectedObject->getBroadphaseHandle();
     bool collides = (bph->m_collisionFilterGroup & this->detectionCollisionFilter) != 0;
     collides = collides && (this->detectionCollisionType & bph->m_collisionFilterMask);
@@ -220,11 +231,8 @@ bool DeviceDocker::process (const btBroadphaseProxy *proxy)
 	    // found the device
 	    if (typeid (*device) == typeid (*this))
 	    {
-		DeviceDocker* d = (DeviceDocker*) d;
-
-	    // DeviceDocker* d = dynamic_cast<DeviceDocker*> (device);
-	    // if (d)
-	    // {
+		DeviceDocker* d = (DeviceDocker*) device;
+		
 		if (!d->dockable)
 		{
 		    return true;
@@ -243,16 +251,29 @@ bool DeviceDocker::process (const btBroadphaseProxy *proxy)
 		{
 		    return true;
 		}
+
+		// TODO bring back the check when needed ...
 		
 		// now check if inside the cylinder
-		btVector3 localOther = self.inverse() * diff;
-		if (fabs(localOther.getZ()) > verticalTolerance)
-		{
-		    return true;
-		}
+//		btVector3 localOther = self.inverse() * diff;
+//		if (fabs(localOther.getZ()) > verticalTolerance)
+		// if (fabs(diff.z()) > verticalTolerance)
+		// {		    
+		//     return true;
+		// }
 	
 		// found a dockable device, record ptr
-		detectedDevices.push_back(d);
+//		detectedDevices.push_back(d);
+		detectedPositions.push_back(diff);
+
+		// record the closest device
+		if (dist < closestDeviceDistance)
+		{
+		    closestDeviceDistance = dist;
+		    closestDeviceRelativePosition = diff;
+		    closestDevice = d;
+		}
+		
 	    }
 	}
     }

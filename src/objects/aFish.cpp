@@ -1,4 +1,4 @@
-/*----------------------------------------------------------------------------*/
+/*-------------o---------------------------------------------------------------*/
 /*    Copyright (C) 2011-2017 Alexandre Campo                                 */
 /*                                                                            */
 /*    This file is part of FaMouS  (a fast, modular and simple simulator).    */
@@ -88,18 +88,19 @@ void aFish::addDevices()
     ballast = new DeviceBallast (m_centerOfVolume, physicsBullet, waterVolume, body, neutralVolume - ballastVolume / 2.0, neutralVolume + ballastVolume / 2.0);
     this->add (ballast);
     
-    btTransform t2;
-    t2.setIdentity();    
     int cf2 = this->collisionType;
     int ct2 = (1 << 3);
-    acoustic = new DeviceAcousticTransceiver (physicsBullet, body, t2, cf2, ct2, 0.9);    
+    acoustic = new DeviceAcousticTransceiver (physicsBullet, body, cf2, ct2, 0.9);
+    acoustic->setPosition(m_centerOfVolume);
+    acoustic->setOrientation(btQuaternion( 0, 0, 0 ));    
     this->add (acoustic);
 
-    t2.setIdentity();    
     int cf4 = this->collisionType;
     int ct4 = (1 << 4);
     float range = 0.5;    
-    optical = new DeviceOpticalTransceiver (physicsBullet, body, principalTransformInverse, cf4, ct4, range);
+    optical = new DeviceOpticalTransceiver (physicsBullet, body, cf4, ct4, range);
+    optical->setPosition(m_centerOfVolume);
+    optical->setOrientation(btQuaternion( 0, 0, 0 ));        
     if (renderOSG) optical->registerService(renderOSG);
     this->add (optical);
 

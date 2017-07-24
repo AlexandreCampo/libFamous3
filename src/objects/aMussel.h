@@ -30,6 +30,8 @@
 #include "DeviceAcousticTransceiver.h"
 #include "DeviceOpticalTransceiver.h"
 #include "DeviceRayCast.h"
+#include "DeviceDocker.h"
+#include "DeviceNetworker.h"
 
 // store only one and same geometry  for all robots
 static osg::ref_ptr<osg::Node> aMusselNode = NULL;
@@ -64,8 +66,9 @@ public:
     /* DeviceRayCast* rayBack; */
     DeviceAcousticTransceiver* acoustic;
     DeviceOpticalTransceiver* optical;
-    /* DeviceNetworker* networker; */
-
+    DeviceNetworker* networker;
+    DeviceDocker* docker;
+    
     float colr, colg, colb, cola;
 
     aMussel ();

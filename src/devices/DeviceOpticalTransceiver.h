@@ -111,7 +111,7 @@ public :
     std::list<Message> messagesSent;
 
 
-    DeviceOpticalTransceiver(PhysicsBullet* p, btRigidBody* b, btTransform t, int collisionFilter, int collisionType = 2^30, float maxRange = 1.0); 
+    DeviceOpticalTransceiver(PhysicsBullet* p, btRigidBody* b, int collisionFilter, int collisionType = 2^30, float maxRange = 1.0); 
     ~DeviceOpticalTransceiver();
 
     void addTransmitter (btVector3 position, btVector3 direction, btScalar range, btScalar angle);
@@ -137,6 +137,11 @@ public :
     bool isDrawable();
     void registerService (RenderOSG* r);
     void draw (RenderOSG* r);
+
+    void setPosition(btVector3 position);
+    btVector3 getPosition();
+    void setOrientation(btQuaternion q);
+    btQuaternion getOrientation();
 
 };
 

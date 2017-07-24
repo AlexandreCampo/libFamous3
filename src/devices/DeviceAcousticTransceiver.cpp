@@ -28,13 +28,12 @@
 #include <iostream>
 #include <typeinfo>
 
-DeviceAcousticTransceiver::DeviceAcousticTransceiver(PhysicsBullet* p, btRigidBody* b, btTransform t, int collisionFilter, int collisionType, float maxRange) : 
+DeviceAcousticTransceiver::DeviceAcousticTransceiver(PhysicsBullet* p, btRigidBody* b, int collisionFilter, int collisionType, float maxRange) : 
     btBroadphaseAabbCallback (),
     RenderOpenGLInterface()
 {
     this->physics = p;
     this->parentBody = b;
-    this->localTransform = t;
 
     // inherited from ContactResultCallback
     this->collisionFilter = collisionFilter;
@@ -139,6 +138,27 @@ void DeviceAcousticTransceiver::draw (RenderOpenGL* r)
 
     glPopMatrix();
 }
+
+void DeviceAcousticTransceiver::setPosition(btVector3 position)
+{
+    localTransform.setOrigin(position);
+}
+
+btVector3 DeviceAcousticTransceiver::getPosition()
+{
+    return localTransform.getOrigin();
+}
+
+void DeviceAcousticTransceiver::setOrientation(btQuaternion q)
+{
+    localTransform.setRotation(q);
+}
+
+btQuaternion DeviceAcousticTransceiver::getOrientation()
+{
+    return localTransform.getRotation();
+}
+
 
 
 bool DeviceAcousticTransceiver::process (const btBroadphaseProxy *proxy)

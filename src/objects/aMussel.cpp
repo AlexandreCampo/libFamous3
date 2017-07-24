@@ -59,18 +59,19 @@ void aMussel::addDevices()
     ballast = new DeviceBallast (centerOfVolume, physicsBullet, waterVolume, body, neutralVolume - ballastVolume / 2.0, neutralVolume + ballastVolume / 2.0, 2.0);
     this->add (ballast);
     
-    btTransform t2;
-    t2.setIdentity();    
     int cf2 = this->collisionType;
     int ct2 = (1 << 3);
-    acoustic = new DeviceAcousticTransceiver (physicsBullet, body, t2, cf2, ct2, 0.9);    
+    acoustic = new DeviceAcousticTransceiver (physicsBullet, body, cf2, ct2, 0.9);    
+    acoustic->setPosition(centerOfVolume);
+    acoustic->setOrientation(btQuaternion( 0, 0, 0 ));
     this->add (acoustic);
 
-    t2.setIdentity();    
     int cf4 = this->collisionType;
     int ct4 = (1 << 4);
     float range = 0.2;    
-    optical = new DeviceOpticalTransceiver (physicsBullet, body, t2, cf4, ct4, range);    
+    optical = new DeviceOpticalTransceiver (physicsBullet, body, cf4, ct4, range);    
+    optical->setPosition(centerOfVolume);
+    optical->setOrientation(btQuaternion( 0, 0, 0 ));
     this->add (optical);
 
     // add directional optical transceivers
@@ -110,9 +111,19 @@ void aMussel::addDevices()
     rayBottom = new DeviceRayCast (physicsBullet, body, pos, dir, range, cf3, ct3);  
     this->add (rayBottom);   
 
-    // networker = new DeviceNetworker ();    
-    // add (networker);
-    
+    networker = new DeviceNetworker ();    
+    add (networker);
+
+    int cfDetect = this->collisionType;
+    int cfDocking = this->collisionType;
+    int ctDetect = (1 << 6);
+    int ctDocking = (1 << 7);
+    docker = new DeviceDocker (physicsBullet, body, 1.0, 0.1, 0.1, cfDetect, ctDetect, cfDocking, ctDocking);
+    docker->setPosition(centerOfVolume + btVector3(0,0,0.3));
+    docker->setOrientation(btQuaternion( 0, 0, 0 ));
+
+    add(docker);
+//    std::cout << "Adding docker ptr " << docker << " cast as device " << (Device*) docker <<std::endl;
 }
 
 void aMussel::draw (RenderOSG* r)

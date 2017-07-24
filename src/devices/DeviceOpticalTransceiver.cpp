@@ -33,13 +33,12 @@
 
 using namespace std;
 
-DeviceOpticalTransceiver::DeviceOpticalTransceiver(PhysicsBullet* p, btRigidBody* b, btTransform t, int collisionFilter, int collisionType, float maxRange) : 
+DeviceOpticalTransceiver::DeviceOpticalTransceiver(PhysicsBullet* p, btRigidBody* b, int collisionFilter, int collisionType, float maxRange) : 
     Device (),
     btBroadphaseAabbCallback ()
 {
     this->physics = p;
     this->body = b;
-    this->transform = t;
 
     receiveOmnidirectional = false;
     drawable = false;
@@ -432,3 +431,23 @@ void DeviceOpticalTransceiver::draw (RenderOSG* r)
     }
 }
 
+
+void DeviceOpticalTransceiver::setPosition(btVector3 position)
+{
+    transform.setOrigin(position);
+}
+
+btVector3 DeviceOpticalTransceiver::getPosition()
+{
+    return transform.getOrigin();
+}
+
+void DeviceOpticalTransceiver::setOrientation(btQuaternion q)
+{
+    transform.setRotation(q);
+}
+
+btQuaternion DeviceOpticalTransceiver::getOrientation()
+{
+    return transform.getRotation();
+}
