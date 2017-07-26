@@ -32,6 +32,7 @@
 #include "DeviceRayCast.h"
 #include "DeviceDocker.h"
 #include "DeviceNetworker.h"
+#include "DeviceElectricSense.h"
 
 // store only one and same geometry  for all robots
 static osg::ref_ptr<osg::Node> aMusselNode = NULL;
@@ -72,6 +73,8 @@ public:
     DeviceNetworker* networker;
     DeviceDocker* docker;
     
+    DeviceElectricSense* esense;
+
     float colr, colg, colb, cola;
 
     aMussel ();

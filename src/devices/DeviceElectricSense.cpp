@@ -135,7 +135,6 @@ void DeviceElectricSense::addElectrode(btVector3 position)
     I = VectorXf(numElectrodes);
 
     polarization = VectorXf(numElectrodes);
-//    inducedI = VectorXf(numElectrodes);    
 }
 
 void DeviceElectricSense::setMinElectrodeDistance(float mindist)
@@ -155,22 +154,6 @@ void DeviceElectricSense::setPolarization (VectorXf& polarization)
 	polarized = false;
     else
 	polarized = true;
-
-    
-    
-    // std::cout << "set pola+I0 "
-    // 	      << polarization(0) << " "
-    // 	      << polarization(1) << " "
-    // 	      << polarization(2) << " "
-    // 	      << polarization(3) << " "
-    // 	      << polarization(4) << " "
-    // 	      << " | "
-    // 	      << I0(0) << " "
-    // 	      << I0(1) << " "
-    // 	      << I0(2) << " "
-    // 	      << I0(3) << " "
-    // 	      << I0(4) << " " << std::endl;
-
 }
 
 void DeviceElectricSense::setC0 (MatrixXf& C0)
@@ -249,9 +232,6 @@ VectorXf DeviceElectricSense::getCurrents()
     btBroadphaseInterface* broadphase =  physics->m_dynamicsWorld->getBroadphase();
     broadphase->aabbTest(aabbMin,aabbMax, (*this));
 
-    std::cout << "Dev " << this << " found " << activeDevices.size() << " active and " << passiveDevices.size() << " passive | ";
-    
-    
     // init vector of measured currents
     I = I0;
     
@@ -259,8 +239,6 @@ VectorXf DeviceElectricSense::getCurrents()
     if (inducedICalculated)
     {
 	I += inducedI;
-
-	std::cout << " added precalc induced " << inducedI(0) << " " << inducedI(1) << " " << inducedI(2) << " " << inducedI(3) << " " << inducedI(4) << std::endl;
     }
     else
     {	
@@ -296,9 +274,6 @@ VectorXf DeviceElectricSense::getCurrents()
 	I += od->inducedI;
     }
 
-    // // TODO debug
-    // cout << "before wrap up : " << I(0) << " " << I(1) << " " << I(2) << " " << I(3) << " " << I(4) << " | ";
-        
     return I;
 }
 
@@ -338,23 +313,7 @@ void DeviceElectricSense::addContribution(DeviceElectricSense* src, DeviceElectr
         }
     }
     
-    std::cout << " adding contributions" << contributions(0) << " " << contributions(1) << " " << contributions(2) << " " << contributions(3) << " " << contributions(4) << " | ";	    
-    
     contributions /= 4.0 * M_PI * gamma;
-//    contributions = dst->C0 * contributions;
-
-    // // saturate contributions (can not exceed Isrc)
-    // for(int i = 0; i < dst->numElectrodes; i++)
-    // {
-    //     if (abs( contributions(i) ) > abs( ISrc(i) ) )
-    //     {
-    // 	    if (contributions(i) < 0.0)		
-    // 		contributions(i) = - abs( ISrc(i) );
-    // 	    else
-    // 		contributions(i) = abs( ISrc(i) );
-    //     }
-    // }    
     
     IDst += dst->C0 * contributions;
-
 }

@@ -1,4 +1,4 @@
-/*-------------o---------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 /*    Copyright (C) 2011-2017 Alexandre Campo                                 */
 /*                                                                            */
 /*    This file is part of FaMouS  (a fast, modular and simple simulator).    */
@@ -225,11 +225,11 @@ void aFish::addDevices()
     int ct5 = (1 << 5);
     esense = new DeviceElectricSense (physicsBullet, body, t5, cf5, ct5, 0.9);    
 
-    esense->addElectrode (btVector3(0.0, 0.00, -0.2));
-    esense->addElectrode (btVector3(0.06, 0.0, 0.2));
-    esense->addElectrode (btVector3(0.0, 0.06, 0.2));
-    esense->addElectrode (btVector3(-0.06, 0.0, 0.2));
-    esense->addElectrode (btVector3(0.0, -0.06, 0.2));
+    esense->addElectrode (btVector3(-0.2, 0.0, 0.0));
+    esense->addElectrode (btVector3(0.2, 0.06, 0.0));
+    esense->addElectrode (btVector3(0.2, 0.0, 0.06));
+    esense->addElectrode (btVector3(0.2, -0.06, 0.0));
+    esense->addElectrode (btVector3(0.2, 0.0, -0.06));
 
     Eigen::MatrixXf C0(5,5);
     float gamma = 0.06;

@@ -127,6 +127,51 @@ void aMussel::addDevices()
     }
 
     add(docker);
+
+btTransform t5;
+    t5.setIdentity();    
+    int cf5 = this->collisionType;
+    int ct5 = (1 << 5);
+    esense = new DeviceElectricSense (physicsBullet, body, t5, cf5, ct5, 0.9);    
+
+    esense->addElectrode (btVector3(0.0, 0.0, -0.2));
+    esense->addElectrode (btVector3(0.06, 0.0, 0.2));
+    esense->addElectrode (btVector3(0.0, 0.06, 0.2));
+    esense->addElectrode (btVector3(-0.06, 0.0, 0.2));
+    esense->addElectrode (btVector3(0.0, -0.06, -0.2));
+
+
+    Eigen::MatrixXf C0(5,5);
+    float gamma = 0.06;
+    C0(0,0) = gamma * 0.2557;
+    C0(0,1) = gamma * -0.0639;
+    C0(0,2) = gamma * -0.0639;
+    C0(0,3) = gamma * -0.0639;
+    C0(0,4) = gamma * -0.0639;
+    C0(1,0) = gamma * -0.0639;
+    C0(1,1) = gamma * 0.1218;
+    C0(1,2) = gamma * -0.0203;
+    C0(1,3) = gamma * -0.0173;
+    C0(1,4) = gamma * -0.0203;
+    C0(2,0) = gamma * -0.0639;
+    C0(2,1) = gamma * -0.0203;
+    C0(2,2) = gamma * 0.1218;
+    C0(2,3) = gamma * -0.0203;
+    C0(2,4) = gamma * -0.0173;
+    C0(3,0) = gamma * -0.0639;
+    C0(3,1) = gamma * -0.0173;
+    C0(3,2) = gamma * -0.0203;
+    C0(3,3) = gamma * 0.1218;
+    C0(3,4) = gamma * -0.0203;
+    C0(4,0) = gamma * -0.0639;
+    C0(4,1) = gamma * -0.0203;
+    C0(4,2) = gamma * -0.0173;
+    C0(4,3) = gamma * -0.0203;
+    C0(4,4) = gamma * 0.1218;
+    esense->setC0(C0);
+    
+    this->add (esense);
+
 }
 
 void aMussel::draw (RenderOSG* r)
