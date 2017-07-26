@@ -49,7 +49,7 @@ public :
     float value;
     bool receiveOmnidirectional;
 
-    bool drawable;
+    bool drawable = false;
 
     struct Transmitter
     {

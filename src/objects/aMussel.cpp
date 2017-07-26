@@ -24,7 +24,6 @@
 #include <osg/MatrixTransform>
 #include <osg/Material>
 
-
 #include <iostream>
 
 aMussel::aMussel() :
@@ -118,12 +117,16 @@ void aMussel::addDevices()
     int cfDocking = this->collisionType;
     int ctDetect = (1 << 6);
     int ctDocking = (1 << 7);
-    docker = new DeviceDocker (physicsBullet, body, 1.0, 0.1, 0.1, cfDetect, ctDetect, cfDocking, ctDocking);
-    docker->setPosition(centerOfVolume + btVector3(0,0,0.3));
+    docker = new DeviceDocker (physicsBullet, body, 1.0, 0.1, 0.1, M_PI, cfDetect, ctDetect, cfDocking, ctDocking);
+    docker->setPosition(centerOfVolume + btVector3(0,0,0.2));
     docker->setOrientation(btQuaternion( 0, 0, 0 ));
 
+    if (renderOSG)
+    {
+	docker->registerService(renderOSG);	
+    }
+
     add(docker);
-//    std::cout << "Adding docker ptr " << docker << " cast as device " << (Device*) docker <<std::endl;
 }
 
 void aMussel::draw (RenderOSG* r)
@@ -259,6 +262,14 @@ void aMussel::registerService (RenderOSG* r)
     transform->addChild (transformScale);
     transformScale->addChild (aMusselNode);
     r->root->addChild(transform);
+
+    // text overlay for robot
+    text = r->createText(osg::Vec3(-dimensions[0], 0.0f, dimensions[2]), "", dimensions[0]/2);
+    textGeode = new osg::Geode;
+    textGeode->addDrawable( text );
+    textGeode->setNodeMask(0);
+
+    RenderOSGInterface::transform->addChild (textGeode);    
 }
 
 void aMussel::unregisterService (RenderOSG* r)
@@ -326,6 +337,13 @@ void aMussel::setColor (float r, float g, float b, float a)
     this->colg = g;
     this->colb = b;
     this->cola = a;
+
+    if (renderOSG)
+    {
+	osg::ref_ptr<osg::Material> mat = new osg::Material;
+	mat->setDiffuse (osg::Material::FRONT_AND_BACK, osg::Vec4(colr, colg, colb, cola));
+	RenderOSGInterface::transform->getOrCreateStateSet()->setAttributeAndModes(mat, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
+    }
 }
 
 void aMussel::step ()
@@ -377,4 +395,28 @@ void aMussel::updateInertiaTensor ()
 {
     body->setMassProps (mass, m_inertia);
     body->updateInertiaTensor();
+}
+
+void aMussel::setTextDrawable(bool d)
+{
+    if (renderOSG)
+    {
+	textGeode->setNodeMask(d);
+    }
+}
+    
+void aMussel::setText(std::string s)
+{
+    if (renderOSG)
+    {
+	text->setText(s);
+    }
+}
+
+void aMussel::setTextColor(float r, float g, float b, float a)
+{
+    if (renderOSG)
+    {
+	text->setColor(osg::Vec4(r, g, b, a));
+    }
 }

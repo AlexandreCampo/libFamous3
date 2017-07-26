@@ -30,24 +30,41 @@ class WaterVolumeInterface;
 
 typedef std::function< float (btVector3, float) > WaterVolumeHeightCallback;
 typedef std::function< btVector3 (btVector3, float) > WaterVolumeCurrentCallback;
+typedef std::function< float (btVector3, float) > WaterVolumeTemperatureCallback;
+typedef std::function< float (btVector3, float) > WaterVolumePHCallback;
+typedef std::function< float (btVector3, float) > WaterVolumeO2Callback;
+typedef std::function< float (btVector3, float) > WaterVolumeTurbidityCallback;
 
 class WaterVolume : public Service
 {
 public :
 
     // callbacks that should be implemented by user
-    WaterVolumeHeightCallback calculateHeight;
-    WaterVolumeCurrentCallback calculateCurrent;
+    WaterVolumeHeightCallback getHeight;
+    WaterVolumeCurrentCallback getCurrent;
+    WaterVolumeTemperatureCallback getTemperature;
+    WaterVolumePHCallback getPH;
+    WaterVolumeO2Callback getO2;
+    WaterVolumeO2Callback getTurbidity;
 
-    float density;
+    float density = 1000.0;
     
     // Methods ==================
 
-    WaterVolume(float density, WaterVolumeHeightCallback calculateHeightCallback, WaterVolumeCurrentCallback calculateCurrentCallback);
+    WaterVolume();
     ~WaterVolume();
 
     void step ();
     void reset ();
+
+    void setHeightCallback(WaterVolumeHeightCallback c);
+    void setCurrentCallback(WaterVolumeCurrentCallback c);
+    void setTemperatureCallback(WaterVolumeTemperatureCallback c);
+    void setPHCallback(WaterVolumePHCallback c);
+    void setO2Callback(WaterVolumeO2Callback c);
+    void setTurbidityCallback(WaterVolumeTurbidityCallback c);
+    void setDensity(float d);
+    
 };
 
 

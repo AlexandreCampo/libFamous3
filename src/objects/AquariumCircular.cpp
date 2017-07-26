@@ -94,7 +94,7 @@ void AquariumCircular::draw (RenderOSG* r)
     for (auto t : cubeTransforms)
     {
 	osg::Vec3d pos = t->getPosition();
-	float height = waterVolume->calculateHeight(btVector3(pos.x(), pos.y(), 0), simulator->time);
+	float height = waterVolume->getHeight(btVector3(pos.x(), pos.y(), 0), simulator->time);
 	pos.set(pos.x(), pos.y(), height);
 	t->setPosition(pos);
 

@@ -451,7 +451,7 @@ void aFish::registerService (RenderOSG* r)
     t->addChild (aFishNode);
     r->root->addChild(RenderOSGInterface::transform);
 
-    
+    // text overlay for robot
     text = r->createText(osg::Vec3(-dimensions[0], 0.0f, dimensions[2]), "", dimensions[0]/2);
     textGeode = new osg::Geode;
     textGeode->addDrawable( text );

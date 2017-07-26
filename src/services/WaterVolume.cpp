@@ -23,18 +23,87 @@
 #include "WaterVolume.h"
 #include "WaterVolumeInterface.h"
 
+// default callbacks
+float waterVolumeHeightDefaultCallback(btVector3 pos, float time)
+{
+    return 1.0;
+}
 
-WaterVolume::WaterVolume (float density, WaterVolumeHeightCallback calculateHeight, WaterVolumeCurrentCallback calculateCurrent) 
+btVector3 waterVolumeCurrentDefaultCallback(btVector3 pos, float time)
+{
+    return btVector3(0,0,0);
+}
+
+float waterVolumeTemperatureDefaultCallback(btVector3 pos, float time)
+{
+    return 0;
+}
+
+float waterVolumePHDefaultCallback(btVector3 pos, float time)
+{
+    return 7;
+}
+
+float waterVolumeO2DefaultCallback(btVector3 pos, float time)
+{
+    return 0;
+}
+
+float waterVolumeTurbidityDefaultCallback(btVector3 pos, float time)
+{
+    return 0;
+}
+
+// methods
+
+WaterVolume::WaterVolume ()
+{
+    getHeight = waterVolumeHeightDefaultCallback;
+    getCurrent = waterVolumeCurrentDefaultCallback;
+    getTemperature = waterVolumeTemperatureDefaultCallback;
+    getPH = waterVolumePHDefaultCallback;
+    getO2 = waterVolumeO2DefaultCallback;
+    getTurbidity = waterVolumeTurbidityDefaultCallback;
+}
+
+void WaterVolume::setDensity (float density)
 {
     this->density = density;
-    this->calculateHeight = calculateHeight;
-    this->calculateCurrent = calculateCurrent;
+}
+
+void WaterVolume::setHeightCallback(WaterVolumeHeightCallback c)
+{
+    this->getHeight = c;
+}
+
+void WaterVolume::setCurrentCallback(WaterVolumeCurrentCallback c)
+{
+    this->getCurrent = c;
+}
+
+void WaterVolume::setTemperatureCallback(WaterVolumeTemperatureCallback c)
+{
+    this->getTemperature = c;
+}
+
+void WaterVolume::setPHCallback(WaterVolumePHCallback c)
+{
+    this->getPH = c;
+}
+
+void WaterVolume::setO2Callback(WaterVolumeO2Callback c)
+{
+    this->getO2 = c;
+}
+
+void WaterVolume::setTurbidityCallback(WaterVolumeTurbidityCallback c)
+{
+    this->getTurbidity = c;
 }
 
 WaterVolume::~WaterVolume ()
 {
 }
-
 
 void WaterVolume::step ()
 {

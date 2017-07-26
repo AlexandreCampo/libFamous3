@@ -55,7 +55,7 @@ aPad::~aPad()
 
 void aPad::addDevices () 
 {
-    // simplified actuator
+    // simplified actuator : left+right for rotation, and central for omnidirectional
     propellerLeft = new DevicePropeller (physicsBullet, body, 7);
     propellerLeft->setPosition(centerOfVolume + btVector3( 0, -dimensions[1] / 2.0, 0 ));
     propellerLeft->setOrientation(btQuaternion( 0, 0, 0 ));
@@ -75,8 +75,19 @@ void aPad::addDevices ()
 	propellerRight->setDrawable(false);
     }
     this->add(propellerRight);
+    
+    propellerCentral = new DevicePropeller (physicsBullet, body, 7);
+    propellerCentral->setPosition(centerOfVolume);
+    propellerCentral->setOrientation(btQuaternion( 0, 0, 0 ));
+    if (renderOSG)
+    {
+	propellerCentral->registerService(renderOSG);	
+	propellerCentral->setDrawable(false);
+    }
+    this->add(propellerCentral);
 
-    // 4 ballasts
+
+// 4 ballasts
     for (int i = 0; i < 4; i++)
     {
     	float neutralVolume = (1.0 / body->getInvMass()) / waterVolume->density;
@@ -100,13 +111,19 @@ void aPad::addDevices ()
 
     for (int i = 0; i < 4; i++)
     {
-	DeviceDocker* docker = new DeviceDocker (physicsBullet, body, 1.0, 0.3, 0.1, cfDetect, ctDetect, cfDocking, ctDocking);
-
+	DeviceDocker* docker = new DeviceDocker (physicsBullet, body, 1.5, 0.15, 0.1, M_PI/2.0, cfDetect, ctDetect, cfDocking, ctDocking);
+	
 	// 15 cm off the main body to avoid collisions between docked body and parent body
-    	btVector3 relpos = btVector3(0, dimensions[0] / 2.0 + 0.15, 0);
+    	btVector3 relpos = btVector3(dimensions[0] / 2.0 + 0.15, 0, 0);
     	btQuaternion rotation (btVector3(0,0,1), M_PI / 2.0 * i);
 	docker->setPosition(centerOfVolume + quatRotate (rotation, relpos));
-	docker->setOrientation(btQuaternion( 0, 0, 0 ));
+	docker->setOrientation(btQuaternion (btVector3(0,0,1), M_PI / 2.0 * i));
+
+	if (renderOSG)
+	{
+	    docker->registerService(renderOSG);	
+	}
+	
 	dockers.push_back(docker);
 	add(docker);
     }
@@ -164,6 +181,38 @@ void aPad::registerService (RenderOSG* r)
     RenderOSGInterface::transform->addChild (t);
     t->addChild (aPadNode);
     r->root->addChild(RenderOSGInterface::transform);
+
+    // text overlay for robot
+    text = r->createText(osg::Vec3(-dimensions[0], 0.0f, dimensions[2]), "", dimensions[0]/2);
+    textGeode = new osg::Geode;
+    textGeode->addDrawable( text );
+    textGeode->setNodeMask(0);
+
+    RenderOSGInterface::transform->addChild (textGeode);    
+}
+
+void aPad::setTextDrawable(bool d)
+{
+    if (renderOSG)
+    {
+	textGeode->setNodeMask(d);
+    }
+}
+    
+void aPad::setText(std::string s)
+{
+    if (renderOSG)
+    {
+	text->setText(s);
+    }
+}
+
+void aPad::setTextColor(float r, float g, float b, float a)
+{
+    if (renderOSG)
+    {
+	text->setColor(osg::Vec4(r, g, b, a));
+    }
 }
 
 void aPad::unregisterService (RenderOSG* r)
@@ -190,6 +239,13 @@ void aPad::setColor (float r, float g, float b, float a)
     this->colg = g;
     this->colb = b;
     this->cola = a;
+
+    if (renderOSG)
+    {
+	osg::ref_ptr<osg::Material> mat = new osg::Material;
+	mat->setDiffuse (osg::Material::FRONT_AND_BACK, osg::Vec4(colr, colg, colb, cola));
+	RenderOSGInterface::transform->getOrCreateStateSet()->setAttributeAndModes(mat, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
+    }    
 }
 
 void aPad::registerService (PhysicsBullet* p)
@@ -342,3 +398,4 @@ void aPad::updateInertiaTensor ()
     body->setMassProps (mass, m_inertia);
     body->updateInertiaTensor();
 }
+

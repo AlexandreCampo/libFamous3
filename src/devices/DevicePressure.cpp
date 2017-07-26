@@ -57,7 +57,7 @@ float DevicePressure::getValue()
     if (!calculated)
     {
 	btVector3 worldpos = body->getCenterOfMassTransform() * position;
-	float height = waterVolume->calculateHeight(worldpos, object->simulator->time);
+	float height = waterVolume->getHeight(worldpos, object->simulator->time);
 	
 	pressure = height * body->getGravity().getZ() * waterVolume->density;
 	

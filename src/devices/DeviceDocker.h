@@ -28,6 +28,9 @@
 
 #include <list>
 
+// store only one and same geometry for all such devices
+static osg::ref_ptr<osg::Node> deviceDockerNode = NULL;
+
 class DeviceDocker : public Device, public btBroadphaseAabbCallback, public RenderOSGInterface
 {
 public :
@@ -41,9 +44,12 @@ public :
 
     btRigidBody* collisionBody; 
     btCollisionShape* collisionShape;
-
+    btMatrix3x3 inverseLocalRotation;
+    
     float maxDockingRange;
     float maxDetectionRange;
+    float detectionAngle;
+    float cosDetectionAngle;
     float verticalTolerance;
 
     bool dockable = true;
@@ -56,8 +62,11 @@ public :
     
     DeviceDocker* docked = NULL;
     btFixedConstraint* constraint = NULL;
+
+    bool drawable = false;
+
     
-    DeviceDocker(PhysicsBullet* p, btRigidBody* b, float maxDetectionRange, float maxDockingRange, float verticalTolerance, int detectionCollisionFiler, int dockingCollisionFilter, int detectionCollisionType, int dockingCollisionType);
+    DeviceDocker(PhysicsBullet* p, btRigidBody* b, float maxDetectionRange, float maxDockingRange, float verticalTolerance, float detectionAngle, int detectionCollisionFiler, int dockingCollisionFilter, int detectionCollisionType, int dockingCollisionType);
     
     ~DeviceDocker();
 
@@ -80,6 +89,9 @@ public :
     void setDockable(bool d);
     bool isDockable();
 
+    void setDrawable(bool d);
+    bool isDrawable();
+    void registerService (RenderOSG* r);
     void draw (RenderOSG* r);
 };
 

@@ -65,7 +65,7 @@ void DeviceBallast::actionStep()
     btVector3 worldpos = body->getCenterOfMassTransform() * position;        
     
     // request water height at ballast position
-    float height = waterVolume->calculateHeight(worldpos, object->simulator->time);
+    float height = waterVolume->getHeight(worldpos, object->simulator->time);
     
     // calculate how much of the body is immersed
     float dmax = worldpos.getZ() + sphereRadius * actionCoefficient - height;

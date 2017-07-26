@@ -28,7 +28,7 @@
 #include <iostream>
 #include <typeinfo>
 
-DeviceDocker::DeviceDocker(PhysicsBullet* p, btRigidBody* b, float maxDetectionRange, float maxDockingRange, float verticalTolerance, int detectionCollisionFilter, int dockingCollisionFilter, int detectionCollisionType, int dockingCollisionType) : 
+DeviceDocker::DeviceDocker(PhysicsBullet* p, btRigidBody* b, float maxDetectionRange, float maxDockingRange, float verticalTolerance, float detectionAngle, int detectionCollisionFilter, int dockingCollisionFilter, int detectionCollisionType, int dockingCollisionType) : 
     btBroadphaseAabbCallback (),
     RenderOSGInterface()
 {
@@ -44,6 +44,8 @@ DeviceDocker::DeviceDocker(PhysicsBullet* p, btRigidBody* b, float maxDetectionR
     // create the collision body
     this->maxDockingRange = maxDockingRange;
     this->maxDetectionRange = maxDetectionRange;
+    this->detectionAngle = detectionAngle;
+    cosDetectionAngle = cos(detectionAngle);
     this->verticalTolerance = verticalTolerance;
 
     // collision shape/body for detection of other docker devices
@@ -121,9 +123,6 @@ btQuaternion DeviceDocker::getOrientation()
     return localTransform.getRotation();
 }
 
-void DeviceDocker::draw (RenderOSG* r)
-{   
-}
 
 btVector3 DeviceDocker::getClosestDockableDevice()
 {
@@ -139,6 +138,7 @@ std::vector<btVector3>& DeviceDocker::getDockableDevices()
 	// move the sensor in its place with local transform
 	btTransform t = parentBody->getWorldTransform() * localTransform;
 	collisionBody->setWorldTransform(t);
+	inverseLocalRotation = t.getBasis().transpose();
 	
 	// use the engine to make half work
 	btVector3 aabbMin,aabbMax;
@@ -165,7 +165,8 @@ bool DeviceDocker::dock()
     
     getDockableDevices();
 
-    if (closestDevice == NULL)
+    // within docking range
+    if (closestDeviceDistance >= maxDockingRange)
     {
 	return false;
     }
@@ -252,8 +253,18 @@ bool DeviceDocker::process (const btBroadphaseProxy *proxy)
 		    return true;
 		}
 
-		// TODO bring back the check when needed ...
-		
+		btVector3 diffnorm = diff / dist;
+		btVector3 wdir = collisionBody->getWorldTransform().getBasis().getColumn(0);
+    
+		float cosAngle = wdir.dot (diffnorm);
+    
+		// the device falls outside detection cone
+		if (cosAngle < cosDetectionAngle)
+		{
+		    return true;
+		}
+		    
+		// TODO bring back the check when needed ...		
 		// now check if inside the cylinder
 //		btVector3 localOther = self.inverse() * diff;
 //		if (fabs(localOther.getZ()) > verticalTolerance)
@@ -262,21 +273,25 @@ bool DeviceDocker::process (const btBroadphaseProxy *proxy)
 		//     return true;
 		// }
 	
+		
+		// tranform diff vector back into device local frame
+		btVector3 localDiff = inverseLocalRotation * diff;
+		
 		// found a dockable device, record ptr
-//		detectedDevices.push_back(d);
-		detectedPositions.push_back(diff);
-
+		detectedPositions.push_back(localDiff);
+		
 		// record the closest device
 		if (dist < closestDeviceDistance)
 		{
 		    closestDeviceDistance = dist;
-		    closestDeviceRelativePosition = diff;
+		    closestDeviceRelativePosition = localDiff;
 		    closestDevice = d;
 		}
 		
 	    }
 	}
-    }
+    }    
+
     return true;
 }
 
@@ -288,4 +303,84 @@ void DeviceDocker::setDockable(bool d)
 bool DeviceDocker::isDockable()
 {
     return dockable;
+}
+
+void DeviceDocker::setDrawable(bool d)
+{
+    drawable = d;
+    RenderOSGInterface::transform->setNodeMask(d);
+}
+
+bool DeviceDocker::isDrawable()
+{
+    return drawable;
+}
+
+void DeviceDocker::registerService (RenderOSG* r)
+{
+    RenderOSGInterface::registerService (r);
+
+    if (!deviceDockerNode)
+    {
+    	osg::ref_ptr<osg::Geode> geode; 
+    	osg::ref_ptr<osg::Cone> cone; 
+    	osg::ref_ptr<osg::ShapeDrawable> coneDrawable;
+
+	// arbitrary aperture angle... not yet known
+	float angle = 20.0 * M_PI / 180.0;
+	float radius = tan(angle) * maxDockingRange;
+    	cone = new osg::Cone(osg::Vec3(0,0,-maxDockingRange*3.0/4.0), radius, maxDockingRange); 
+    	coneDrawable = new osg::ShapeDrawable(cone); 
+    	geode = new osg::Geode; 
+    	geode->addDrawable(coneDrawable); 
+    	deviceDockerNode = geode;
+    }
+    
+    // one transform for spatial position, will be adjusted to data from physics engine
+    RenderOSGInterface::transform = new osg::MatrixTransform();
+
+    // setup rendering
+    
+    // rotate, translate, scale to device location
+    osg::ref_ptr<osg::PositionAttitudeTransform> t = new osg::PositionAttitudeTransform();
+    btVector3 p = localTransform.getOrigin();
+    t->setPosition(osg::Vec3d(p.x(), p.y(), p.z()));
+
+    btQuaternion bq;
+    localTransform.getBasis().getRotation(bq);
+
+    float angle = bq.getAngle();
+    btVector3 axis = bq.getAxis();
+    
+    osg::Quat q = osg::Quat (angle, osg::Vec3(axis.x(), axis.y(), axis.z())); 
+    q = osg::Quat (M_PI/4, osg::Vec3(1,1,1)); 
+    t->setAttitude(q);
+
+    osg::Quat q1 = osg::Quat( -M_PI/2.0, osg::Vec3(0,1,0) );
+    osg::Quat q2 = osg::Quat(angle, osg::Vec3(axis.x(), axis.y(), axis.z()));	
+    t->setAttitude(q1 * q2);
+
+    
+    t->addChild (deviceDockerNode);
+    RenderOSGInterface::transform->addChild (t);
+    renderOSG->root->addChild(RenderOSGInterface::transform);
+    
+    // disable rendering by default
+    RenderOSGInterface::transform->setNodeMask(0);
+    
+    osg::ref_ptr<osg::Material> mat = new osg::Material;
+    mat->setDiffuse (osg::Material::FRONT_AND_BACK, osg::Vec4(0.5, 0.5, 1, 0.2));
+    deviceDockerNode->getOrCreateStateSet()->setAttributeAndModes(mat, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);	    
+}
+
+void DeviceDocker::draw (RenderOSG* r)
+{
+    if (drawable)
+    {
+	btScalar ogl[16];
+	btTransform t = parentBody->getWorldTransform();
+	t.getOpenGLMatrix( ogl );
+	osg::Matrix m(ogl);
+	RenderOSGInterface::transform->setMatrix (m);
+    }
 }

@@ -52,6 +52,9 @@ public:
 
     std::string meshFilename;
 
+    osgText::Text* text;
+    osg::ref_ptr<osg::Geode> textGeode;
+
     /* DeviceMagicForce* magicForce; */
     /* DevicePropellers* propellers; */
     DeviceBallast* ballast;
@@ -100,6 +103,9 @@ public:
 
     void setColor (float r = 1, float g = 0, float b = 0, float a = 1);
 
+    void setTextDrawable(bool d);
+    void setText(std::string s);
+    void setTextColor(float r, float g, float b, float a = 1);
 
 
     // ================ Custom Physics ==============================

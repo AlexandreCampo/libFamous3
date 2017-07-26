@@ -48,9 +48,12 @@ public:
 
     
     std::string meshFilename;
+    osgText::Text* text;
+    osg::ref_ptr<osg::Geode> textGeode;
 
     DevicePropeller* propellerLeft;
     DevicePropeller* propellerRight;
+    DevicePropeller* propellerCentral;
 
     std::vector<DeviceBallast*> ballasts;
     
@@ -90,6 +93,9 @@ public:
     float getEmissionRange();
     void setEmissionRange(float r);
 
+    void setTextDrawable(bool d);
+    void setText(std::string s);
+    void setTextColor(float r, float g, float b, float a = 1);
 
     // ================ Custom Physics ==============================
     //
