@@ -46,6 +46,10 @@ public :
     float maxRange;
     float minElectrodeDistance = 0.01;
 
+    bool staticObject = false;
+    float dipolarResponse = 0;
+
+    
     DeviceElectricSense(PhysicsBullet* p, btRigidBody* b, btTransform t, int collisionFilter, int collisionType = 2^30, float maxRange = 1.0);
     ~DeviceElectricSense();
 
@@ -61,6 +65,10 @@ public :
     void draw (RenderOpenGL* r);
     void draw (RenderOSG* r);
 
+
+    void setStaticObject (float dipolarResponse);
+    void unsetStaticObject ();
+    
 
     // methods & members for e-sense calculations
     // ------------------------------------------

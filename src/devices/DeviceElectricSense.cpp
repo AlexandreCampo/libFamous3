@@ -122,6 +122,17 @@ bool DeviceElectricSense::receive (int& content)
 {
 }
 
+void DeviceElectricSense::setStaticObject (float dipolarResponse)
+{
+    this->dipolarResponse = dipolarResponse;
+    staticObject = true;
+}
+
+void DeviceElectricSense::unsetStaticObject ()
+{
+    staticObject = false;
+}
+
 void DeviceElectricSense::addElectrode(btVector3 position)
 {
     electrodePositions.push_back(position);
@@ -301,16 +312,34 @@ void DeviceElectricSense::addContribution(DeviceElectricSense* src, DeviceElectr
 
     // calculate contributions from each src electrode to all dst electrodes
     VectorXf contributions = VectorXf::Zero(dst->numElectrodes);
-    
-    for (unsigned int i = 0; i < dst->numElectrodes; ++i) 
+
+    // static object, single electrode
+    if (dst->staticObject)
     {
-	for (unsigned int j = 0; j < src->numElectrodes; ++j)
+	for (unsigned int i = 0; i < dst->numElectrodes; ++i) 
 	{
-	    btVector3 diff = dst->electrodePositionsTransformed[i] - src->electrodePositionsTransformed[j];
-	    float dist = diff.length();
-	    dist = std::max(dist, minElectrodeDistance);
-	    contributions(i) += ISrc(j) / dist;
-        }
+	    for (unsigned int j = 0; j < src->numElectrodes; ++j)
+	    {
+		btVector3 diff = dst->electrodePositionsTransformed[i] - src->electrodePositionsTransformed[0];
+		float dist = diff.length();
+		dist = std::max(dist, minElectrodeDistance);
+		contributions(i) += ISrc(j) / (dist * dist * dist);
+	    }
+	}
+    }
+    // normal device
+    else
+    {
+	for (unsigned int i = 0; i < dst->numElectrodes; ++i) 
+	{
+	    for (unsigned int j = 0; j < src->numElectrodes; ++j)
+	    {
+		btVector3 diff = dst->electrodePositionsTransformed[i] - src->electrodePositionsTransformed[j];
+		float dist = diff.length();
+		dist = std::max(dist, minElectrodeDistance);
+		contributions(i) += ISrc(j) / dist;
+	    }
+	}
     }
     
     contributions /= 4.0 * M_PI * gamma;

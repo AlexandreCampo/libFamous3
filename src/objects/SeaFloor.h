@@ -17,10 +17,11 @@
 /*    along with FaMouS.  If not, see <http://www.gnu.org/licenses/>.         */
 /*----------------------------------------------------------------------------*/
 
-#ifndef AQUARIUM_CIRCULAR_H
-#define AQUARIUM_CIRCULAR_H
+#ifndef SEA_FLOOR_H
+#define SEA_FLOOR_H
 
 #include "Object.h"
+#include "RenderOpenGLInterface.h"
 #include "RenderOSGInterface.h"
 #include "PhysicsBulletInterface.h"
 #include "WaterVolumeInterface.h"
@@ -30,7 +31,7 @@
 
 #include <vector>
 
-class AquariumCircular : public virtual Object, public PhysicsBulletInterface, public RenderOSGInterface, public WaterVolumeInterface
+class SeaFloor : public virtual Object, public PhysicsBulletInterface, public RenderOSGInterface, public WaterVolumeInterface
 {
 public:
 
@@ -38,21 +39,22 @@ public:
     float height;
 //    float width;
     float borderResolution;
-    /* btVector3 dimGround; */
-    /* btVector3 dimBorder; */
+//    btVector3 dimGround;
+//    btVector3 dimBorder;
 
     int displayList;
     std::vector<osg::ref_ptr<osg::PositionAttitudeTransform>> cubeTransforms;
+
+    osg::ref_ptr<osg::PositionAttitudeTransform> terrainTransform;
 
     // the aquarium is made of several boxes (ground, then walls around)
     std::vector<btCollisionShape*> shapes;
     std::vector<btRigidBody*> bodies;
 
-    AquariumCircular(float radius = 3.0, float height = 2.0, float resolution = 40.0);
-    ~AquariumCircular();
+    SeaFloor(float radius = 3.0, float height = 2.0, float resolution = 40.0);
+    ~SeaFloor();
 
     void draw (RenderOSG* r);
-    void buildDisplayList ();
 
     void registerService (PhysicsBullet* p);
     void unregisterService (PhysicsBullet* p);
@@ -62,6 +64,9 @@ public:
 
     void registerService (WaterVolume* r);
     void unregisterService (WaterVolume* r);
+
+    void setTerrain(std::string heightFilename, std::string textureFilename, btVector3 dims);
+    
 };
 
 #endif

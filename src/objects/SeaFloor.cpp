@@ -17,12 +17,13 @@
 /*    along with FaMouS.  If not, see <http://www.gnu.org/licenses/>.         */
 /*----------------------------------------------------------------------------*/
 
-#include "AquariumCircular.h"
+#include "SeaFloor.h"
 #include "Simulator.h"
 
 #include "BulletDynamics/Dynamics/btDynamicsWorld.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
+#include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "LinearMath/btDefaultMotionState.h"
 
 #include <osg/MatrixTransform>
@@ -37,20 +38,60 @@
 
 using namespace std;
 
-AquariumCircular::AquariumCircular (float radius, float height, float resolution) :
+class mhfshape : public btHeightfieldTerrainShape
+{
+public:
+
+    mhfshape	(
+    int 	heightStickWidth,
+    int 	heightStickLength,
+    const void * 	heightfieldData,
+    btScalar 	heightScale,
+    btScalar 	minHeight,
+    btScalar 	maxHeight,
+    int 	upAxis,
+    PHY_ScalarType 	heightDataType,
+    bool 	flipQuadEdges 
+    )		: btHeightfieldTerrainShape
+		  (
+		      heightStickWidth,
+		      heightStickLength,
+		      heightfieldData,
+		      heightScale,
+		      minHeight,
+		      maxHeight,
+		      upAxis,
+		      heightDataType,
+		      flipQuadEdges 
+		      )
+	{
+	}
+
+    void 	getVertex (int x, int y, btVector3 &vertex)
+	{
+	    return btHeightfieldTerrainShape::getVertex(x,y,vertex);
+	}
+    
+    btScalar getRawHeightFieldValue	(	int 	x,
+int 	y )
+	{
+	    return btHeightfieldTerrainShape::getRawHeightFieldValue(x,y);
+	}
+};
+
+
+SeaFloor::SeaFloor (float radius, float height, float resolution) :
     Object(),
     PhysicsBulletInterface(),
     RenderOSGInterface()
 {
     this->radius = radius;
     this->height = height;
-
-    // thickness is an obsolete parameter... not used anymore.
 //    this->width = thickness;
     this->borderResolution = resolution;
 
-    // dimGround.setX (radius * 2.0 + width);
-    // dimGround.setY (radius * 2.0 + width);
+    // dimGround.setX (radius);
+    // dimGround.setY (radius);
     // dimGround.setZ (width);
 
     // border component length is related to border perimeter
@@ -66,13 +107,174 @@ AquariumCircular::AquariumCircular (float radius, float height, float resolution
 }
 
 
-AquariumCircular::~AquariumCircular()
+SeaFloor::~SeaFloor()
 {
 
 }
 
+void SeaFloor::setTerrain(string heightFilename, string textureFilename, btVector3 dims)
+{
+    osg::Image* heightMap = osgDB::readImageFile(heightFilename);
+    
+    if (renderOSG)
+    {
+	
+	osg::HeightField* heightField = new osg::HeightField();
+	
+	heightField->allocate(heightMap->s(), heightMap->t());
+	heightField->setOrigin(osg::Vec3(-dims.x()/2, -dims.y()/2, 0));
+//    heightField->setOrigin(osg::Vec3(-heightMap->s() / 2, -heightMap->t() / 2, 0));
+	heightField->setXInterval(dims.x() / heightMap->s());
+	heightField->setYInterval(dims.y() / heightMap->t());
+	heightField->setSkirtHeight(0.0);
+//    heightField->setBorderWidth();
+	
+	for (int r = 0; r < heightField->getNumRows(); r++)
+	{
+	    for (int c = 0; c < heightField->getNumColumns(); c++)
+	    {
+		float height = (*heightMap->data(c, r)) / 255.0f * dims.z();
+		heightField->setHeight(c, r, height);
+	    }
+	}
+	
+	osg::Geode* geode = new osg::Geode();
+	geode->addDrawable(new osg::ShapeDrawable(heightField));
+	
+	osg::Texture2D* tex = new osg::Texture2D(osgDB::readImageFile(textureFilename));
+	tex->setFilter(osg::Texture2D::MIN_FILTER,osg::Texture2D::LINEAR_MIPMAP_LINEAR);
+	tex->setFilter(osg::Texture2D::MAG_FILTER,osg::Texture2D::LINEAR);
+	tex->setWrap(osg::Texture::WRAP_S, osg::Texture::REPEAT);
+	tex->setWrap(osg::Texture::WRAP_T, osg::Texture::REPEAT);
+	geode->getOrCreateStateSet()->setTextureAttributeAndModes(0, tex);
+		
+	RenderOSGInterface::transform->addChild (geode);
+    }
 
-void AquariumCircular::draw (RenderOSG* r)
+
+    // heightfield in bullet
+//    m_rawHeightfieldData = getRawHeightfieldData(m_model, m_type, m_minHeight, m_maxHeight);
+
+    float* data = new float [heightMap->s() * heightMap->t()];
+    int i = 0;
+    for (int r = 0; r < heightMap->s(); r++)
+    {
+	for (int c = 0; c < heightMap->t(); c++)
+	{
+	    float height = (*heightMap->data(c, r)) / 255.0f * dims.z();
+	    data[i++] = height;
+	}
+    }
+
+    
+    
+    bool flipQuadEdges = false;
+    mhfshape * heightfieldShape =
+	new mhfshape(heightMap->s(), heightMap->t(),
+				      data,
+				      dims.z(),
+				      0, dims.z(),
+				      2, PHY_FLOAT, false);
+
+        // btHeightfieldTerrainShape * heightfieldShape =
+	// new btHeightfieldTerrainShape(heightMap->s(), heightMap->t(),
+	// 			      data,
+	// 			      dims.z(),
+	// 			      0, dims.z(),
+	// 			      2, PHY_FLOAT, false);
+
+    // scale the shape
+//    btVector3 localScaling = getUpVector(m_upAxis, s_gridSpacing, 1.0);
+//    heightfieldShape->setLocalScaling(localScaling);
+//    btVector3 localScaling = getUpVector(m_upAxis, s_gridSpacing, 1.0);
+    float gridSpacing = 0.1;
+    heightfieldShape->setLocalScaling(btVector3(dims.x() / heightMap->s(), dims.y() / heightMap->t(), 1.0));
+//    heightfieldShape->setLocalScaling(btVector3(0.1, 0.1, 1.0));
+    
+    // stash this shape away
+//    m_collisionShapes.push_back(heightfieldShape);
+    
+    // set origin to middle of heightfield
+    btTransform tr;
+    tr.setIdentity();
+//    tr.setOrigin(btVector3(-dims.x()/2, -dims.y()/2, dims.z()/2));
+    tr.setOrigin(btVector3(0, 0, dims.z()/2));
+//    tr.setRotation(btQuaternion(btVector3(0,0,1), M_PI));
+//    tr.setOrigin(btVector3(-dims.x()/2, -dims.y()/2, dims.z()/2));
+    
+    // create ground object
+
+    btDefaultMotionState* myMotionState = new btDefaultMotionState(tr);
+    btVector3 localInertia(0,0,0);
+    btRigidBody::btRigidBodyConstructionInfo cInfo(0, myMotionState, heightfieldShape, localInertia);
+    btRigidBody* body = new btRigidBody(cInfo);
+//    body->setContactProcessingThreshold(m_defaultContactProcessingThreshold);
+
+//    body->setWorldTransform(tr);
+    
+    // body->setFriction(0.8);
+    // body->setHitFraction(0.8);
+    // body->setRestitution(0.6);
+//    body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
+//    body->setActivationState(DISABLE_DEACTIVATION);      
+//    PhysicsBulletInterface::physicsBullet->m_dynamicsWorld->addRigidBody(body, collisionType, collisionFilter);
+
+
+
+    PhysicsBulletInterface::physicsBullet->m_dynamicsWorld->addRigidBody(body);
+
+    float h = heightfieldShape->getRawHeightFieldValue(512,512);
+    std::cout << "HF center " << h << std::endl;
+    h = heightfieldShape->getRawHeightFieldValue(700,700);
+    std::cout << "HF top right " << h << std::endl;
+    h = heightfieldShape->getRawHeightFieldValue(300,300);
+    std::cout << "HF bottom left " << h << std::endl;
+    h = heightfieldShape->getRawHeightFieldValue(700,300);
+    std::cout << "HF top left " << h << std::endl;
+    h = heightfieldShape->getRawHeightFieldValue(300,700);
+    std::cout << "HF bottom right " << h << std::endl;
+
+    
+    btVector3 v;
+    int x, y;
+    x=512; y=512; heightfieldShape->getVertex (x, y, v);
+    std::cout << "HF x,y + vertex " << x << " " << y << " " << " | " << v.x() << " " << v.y() << " " << v.z() << std::endl;
+    x=700; y=700; heightfieldShape->getVertex (x, y, v);
+    std::cout << "HF x,y + vertex " << x << " " << y << " " << " | " << v.x() << " " << v.y() << " " << v.z() << std::endl;
+    x=300; y=300; heightfieldShape->getVertex (x, y, v);
+    std::cout << "HF x,y + vertex " << x << " " << y << " " << " | " << v.x() << " " << v.y() << " " << v.z() << std::endl;
+    x=0; y=0; heightfieldShape->getVertex (x, y, v);
+    std::cout << "HF x,y + vertex " << x << " " << y << " " << " | " << v.x() << " " << v.y() << " " << v.z() << std::endl;
+    x=1024; y=1024; heightfieldShape->getVertex (x, y, v);
+    std::cout << "HF x,y + vertex " << x << " " << y << " " << " | " << v.x() << " " << v.y() << " " << v.z() << std::endl;
+
+    
+	// CREATE A MESH
+    // btTriangleIndexVertexArray* meshInterface = new btTriangleIndexVertexArray();
+    // btIndexedMesh part;
+    
+    // part.m_vertexBase = (const unsigned char*)LandscapeVtx[i];
+    // part.m_vertexStride = sizeof(btScalar) * 3;
+    // part.m_numVertices = LandscapeVtxCount[i];
+    // part.m_triangleIndexBase = (const unsigned char*)LandscapeIdx[i];
+    // part.m_triangleIndexStride = sizeof( short) * 3;
+    // part.m_numTriangles = LandscapeIdxCount[i]/3;
+    // part.m_indexType = PHY_SHORT;
+    
+    // meshInterface->addIndexedMesh(part,PHY_SHORT);
+    
+    // bool	useQuantizedAabbCompression = true;
+    // btBvhTriangleMeshShape* trimeshShape = new btBvhTriangleMeshShape(meshInterface,useQuantizedAabbCompression);
+    // btVector3 localInertia(0,0,0);
+    // trans.setOrigin(btVector3(0,-25,0));
+    
+    // btRigidBody* body = createRigidBody(0,trans,trimeshShape);
+    // body->setFriction (btScalar(0.9));
+    
+}
+
+
+void SeaFloor::draw (RenderOSG* r)
 {
     // btScalar ogl[16];
     // btTransform t = body->getCenterOfMassTransform() * principalTransform.inverse();
@@ -93,18 +295,39 @@ void AquariumCircular::draw (RenderOSG* r)
 }
 
 
-void AquariumCircular::registerService(PhysicsBullet* p)
+void SeaFloor::registerService(PhysicsBullet* p)
 {
     PhysicsBulletInterface::registerService(p);
+
+    // create ground floor
+    // btStaticPlaneShape* groundShape = new btStaticPlaneShape (btVector3(0,0,1), 0);
+    // p->m_collisionShapes.push_back(groundShape);
+    // shapes.push_back(groundShape);
+    
+    // btTransform groundTransform;
+    // groundTransform.setIdentity();
+    
+    // btScalar mass(0.0);
+    // btVector3 localInertia(0,0,0);
+    
+    // btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
+    // btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
+    // btRigidBody* body = new btRigidBody(rbInfo);    
+    // body->setUserPointer((void*) static_cast<Object*>(this));
+    // p->m_dynamicsWorld->addRigidBody(body, collisionType, collisionFilter);
+    // bodies.push_back(body);
+
     
     // create the ground floor
     btStaticPlaneShape* groundShape = new btStaticPlaneShape(btVector3(0,0,1), 0);
+//    btBoxShape* groundShape = new btBoxShape(dimGround / 2.0);
     p->m_collisionShapes.push_back(groundShape);
     shapes.push_back(groundShape);
     
     btTransform groundTransform;
     groundTransform.setIdentity();
     groundTransform.setOrigin(btVector3(0.0, 0.0, 0.0));
+//    groundTransform.setOrigin(btVector3(0.0, 0.0, -dimGround.z() / 2.0));
     
     btScalar mass(0.0);
     btVector3 localInertia(0,0,0);
@@ -117,6 +340,7 @@ void AquariumCircular::registerService(PhysicsBullet* p)
     bodies.push_back(body);
 
     // create the ceiling
+//    btBoxShape* ceilingShape = new btBoxShape(dimGround / 2.0);
     btStaticPlaneShape* ceilingShape = new btStaticPlaneShape(btVector3(0,0,-1), 0);
     p->m_collisionShapes.push_back(ceilingShape);
     shapes.push_back(ceilingShape);
@@ -124,6 +348,7 @@ void AquariumCircular::registerService(PhysicsBullet* p)
     btTransform ceilingTransform;
     ceilingTransform.setIdentity();
     ceilingTransform.setOrigin(btVector3(0.0, 0.0, height));
+//    ceilingTransform.setOrigin(btVector3(0.0, 0.0, height + dimGround.z() / 2.0));
         
     btDefaultMotionState* myMotionState2 = new btDefaultMotionState(ceilingTransform);
     btRigidBody::btRigidBodyConstructionInfo rbInfo2(mass,myMotionState2,ceilingShape,localInertia);
@@ -138,8 +363,30 @@ void AquariumCircular::registerService(PhysicsBullet* p)
     float angleStep = 2.0 * M_PI / borderResolution;
     for (int i = 0; i < (int)borderResolution; i++)
     {
+	// btStaticPlaneShape* shape = new btStaticPlaneShape (btVector3(1,0,0), 0);
+
+	// // move the box in its right place...
+	// btTransform transform;
+	// transform.setIdentity();
+
+	// float x = cos(angle) * (radius + width / 2.0);
+	// float y = sin(angle) * (radius + width / 2.0);
+	// float z = height / 2.0;
+
+	// transform.setOrigin(btVector3(x, y, z));
+	// btQuaternion q(btVector3(0, 0, 1), angle + M_PI / 2.0);
+	// transform.setRotation(q);
+
+	
+	// p->m_collisionShapes.push_back(shape);
+	// shapes.push_back(shape);
+	
+
+
+	
 	// find out the correct x size...
 	btStaticPlaneShape* shape = new btStaticPlaneShape(btVector3(0,1,0), 0);
+//	btBoxShape* shape = new btBoxShape(dimBorder / 2.0);
 	p->m_collisionShapes.push_back(shape);
 	shapes.push_back(shape);
 
@@ -149,6 +396,8 @@ void AquariumCircular::registerService(PhysicsBullet* p)
 
 	float x = cos(angle) * radius;
 	float y = sin(angle) * radius;
+	// float x = cos(angle) * (radius + width / 2.0);
+	// float y = sin(angle) * (radius + width / 2.0);
 	float z = height / 2.0;
 
 	transform.setOrigin(btVector3(x, y, z));
@@ -169,12 +418,13 @@ void AquariumCircular::registerService(PhysicsBullet* p)
     }
 }
 
-void AquariumCircular::unregisterService(PhysicsBullet* p)
+void SeaFloor::unregisterService(PhysicsBullet* p)
 {
     
 }
 
-void AquariumCircular::registerService (RenderOSG* r)
+
+void SeaFloor::registerService (RenderOSG* r)
 {
     RenderOSGInterface::registerService(r);
 
@@ -280,10 +530,10 @@ void AquariumCircular::registerService (RenderOSG* r)
     // b3d->setColor (osg::Vec4(52.0 / 254.0, 93.0 / 254.0, 169.0 / 254.0, 1));
     // b4d->setColor (osg::Vec4(122.0 / 254.0, 85.0 / 254.0, 56.0 / 254.0, 1));
 
-    geode->addDrawable(b1d);
-    geode->addDrawable(b2d);
-    geode->addDrawable(b3d);
-    geode->addDrawable(b4d);
+    // geode->addDrawable(b1d);
+    // geode->addDrawable(b2d);
+    // geode->addDrawable(b3d);
+    // geode->addDrawable(b4d);
 
     node = geode;
     transform = new osg::MatrixTransform();
@@ -332,17 +582,17 @@ void AquariumCircular::registerService (RenderOSG* r)
     
 }
 
-void AquariumCircular::unregisterService (RenderOSG* r)
+void SeaFloor::unregisterService (RenderOSG* r)
 {
     RenderOSGInterface::unregisterService(r);
 }
 
-void AquariumCircular::registerService (WaterVolume* w)
+void SeaFloor::registerService (WaterVolume* w)
 {
     WaterVolumeInterface::registerService(w);
 }
 
-void AquariumCircular::unregisterService (WaterVolume* w)
+void SeaFloor::unregisterService (WaterVolume* w)
 {
     WaterVolumeInterface::unregisterService(w);
 }
