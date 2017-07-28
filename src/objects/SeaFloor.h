@@ -21,13 +21,13 @@
 #define SEA_FLOOR_H
 
 #include "Object.h"
-#include "RenderOpenGLInterface.h"
 #include "RenderOSGInterface.h"
 #include "PhysicsBulletInterface.h"
 #include "WaterVolumeInterface.h"
 
 #include "BulletDynamics/Dynamics/btDynamicsWorld.h"
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
+#include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 
 #include <vector>
 
@@ -37,17 +37,18 @@ public:
 
     float radius;
     float height;
-//    float width;
     float borderResolution;
-//    btVector3 dimGround;
-//    btVector3 dimBorder;
 
-    int displayList;
     std::vector<osg::ref_ptr<osg::PositionAttitudeTransform>> cubeTransforms;
 
-    osg::ref_ptr<osg::PositionAttitudeTransform> terrainTransform;
-
+    osg::ref_ptr<osg::Geode> heightFieldGeode;
+    osg::ref_ptr<osg::ShapeDrawable> heightFieldDrawable;    
+    osg::ref_ptr<osg::Texture2D> heightFieldTexture;
+    
     // the aquarium is made of several boxes (ground, then walls around)
+    float* heightFieldData = NULL;
+    btHeightfieldTerrainShape * heightFieldShape = NULL;
+    btRigidBody* heightFieldBody = NULL;
     std::vector<btCollisionShape*> shapes;
     std::vector<btRigidBody*> bodies;
 
