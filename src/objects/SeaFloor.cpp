@@ -113,11 +113,11 @@ void SeaFloor::setTerrain(string heightFilename, string textureFilename, btVecto
     btVector3 localInertia(0,0,0);
     btRigidBody::btRigidBodyConstructionInfo rbInfo(0, myMotionState, heightFieldShape, localInertia);
     //btRigidBody* body = new btRigidBody(cInfo);
-    body = new btRigidBody(rbInfo);
-    body->setUserPointer((void*) static_cast<Object*>(this));
+    heightFieldBody = new btRigidBody(rbInfo);
+    heightFieldBody->setUserPointer((void*) static_cast<Object*>(this));
 //    body->setMassProps (mass, localInertia);
 //    body->setActivationState(DISABLE_DEACTIVATION);
-    PhysicsBulletInterface::physicsBullet->m_dynamicsWorld->addRigidBody(body);
+    PhysicsBulletInterface::physicsBullet->m_dynamicsWorld->addRigidBody(heightFieldBody);
 
     // add to render if present
     if (renderOSG)
