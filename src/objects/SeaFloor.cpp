@@ -111,8 +111,12 @@ void SeaFloor::setTerrain(string heightFilename, string textureFilename, btVecto
     // create ground object
     btDefaultMotionState* myMotionState = new btDefaultMotionState(tr);
     btVector3 localInertia(0,0,0);
-    btRigidBody::btRigidBodyConstructionInfo cInfo(0, myMotionState, heightFieldShape, localInertia);
-    btRigidBody* body = new btRigidBody(cInfo);
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(0, myMotionState, heightFieldShape, localInertia);
+    //btRigidBody* body = new btRigidBody(cInfo);
+    body = new btRigidBody(rbInfo);
+    body->setUserPointer((void*) static_cast<Object*>(this));
+//    body->setMassProps (mass, localInertia);
+//    body->setActivationState(DISABLE_DEACTIVATION);
     PhysicsBulletInterface::physicsBullet->m_dynamicsWorld->addRigidBody(body);
 
     // add to render if present
